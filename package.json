@@ -1,0 +1,40 @@
+{
+    "name": "nuthatch",
+    "version": "1.0.0",
+    "description": "A 3D viewer",
+    "private": true,
+    "scripts": {
+        "build": "webpack --config ./src/client/webpack.prod.js",
+        "dev": "webpack serve --config ./src/client/webpack.dev.js",
+        "start": "echo \"Error: no real server implemented\" && exit 1",
+        "test": "mocha --require ts-node/register --watch-extensions ts test/**/*ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/psandahl/nuthatch.git"
+    },
+    "author": "Patrik Sandahl",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/psandahl/nuthatch/issues"
+    },
+    "homepage": "https://github.com/psandahl/nuthatch#readme",
+    "dependencies": {
+        "@types/dat.gui": "^0.7.7",
+        "@types/three": "^0.133.1",
+        "three": "^0.133.1"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.2.22",
+        "@types/mocha": "^9.0.0",
+        "chai": "^4.3.4",
+        "mocha": "^9.1.3",
+        "ts-loader": "^9.2.6",
+        "ts-node": "^10.4.0",
+        "typescript": "^4.4.3",
+        "webpack": "^5.58.1",
+        "webpack-cli": "^4.9.0",
+        "webpack-dev-server": "^4.3.1",
+        "webpack-merge": "^5.8.0"
+    }
+}
