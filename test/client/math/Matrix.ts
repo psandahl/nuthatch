@@ -1,7 +1,7 @@
 import {
     matrixEulerEcef4,
     decomposeMatrixEulerEcef4,
-} from '../../../src/client/math/matrix';
+} from '../../../src/client/math/Matrix';
 
 import * as Three from 'three';
 

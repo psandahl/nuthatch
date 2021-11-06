@@ -1,7 +1,7 @@
 import * as Three from 'three';
 import { degToRad, radToDeg } from 'three/src/math/MathUtils';
 
-import { aspectRatioFromFov } from '../math/helpers';
+import { aspectRatioFromFov } from '../math/Helpers';
 
 /**
  * Mode of the camera; adapting to the canvas or strictly adapting

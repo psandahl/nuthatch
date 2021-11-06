@@ -1,9 +1,9 @@
 import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
-import { CameraMode, SceneCamera } from './render/sceneCamera';
-import { SceneRenderer } from './render/sceneRenderer';
-import { calculateDrawingArea, fullDrawingArea } from './render/drawingArea';
+import { CameraMode, SceneCamera } from './render/SceneCamera';
+import { SceneRenderer } from './render/SceneRenderer';
+import { calculateDrawingArea, fullDrawingArea } from './render/DrawingArea';
 
 window.onload = async () => {
     const scene = new Three.Scene();

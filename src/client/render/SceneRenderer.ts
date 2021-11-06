@@ -1,5 +1,5 @@
 import * as Three from 'three';
-import { DrawingArea, fullDrawingArea } from './drawingArea';
+import { DrawingArea, fullDrawingArea } from './DrawingArea';
 
 /**
  * A renderer specialized for rendereing the scene. It is adapted for a
