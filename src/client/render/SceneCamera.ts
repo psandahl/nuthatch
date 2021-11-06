@@ -23,11 +23,11 @@ export class SceneCamera extends Three.PerspectiveCamera {
      */
     constructor(mode: CameraMode = CameraMode.CanvasAdapting) {
         super(50.0, 1.0, 0.1, 2000);
-        this.mode = mode;
-        this.hFov = degToRad(50.0);
-        this.vFov = degToRad(50.0);
-        this.canvasWidth = 1.0;
-        this.canvasHeight = 1.0;
+        this._mode = mode;
+        this._hFov = degToRad(50.0);
+        this._vFov = degToRad(50.0);
+        this._canvasWidth = 1.0;
+        this._canvasHeight = 1.0;
     }
 
     /**
@@ -36,9 +36,9 @@ export class SceneCamera extends Three.PerspectiveCamera {
      * @param canvasHeight The new canvas height
      */
     public resize(canvasWidth: number, canvasHeight: number): void {
-        this.canvasWidth = canvasWidth;
-        this.canvasHeight = canvasHeight;
-        if (this.mode == CameraMode.CanvasAdapting) {
+        this._canvasWidth = canvasWidth;
+        this._canvasHeight = canvasHeight;
+        if (this._mode == CameraMode.CanvasAdapting) {
             // Only change aspect ratio if in canvas adapting mode.
             this.aspect = canvasWidth / canvasHeight;
             this.updateProjectionMatrix();
@@ -50,7 +50,7 @@ export class SceneCamera extends Three.PerspectiveCamera {
      * @returns The mode
      */
     public getMode(): CameraMode {
-        return this.mode;
+        return this._mode;
     }
 
     /**
@@ -58,15 +58,15 @@ export class SceneCamera extends Three.PerspectiveCamera {
      * @param mode The mode
      */
     public setMode(mode: CameraMode): void {
-        if (this.mode != mode) {
+        if (this._mode != mode) {
             // Make sure we are switching mode.
-            this.mode = mode;
+            this._mode = mode;
             switch (mode) {
                 case CameraMode.CanvasAdapting:
-                    this.aspect = this.canvasWidth / this.canvasHeight;
+                    this.aspect = this._canvasWidth / this._canvasHeight;
                     break;
                 case CameraMode.CameraAdapting:
-                    this.aspect = aspectRatioFromFov(this.hFov, this.vFov);
+                    this.aspect = aspectRatioFromFov(this._hFov, this._vFov);
                     break;
             }
             this.updateProjectionMatrix();
@@ -78,7 +78,7 @@ export class SceneCamera extends Three.PerspectiveCamera {
      * @returns The current field of view in radians [hFov, vFov]
      */
     public getFov(): [number, number] {
-        return [this.hFov, this.vFov];
+        return [this._hFov, this._vFov];
     }
 
     /**
@@ -88,9 +88,9 @@ export class SceneCamera extends Three.PerspectiveCamera {
      */
     public setFov(hFov: number, vFov: number): void {
         this.fov = radToDeg(vFov);
-        this.hFov = hFov;
-        this.vFov = vFov;
-        if (this.mode == CameraMode.CameraAdapting) {
+        this._hFov = hFov;
+        this._vFov = vFov;
+        if (this._mode == CameraMode.CameraAdapting) {
             // Only change aspect ratio if in camera adapting mode.
             this.aspect = aspectRatioFromFov(hFov, vFov);
         }
@@ -124,9 +124,9 @@ export class SceneCamera extends Three.PerspectiveCamera {
         this.updateProjectionMatrix();
     }
 
-    private mode: CameraMode;
-    private hFov: number;
-    private vFov: number;
-    private canvasWidth: number;
-    private canvasHeight: number;
+    private _mode: CameraMode;
+    private _hFov: number;
+    private _vFov: number;
+    private _canvasWidth: number;
+    private _canvasHeight: number;
 }
