@@ -4,6 +4,7 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { CameraMode, SceneCamera } from './render/SceneCamera';
 import { SceneRenderer } from './render/SceneRenderer';
 import { calculateDrawingArea, fullDrawingArea } from './render/DrawingArea';
+import { TexturedFullscreenQuad } from './render/TexturedFullsrceenQuad';
 
 window.onload = async () => {
     const scene = new Three.Scene();
@@ -18,6 +19,9 @@ window.onload = async () => {
     const mat = new Three.MeshBasicMaterial({ color: 0xffff00 });
     const box = new Three.Mesh(geo, mat);
     scene.add(box);
+
+    const texturedQuad = new TexturedFullscreenQuad();
+    scene.add(texturedQuad.mesh());
 
     const stats = Stats();
     document.body.appendChild(stats.dom);
@@ -69,6 +73,8 @@ window.onload = async () => {
                     camera.getAspectRatio()
                 )
             );
+        } else if (event.code == 'KeyR') {
+            texturedQuad.updateColor(new Three.Vector3().random());
         }
     };
 };
