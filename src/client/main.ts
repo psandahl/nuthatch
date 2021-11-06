@@ -1,17 +1,16 @@
 import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
+import { CameraMode, SceneCamera } from './render/sceneCamera';
 import { SceneRenderer } from './render/sceneRenderer';
-import { fullDrawingArea } from './render/drawingArea';
+import { calculateDrawingArea, fullDrawingArea } from './render/drawingArea';
 
 window.onload = async () => {
     const scene = new Three.Scene();
-    const camera = new Three.PerspectiveCamera(
-        45,
-        window.innerWidth / window.innerHeight,
-        1.0,
-        100
-    );
+    const camera = new SceneCamera();
+    camera.resize(window.innerWidth, window.innerHeight);
+    camera.setFov(1.0, 0.7);
+
     camera.position.z = 5;
     const renderer = new SceneRenderer();
 
@@ -29,11 +28,47 @@ window.onload = async () => {
     });
 
     window.onresize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
+        camera.resize(window.innerWidth, window.innerHeight);
 
-        renderer.setDrawingArea(
-            fullDrawingArea(window.innerWidth, window.innerHeight)
-        );
+        switch (camera.getMode()) {
+            case CameraMode.CanvasAdapting:
+                renderer.setDrawingArea(
+                    fullDrawingArea(window.innerWidth, window.innerHeight)
+                );
+                break;
+            case CameraMode.CameraAdapting:
+                renderer.setDrawingArea(
+                    calculateDrawingArea(
+                        window.innerWidth,
+                        window.innerHeight,
+                        camera.getAspectRatio()
+                    )
+                );
+                break;
+        }
+    };
+
+    window.onkeydown = (event: KeyboardEvent) => {
+        if (event.code == 'ArrowUp') {
+            const [hFov, vFov] = camera.getFov();
+            camera.setFov(hFov * 1.05, vFov * 1.05);
+        } else if (event.code == 'ArrowDown') {
+            const [hFov, vFov] = camera.getFov();
+            camera.setFov(hFov * 0.95, vFov * 0.95);
+        } else if (event.code == 'KeyC') {
+            camera.setMode(CameraMode.CanvasAdapting);
+            renderer.setDrawingArea(
+                fullDrawingArea(window.innerWidth, window.innerHeight)
+            );
+        } else if (event.code == 'KeyS') {
+            camera.setMode(CameraMode.CameraAdapting);
+            renderer.setDrawingArea(
+                calculateDrawingArea(
+                    window.innerWidth,
+                    window.innerHeight,
+                    camera.getAspectRatio()
+                )
+            );
+        }
     };
 };
