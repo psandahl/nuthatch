@@ -59,3 +59,32 @@ export function decomposeMatrixEulerEcef4(
         Math.atan2(matrix.elements[9], matrix.elements[10]),
     ];
 }
+
+/**
+ * Create a projection matrix.
+ * @param hFov Horizontal fov in radians
+ * @param vFov Vertical fov in radians
+ * @param near The near plane
+ * @param far The far plane
+ * @returns A projection matrix.
+ */
+export function matrixProjection4(
+    hFov: number,
+    vFov: number,
+    near: number,
+    far: number
+): Three.Matrix4 {
+    const matrix = new Three.Matrix4();
+    const horizontal = near * Math.tan(hFov / 2.0);
+    const vertical = near * Math.tan(vFov / 2.0);
+    matrix.makePerspective(
+        -horizontal,
+        horizontal,
+        vertical,
+        -vertical,
+        near,
+        far
+    );
+
+    return matrix;
+}
