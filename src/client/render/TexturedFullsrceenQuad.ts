@@ -1,5 +1,10 @@
 import * as Three from 'three';
 
+/**
+ * A textured fullscreen quad, which can have its texture updated and be
+ * accompanied with projection and distortion information so that
+ * images can be undistorted.
+ */
 export class TexturedFullscreenQuad {
     /**
      * Create a textured fullscreen quad.
@@ -7,24 +12,13 @@ export class TexturedFullscreenQuad {
     constructor() {
         const positions = [
             // From upper left position and then ccw.
-            -1.0, 1.0, 0.0,
+            -1.0, 1.0, 1.0,
 
-            -1.0, -1.0, 0.0,
+            -1.0, -1.0, 1.0,
 
-            1.0, -1.0, 0.0,
+            1.0, -1.0, 1.0,
 
-            1.0, 1.0, 0.0,
-        ];
-
-        const uvs = [
-            // From upper left position and then ccw.
-            0.0, 1.0,
-
-            0.0, 0.0,
-
-            1.0, 0.0,
-
-            1.0, 1.0,
+            1.0, 1.0, 1.0,
         ];
 
         const indices = [0, 1, 3, 3, 1, 2];
@@ -36,10 +30,15 @@ export class TexturedFullscreenQuad {
             'position',
             new Three.BufferAttribute(new Float32Array(positions), 3)
         );
-        geometry.setAttribute(
-            'uv',
-            new Three.BufferAttribute(new Float32Array(uvs), 2)
-        );
+
+        // Texture.
+        const texture = new Three.Texture();
+        texture.wrapS = Three.ClampToEdgeWrapping;
+        texture.wrapT = Three.ClampToEdgeWrapping;
+        texture.generateMipmaps = true;
+        texture.magFilter = Three.LinearFilter;
+        texture.minFilter = Three.LinearMipMapLinearFilter;
+        texture.needsUpdate = true;
 
         // Material.
         const material = new Three.RawShaderMaterial({
@@ -48,7 +47,10 @@ export class TexturedFullscreenQuad {
             depthTest: false,
             depthWrite: false,
             uniforms: {
-                uColor: { value: new Three.Vector3(0.0, 0.3, 0.0) },
+                uProjection: { value: new Three.Matrix4() },
+                uInverseProjection: { value: new Three.Matrix4() },
+                uCoeff: { value: new Three.Vector3() },
+                uTexture: { value: texture },
             },
         });
 
@@ -65,10 +67,31 @@ export class TexturedFullscreenQuad {
         return this._mesh;
     }
 
-    // Dummy for now!
-    public updateColor(color: Three.Vector3): void {
+    /**
+     * Update the quad with new camera metadata.
+     * @param projection The projection matrix
+     * @param inverseProjection The inverse projection matrix
+     * @param coeff The distortion coeffients
+     */
+    public updataCameraMetadata(
+        projection: Three.Matrix4,
+        inverseProjection: Three.Matrix4,
+        coeff: Three.Vector3
+    ): void {
         const material = this._mesh.material as Three.RawShaderMaterial;
-        material.uniforms.uColor.value = color;
+        material.uniforms.uProjection.value = projection;
+        material.uniforms.uInverseProjection.value = inverseProjection;
+        material.uniforms.uCoeff.value = coeff;
+    }
+
+    /**
+     * Update the quad with a new image.
+     * @param image The image
+     */
+    public updateTexture(image: HTMLImageElement): void {
+        const material = this._mesh.material as Three.RawShaderMaterial;
+        material.uniforms.uTexture.value.image = image;
+        material.uniforms.uTexture.value.needsUpdate = true;
     }
 
     private _mesh: Three.Mesh;
@@ -76,12 +99,11 @@ export class TexturedFullscreenQuad {
     // Vertex shader source.
     private readonly vertexSource = `#version 300 es
 layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 uv;
 
-out vec2 vUv;
+out vec3 vPosition;
 
-void main() {
-    vUv = uv;
+void main() {    
+    vPosition = position;
     gl_Position = vec4(position, 1.0);
 }`;
 
@@ -89,12 +111,42 @@ void main() {
     private readonly fragmentSource = `#version 300 es
 precision highp float;
 
-uniform vec3 uColor;
+uniform mat4 uProjection;
+uniform mat4 uInverseProjection;
+uniform vec3 uCoeff;
+uniform sampler2D uTexture;
 
-in vec2 vUv;
+in vec3 vPosition;
 out vec4 color;
 
 void main() {
-    color = vec4(uColor, 1.0);
+    vec2 uv0 = vPosition.xy * 0.5 + 0.5;
+    vec4 cam = uInverseProjection * vec4(vPosition, 1.0);
+    cam /= cam.w;
+    cam /= cam.z;
+
+    float r = length(cam.xy);
+    float r2 = r * r;
+    float r3 = r2 * r;
+    float r4 = r2 * r2;
+
+    float k2 = uCoeff.x;
+    float k3 = uCoeff.y;
+    float k4 = uCoeff.z;
+
+    float scale = 1.0 + (r2 * k2 + r3 * k3 + r4 * k4);
+    cam.xyz *= scale;
+    cam.z = 1.0;
+
+    vec4 pos1 = uProjection * cam;
+    vec2 uv1 = -pos1.xy * 0.5 + 0.5; // Why need to flip?
+
+    float u = abs(uv0.x - uv1.x);
+    float v = abs(uv0.y - uv1.y);
+
+    color = vec4(u, v, 0.0, 1.0);
+    //color = vec4(uv0.x, uv0.y, 0.0, 1.0);
+    //color = vec4(uv1.x, uv1.y, 0.0, 1.0);
+    //color = vec4(r, 0.0, 0.0, 1.0);
 }`;
 }

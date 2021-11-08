@@ -21,6 +21,11 @@ window.onload = async () => {
     scene.add(box);
 
     const texturedQuad = new TexturedFullscreenQuad();
+    texturedQuad.updataCameraMetadata(
+        camera.projectionMatrix,
+        camera.projectionMatrixInverse,
+        new Three.Vector3(1.5, 0.0, 0.0)
+    );
     scene.add(texturedQuad.mesh());
 
     const stats = Stats();
@@ -73,8 +78,6 @@ window.onload = async () => {
                     camera.getAspectRatio()
                 )
             );
-        } else if (event.code == 'KeyR') {
-            texturedQuad.updateColor(new Three.Vector3().random());
         }
     };
 };
