@@ -33,22 +33,22 @@ export function ndcToUv(ndc: Three.Vector2): Three.Vector2 {
 
 /**
  * Undistort a UV coordinate.
- * @param proj The projection matrix
- * @param projInv The inverted projection matrix
+ * @param projection The projection matrix
+ * @param inverseProjection The inverse projection matrix
  * @param uv The distorted UV coordinate
  * @param coeff The distortion coefficients k2, k3 and k4
  * @returns The undistorted UV coordinate.
  */
 export function undistortUv(
-    proj: Three.Matrix4,
-    projInv: Three.Matrix4,
+    projection: Three.Matrix4,
+    inverseProjection: Three.Matrix4,
     uv: Three.Vector2,
     coeff: Three.Vector3
 ): Three.Vector2 {
     const ndc2 = uvToNdc(uv);
     const ndc = new Three.Vector3(ndc2.x, ndc2.y, 1.0);
 
-    const cam = ndc.applyMatrix4(projInv);
+    const cam = ndc.applyMatrix4(inverseProjection);
     // Normalize by length.
     cam.multiplyScalar(1.0 / cam.z);
 
@@ -67,6 +67,6 @@ export function undistortUv(
     // Set depth to 1.
     cam.z = 1.0;
 
-    const adjNdc = cam.applyMatrix4(proj);
+    const adjNdc = cam.applyMatrix4(projection);
     return ndcToUv(new Three.Vector2(adjNdc.x, adjNdc.y));
 }
