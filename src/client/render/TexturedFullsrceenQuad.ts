@@ -119,13 +119,13 @@ uniform sampler2D uTexture;
 in vec3 vPosition;
 out vec4 color;
 
-void main() {
+void main() {    
     vec2 uv0 = vPosition.xy * 0.5 + 0.5;
-    vec4 cam = uInverseProjection * vec4(vPosition, 1.0);
-    cam /= cam.w;
-    cam /= cam.z;
+    vec4 viewSpace = uInverseProjection * vec4(vPosition, 1.0);
+    //viewSpace /= viewSpace.w;
+    viewSpace /= -viewSpace.z;
 
-    float r = length(cam.xy);
+    float r = length(viewSpace.xy);
     float r2 = r * r;
     float r3 = r2 * r;
     float r4 = r2 * r2;
@@ -135,16 +135,17 @@ void main() {
     float k4 = uCoeff.z;
 
     float scale = 1.0 + (r2 * k2 + r3 * k3 + r4 * k4);
-    cam.xyz *= scale;
-    cam.z = 1.0;
+    viewSpace.xyz *= scale;
+    viewSpace.z = 1.0;
 
-    vec4 pos1 = uProjection * cam;
-    vec2 uv1 = -pos1.xy * 0.5 + 0.5; // Why need to flip?
+    vec4 pos1 = uProjection * viewSpace;
+    vec2 uv1 = pos1.xy * 0.5 + 0.5;
 
     float u = abs(uv0.x - uv1.x);
     float v = abs(uv0.y - uv1.y);
 
     color = vec4(u, v, 0.0, 1.0);
+
     //color = vec4(uv0.x, uv0.y, 0.0, 1.0);
     //color = vec4(uv1.x, uv1.y, 0.0, 1.0);
     //color = vec4(r, 0.0, 0.0, 1.0);
