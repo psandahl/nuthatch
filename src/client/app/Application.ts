@@ -1,7 +1,7 @@
 /**
  * Interface giving the basic contract for an application.
  */
-export interface IApplication {
+export interface Application {
     /**
      * Notification to render the screen.
      */

@@ -1,13 +1,13 @@
 import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
-import { IApplication } from './IApplication';
+import { Application } from './Application';
 import { CameraMode, SceneCamera } from '../render/SceneCamera';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { calculateDrawingArea, fullDrawingArea } from '../render/DrawingArea';
 import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
 
-export class LabApplication implements IApplication {
+export class LabApplication implements Application {
     public constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
