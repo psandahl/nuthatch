@@ -2,12 +2,14 @@ import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import { Application } from './Application';
-import { CameraMode, SceneCamera } from '../render/SceneCamera';
-import { SceneRenderer } from '../render/SceneRenderer';
 import { calculateDrawingArea, fullDrawingArea } from '../render/DrawingArea';
+import { CameraMode, SceneCamera } from '../render/SceneCamera';
+import { fetchImage } from '../data/Load';
+import { ImageReceiver } from './ImageReceiver';
+import { SceneRenderer } from '../render/SceneRenderer';
 import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
 
-export class LabApplication implements Application {
+export class LabApplication implements Application, ImageReceiver {
     public constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
@@ -29,13 +31,13 @@ export class LabApplication implements Application {
         const box = new Three.Mesh(geo, mat);
         this.scene.add(box);
 
-        const texturedQuad = new TexturedFullscreenQuad();
-        texturedQuad.updataCameraMetadata(
+        this.texturedQuad = new TexturedFullscreenQuad();
+        this.texturedQuad.updataCameraMetadata(
             this.sceneCamera.projectionMatrix,
             this.sceneCamera.projectionMatrixInverse,
-            new Three.Vector3(1.5, 0.0, 0.0)
+            new Three.Vector3(0.0, 0.0, 0.0)
         );
-        this.scene.add(texturedQuad.mesh());
+        this.scene.add(this.texturedQuad.mesh());
 
         window.onkeydown = (event: KeyboardEvent) => {
             if (event.code == 'KeyC') {
@@ -46,6 +48,8 @@ export class LabApplication implements Application {
                 this.resize(this.width, this.height);
             }
         };
+
+        fetchImage(1, 'images/city.jpg', this);
     }
 
     public render(): void {
@@ -69,10 +73,25 @@ export class LabApplication implements Application {
         this.sceneRenderer.setDrawingArea(drawingArea);
     }
 
+    public receiveImageSuccessed(
+        image: HTMLImageElement,
+        id: number,
+        url: string
+    ): void {
+        this.texturedQuad.updateTexture(image);
+    }
+
+    public receiveImageFailed(id: number, url: string): void {
+        console.warn(
+            `Failed to fetch image from url ${url} with request id ${id}`
+        );
+    }
+
     private width: number;
     private height: number;
     private scene: Three.Scene;
     private sceneCamera: SceneCamera;
     private sceneRenderer: SceneRenderer;
+    private texturedQuad: TexturedFullscreenQuad;
     private stats: Stats;
 }

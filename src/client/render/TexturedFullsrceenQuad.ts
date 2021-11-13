@@ -141,10 +141,13 @@ void main() {
     vec4 pos1 = uProjection * viewSpace;
     vec2 uv1 = pos1.xy * 0.5 + 0.5;
 
-    float u = abs(uv0.x - uv1.x);
-    float v = abs(uv0.y - uv1.y);
+    if (uv1.x < 0.0 || uv1.x > 1.0 || uv1.y < 0.0 || uv1.y > 1.0) discard;
+    color = vec4(texture(uTexture, uv1).rgb, 1.0);
 
-    color = vec4(u, v, 0.0, 1.0);
+    //float u = abs(uv0.x - uv1.x);
+    //float v = abs(uv0.y - uv1.y);
+
+    //color = vec4(u, v, 0.0, 1.0);
 
     //color = vec4(uv0.x, uv0.y, 0.0, 1.0);
     //color = vec4(uv1.x, uv1.y, 0.0, 1.0);
