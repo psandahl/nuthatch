@@ -20,6 +20,7 @@
     },
     "homepage": "https://github.com/psandahl/nuthatch#readme",
     "dependencies": {
+        "3d-tiles-renderer": "^0.3.3",
         "@types/dat.gui": "^0.7.7",
         "@types/three": "^0.133.1",
         "three": "^0.133.1"
