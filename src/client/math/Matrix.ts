@@ -61,6 +61,33 @@ export function decomposeMatrixEulerEcef4(
 }
 
 /**
+ * Transform a matrix from ECEF reference frame to NED.
+ * @returns A transform matrix from ECEF to NED.
+ */
+export function matrixEcefToNed4(): Three.Matrix4 {
+    return matrixEulerEcef4(0.0, Math.PI, 0.0);
+}
+
+/**
+ * Transform a matrix from NED reference frame to OpenGL.
+ * @returns A transform matrix from NED to OpenGL.
+ */
+export function matrixNedToGl4(): Three.Matrix4 {
+    return matrixEulerEcef4(-Math.PI / 2.0, Math.PI / 2.0, 0.0);
+}
+
+/**
+ * Transform a matrix from ECEF reference frame to OpenGL.
+ * @returns A transform matrix from ECEF to GL viewspace.
+ */
+export function matrixEcefToGl4(): Three.Matrix4 {
+    return new Three.Matrix4().multiplyMatrices(
+        matrixEcefToNed4(),
+        matrixNedToGl4()
+    );
+}
+
+/**
  * Create a projection matrix.
  * @param hFov Horizontal fov in radians
  * @param vFov Vertical fov in radians
