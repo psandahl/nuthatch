@@ -87,6 +87,19 @@ export function matrixEcefToGl4(): Three.Matrix4 {
     );
 }
 
+export function matrixLookAtEcef4(
+    position: Three.Vector3,
+    at: Three.Vector3,
+    up: Three.Vector3
+): Three.Matrix4 {
+    // In ECEF camera the view is along negative x.
+    const x = at.clone().sub(position).normalize().negate();
+    const y = up.clone().cross(x).normalize();
+    const z = new Three.Vector3().crossVectors(x, y).normalize();
+
+    return new Three.Matrix4().makeBasis(x, y, z);
+}
+
 /**
  * Create a projection matrix.
  * @param hFov Horizontal fov in radians
