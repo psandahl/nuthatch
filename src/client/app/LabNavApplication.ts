@@ -3,6 +3,7 @@ import * as Three from 'three';
 import * as Mat from '../math/Matrix';
 
 import { Application } from './Application';
+import { MouseTerrainNavigator } from '../render/MouseTerrainNavigator';
 
 export class LabNavApplication implements Application {
     constructor(width: number, height: number) {
@@ -12,23 +13,13 @@ export class LabNavApplication implements Application {
         this.renderer.setSize(width, height);
         document.body.appendChild(this.renderer.domElement);
 
-        this.camera = new Three.PerspectiveCamera(
-            45,
-            width / height,
+        this.navigator = new MouseTerrainNavigator(
+            50,
             0.1,
-            100.0
+            1000.0,
+            this.renderer.domElement
         );
-
-        // Basic Ecef view.
-        this.camera.position.x = 5;
-        this.camera.position.z = 1;
-        const rot = new Three.Matrix4().multiplyMatrices(
-            Mat.matrixEulerEcef4(0.0, 0.0, 0.0),
-            Mat.matrixEcefToGl4()
-        );
-        this.camera.setRotationFromMatrix(rot);
-
-        this.camera.updateMatrixWorld();
+        this.navigator.setPose(new Three.Vector3(5, 0, 1), new Three.Vector3());
 
         const axes = new Three.AxesHelper(1.0);
 
@@ -36,16 +27,16 @@ export class LabNavApplication implements Application {
     }
 
     public render(): void {
-        this.renderer.render(this.scene, this.camera);
+        this.navigator.updateCamera();
+        this.renderer.render(this.scene, this.navigator.getCamera());
     }
 
     public resize(width: number, height: number): void {
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
+        this.navigator.setSize(width, height);
         this.renderer.setSize(width, height);
     }
 
     private scene: Three.Scene;
     private renderer: Three.WebGLRenderer;
-    private camera: Three.PerspectiveCamera;
+    private navigator: MouseTerrainNavigator;
 }
