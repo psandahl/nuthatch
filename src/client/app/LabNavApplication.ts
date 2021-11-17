@@ -1,7 +1,5 @@
 import * as Three from 'three';
 
-import * as Mat from '../math/Matrix';
-
 import { Application } from './Application';
 import { MouseTerrainNavigator } from '../render/MouseTerrainNavigator';
 

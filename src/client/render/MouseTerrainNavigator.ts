@@ -45,6 +45,11 @@ export class MouseTerrainNavigator implements TerrainNavigator {
     public setPose(position: Three.Vector3, orientation: Three.Vector3): void {
         this.position = position;
         this.orientation = orientation;
+        this.ecefRotation = matrixEulerEcef4(
+            this.orientation.x,
+            this.orientation.y,
+            this.orientation.z
+        );
     }
 
     /**
