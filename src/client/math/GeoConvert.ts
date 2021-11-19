@@ -14,10 +14,10 @@ export class GeoConvert {
     /**
      * Convert from ECEF to WGS84.
      * @param position The position x, y, z
-     * @returns The position lon, lat, h
+     * @returns The position lat, lon, h
      */
     public ecefToWgs84(position: Three.Vector3): Three.Vector3 {
-        const [lat, lon, h] = this.converter.forward([
+        const [lon, lat, h] = this.converter.forward([
             position.x,
             position.y,
             position.z,
@@ -32,8 +32,8 @@ export class GeoConvert {
      */
     public wgs84ToEcef(position: Three.Vector3): Three.Vector3 {
         const [x, y, z] = this.converter.inverse([
-            position.x,
             position.y,
+            position.x,
             position.z,
         ]);
         return new Three.Vector3(x, y, z);
