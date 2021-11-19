@@ -17,17 +17,17 @@ export class GeoConvert {
      * @returns The position lon, lat, h
      */
     public ecefToWgs84(position: Three.Vector3): Three.Vector3 {
-        const [lon, lat, h] = this.converter.forward([
+        const [lat, lon, h] = this.converter.forward([
             position.x,
             position.y,
             position.z,
         ]);
-        return new Three.Vector3(lon, lat, h);
+        return new Three.Vector3(lat, lon, h);
     }
 
     /**
      * Convert from WGS84 to ECEF.
-     * @param position The position lon, lat, h
+     * @param position The position lat, lon, h
      * @returns The position x, y, z
      */
     public wgs84ToEcef(position: Three.Vector3): Three.Vector3 {
