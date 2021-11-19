@@ -1,6 +1,8 @@
 import * as Three from 'three';
 
 import { Application } from './Application';
+import { GeoConvert } from '../math/GeoConvert';
+import { matrixLocalNed4 } from '../math/Matrix';
 import { MouseTerrainNavigator } from '../render/MouseTerrainNavigator';
 
 export class LabNavApplication implements Application {
@@ -20,8 +22,16 @@ export class LabNavApplication implements Application {
         this.navigator.setPose(new Three.Vector3(5, 0, 1), new Three.Vector3());
 
         const axes = new Three.AxesHelper(1.0);
+        //this.scene.add(axes);
 
-        this.scene.add(axes);
+        const converter = new GeoConvert();
+        const mat = matrixLocalNed4(
+            new Three.Vector3(-2206719.103843, -4878960.298373, 3459402.703715),
+            converter
+        );
+        const ned = new Three.AxesHelper(1.0);
+        ned.setRotationFromMatrix(mat);
+        this.scene.add(ned);
     }
 
     public render(): void {

@@ -1,4 +1,6 @@
 import * as Three from 'three';
+import { degToRad } from 'three/src/math/MathUtils';
+import { GeoConvert } from './GeoConvert';
 
 /**
  * Create a yaw, pitch, roll rotation matrix for an ECEF reference frame.
@@ -127,4 +129,30 @@ export function matrixProjection4(
     );
 
     return matrix;
+}
+
+/**
+ * Create a local NED system for the given position.
+ * @param position The ECEF position
+ * @param converter The GeoConverter
+ * @returns A basis matrix for the local NED system.
+ */
+export function matrixLocalNed4(
+    position: Three.Vector3,
+    converter: GeoConvert
+): Three.Matrix4 {
+    const wgs84 = converter.ecefToWgs84(position);
+    const lat = degToRad(wgs84.x);
+    const lon = degToRad(wgs84.y);
+
+    const cosLat = Math.cos(lat);
+    const sinLat = Math.sin(lat);
+    const cosLon = Math.cos(lon);
+    const sinLon = Math.sin(lon);
+
+    const north = new Three.Vector3(-sinLat * cosLon, -sinLat * sinLon, cosLat);
+    const east = new Three.Vector3(-sinLon, cosLon, 0.0);
+    const down = new Three.Vector3(-cosLat * cosLon, -cosLat * sinLon, -sinLat);
+
+    return new Three.Matrix4().makeBasis(north, east, down);
 }
