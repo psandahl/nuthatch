@@ -3,7 +3,7 @@ import * as Three from 'three';
 import { Application } from './Application';
 import { GeoConvert } from '../math/GeoConvert';
 import { matrixLocalNed4 } from '../math/Matrix';
-import { MouseTerrainNavigator } from '../render/MouseTerrainNavigator';
+import { ExploringWorldNavigator } from '../render/ExploringWorldNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
 
 export class LabNavApplication implements Application {
@@ -14,25 +14,24 @@ export class LabNavApplication implements Application {
         this.renderer.setSize(width, height);
         document.body.appendChild(this.renderer.domElement);
 
-        this.navigator = new MouseTerrainNavigator(
+        this.navigator = new ExploringWorldNavigator(
             50,
             0.1,
             1000.0,
             this.renderer.domElement
         );
-        this.navigator.setPose(new Three.Vector3(5, 0, 1), new Three.Vector3());
 
         const axes = new Three.AxesHelper(1.0);
-        //this.scene.add(axes);
+        this.scene.add(axes);
 
-        const converter = new GeoConvert();
+        /*const converter = new GeoConvert();
         const mat = matrixLocalNed4(
             new Three.Vector3(-2206719.103843, -4878960.298373, 3459402.703715),
             converter
         );
         const ned = new Three.AxesHelper(1.0);
         ned.setRotationFromMatrix(mat);
-        this.scene.add(ned);
+        this.scene.add(ned);*/
     }
 
     public render(): void {
@@ -47,5 +46,5 @@ export class LabNavApplication implements Application {
 
     private scene: Three.Scene;
     private renderer: SceneRenderer;
-    private navigator: MouseTerrainNavigator;
+    private navigator: ExploringWorldNavigator;
 }

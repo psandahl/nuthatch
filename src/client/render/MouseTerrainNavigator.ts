@@ -2,12 +2,12 @@ import * as Three from 'three';
 
 import { DrawingArea, fullDrawingArea } from './DrawingArea';
 import { matrixEulerEcef4, matrixEcefToGl4 } from '../math/Matrix';
-import { TerrainNavigator } from './TerrainNavigator';
+import { WorldNavigator } from './WorldNavigator';
 
 /**
  * A mouse navigator for navigating the terrain. Navigates in ECEF.
  */
-export class MouseTerrainNavigator implements TerrainNavigator {
+export class MouseTerrainNavigator implements WorldNavigator {
     /**
      * Construct a new mouse terrain navigator.
      * @param vFov Vertical field of view - in degrees
@@ -45,7 +45,12 @@ export class MouseTerrainNavigator implements TerrainNavigator {
      * @param position The ECEF position of the camera
      * @param orientation The ECEF Euler angles for the camera
      */
-    public setPose(position: Three.Vector3, orientation: Three.Vector3): void {
+    public setView(
+        position: Three.Vector3,
+        orientation: Three.Vector3,
+        hFov: number,
+        vFov: number
+    ): void {
         this.position = position;
         this.orientation = orientation;
         this.ecefRotation = matrixEulerEcef4(

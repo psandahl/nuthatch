@@ -89,15 +89,22 @@ export function matrixEcefToGl4(): Three.Matrix4 {
     );
 }
 
-export function matrixLookAtEcef4(
+/**
+ * Create a NED rotation matrix in ECEF (forward is x).
+ * @param position The ECEF position
+ * @param at The ECEF position where to look
+ * @param up The up direction
+ * @returns The rotation matrix.
+ */
+export function matrixLookAtNed4(
     position: Three.Vector3,
     at: Three.Vector3,
     up: Three.Vector3
 ): Three.Matrix4 {
-    // In ECEF camera the view is along negative x.
-    const x = at.clone().sub(position).normalize().negate();
-    const y = up.clone().cross(x).normalize();
-    const z = new Three.Vector3().crossVectors(x, y).normalize();
+    // In ECEF, but with NED axis.
+    const x = at.clone().sub(position).normalize();
+    const y = x.clone().cross(up).normalize();
+    const z = new Three.Vector3().crossVectors(y, x).normalize().negate();
 
     return new Three.Matrix4().makeBasis(x, y, z);
 }
