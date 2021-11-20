@@ -1,5 +1,6 @@
 import * as Three from 'three';
 
+import { DrawingArea, fullDrawingArea } from './DrawingArea';
 import { matrixEulerEcef4, matrixEcefToGl4 } from '../math/Matrix';
 import { TerrainNavigator } from './TerrainNavigator';
 
@@ -20,6 +21,8 @@ export class MouseTerrainNavigator implements TerrainNavigator {
         far: number,
         canvas: HTMLCanvasElement
     ) {
+        this.width = canvas.width;
+        this.height = canvas.height;
         this.camera = new Three.PerspectiveCamera(
             vFov,
             canvas.width / canvas.height,
@@ -70,8 +73,18 @@ export class MouseTerrainNavigator implements TerrainNavigator {
      * @param height The new height
      */
     public setSize(width: number, height: number): void {
+        this.width = width;
+        this.height = height;
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
+    }
+
+    /**
+     * Get the drawing area for the navigator.
+     * @returns The drawing area.
+     */
+    public getDrawingArea(): DrawingArea {
+        return fullDrawingArea(this.width, this.height);
     }
 
     /**
@@ -125,6 +138,8 @@ export class MouseTerrainNavigator implements TerrainNavigator {
         return x.negate();
     }
 
+    private width: number;
+    private height: number;
     private camera: Three.PerspectiveCamera;
     private position: Three.Vector3;
     private orientation: Three.Vector3;

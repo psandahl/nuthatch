@@ -4,12 +4,13 @@ import { Application } from './Application';
 import { GeoConvert } from '../math/GeoConvert';
 import { matrixLocalNed4 } from '../math/Matrix';
 import { MouseTerrainNavigator } from '../render/MouseTerrainNavigator';
+import { SceneRenderer } from '../render/SceneRenderer';
 
 export class LabNavApplication implements Application {
     constructor(width: number, height: number) {
         this.scene = new Three.Scene();
 
-        this.renderer = new Three.WebGLRenderer();
+        this.renderer = new SceneRenderer();
         this.renderer.setSize(width, height);
         document.body.appendChild(this.renderer.domElement);
 
@@ -41,10 +42,10 @@ export class LabNavApplication implements Application {
 
     public resize(width: number, height: number): void {
         this.navigator.setSize(width, height);
-        this.renderer.setSize(width, height);
+        this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
     private scene: Three.Scene;
-    private renderer: Three.WebGLRenderer;
+    private renderer: SceneRenderer;
     private navigator: MouseTerrainNavigator;
 }
