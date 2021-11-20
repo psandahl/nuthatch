@@ -4,12 +4,15 @@ import {
     matrixEcefToNed4,
     matrixEcefToGl4,
     matrixNedToGl4,
+    matrixLocalNed4,
 } from '../../../src/client/math/Matrix';
 
 import * as Three from 'three';
 
 import { describe } from 'mocha';
 import { expect } from 'chai';
+import { GeoConvert } from '../../../src/client/math/GeoConvert';
+import { degToRad } from '../../../src/client/math/Helpers';
 
 describe('matrix tests', () => {
     // Suite to test ECEF rotations.
@@ -203,6 +206,67 @@ describe('matrix tests', () => {
             expect(glZ.x).to.be.closeTo(ecefX.x, Number.EPSILON);
             expect(glZ.y).to.be.closeTo(ecefX.y, Number.EPSILON);
             expect(glZ.z).to.be.closeTo(ecefX.z, Number.EPSILON);
+        });
+    });
+
+    describe('matrixLocalNed4', () => {
+        const converter = new GeoConvert();
+        const north = new Three.Vector3();
+        const east = new Three.Vector3();
+        const down = new Three.Vector3();
+
+        it('ned at lat:0 lon:0', () => {
+            const ecef = converter.wgs84ToEcef(new Three.Vector3(0, 0, 0));
+            const mat = matrixLocalNed4(ecef, converter);
+            mat.extractBasis(north, east, down);
+
+            expect(north.x).to.be.closeTo(0.0, Number.EPSILON);
+            expect(north.y).to.be.closeTo(0.0, Number.EPSILON);
+            expect(north.z).to.be.closeTo(1.0, Number.EPSILON);
+
+            expect(east.x).to.be.closeTo(0.0, Number.EPSILON);
+            expect(east.y).to.be.closeTo(1.0, Number.EPSILON);
+            expect(east.z).to.be.closeTo(0.0, Number.EPSILON);
+
+            expect(down.x).to.be.closeTo(-1.0, Number.EPSILON);
+            expect(down.y).to.be.closeTo(0.0, Number.EPSILON);
+            expect(down.z).to.be.closeTo(0.0, Number.EPSILON);
+        });
+
+        it('ned at lat:0 lon:90', () => {
+            const ecef = converter.wgs84ToEcef(new Three.Vector3(0, 90, 0));
+            const mat = matrixLocalNed4(ecef, converter);
+            mat.extractBasis(north, east, down);
+
+            expect(north.x).to.be.closeTo(0.0, Number.EPSILON);
+            expect(north.y).to.be.closeTo(0.0, Number.EPSILON);
+            expect(north.z).to.be.closeTo(1.0, Number.EPSILON);
+
+            expect(east.x).to.be.closeTo(-1.0, Number.EPSILON);
+            expect(east.y).to.be.closeTo(0.0, Number.EPSILON);
+            expect(east.z).to.be.closeTo(0.0, Number.EPSILON);
+
+            expect(down.x).to.be.closeTo(0.0, Number.EPSILON);
+            expect(down.y).to.be.closeTo(-1.0, Number.EPSILON);
+            expect(down.z).to.be.closeTo(0.0, Number.EPSILON);
+        });
+
+        it('ned at lat:58 lon:14', () => {
+            const ecef = converter.wgs84ToEcef(new Three.Vector3(58, 14, 0));
+            const mat = matrixLocalNed4(ecef, converter);
+            mat.extractBasis(north, east, down);
+
+            const z = new Three.Vector3(0.0, 0.0, 1.0);
+            const up = down.clone().negate();
+            const angleLat = Math.acos(z.dot(up));
+            expect(angleLat).to.be.closeTo(degToRad(90 - 58), Number.EPSILON);
+
+            const normal = ecef.clone().normalize();
+            expect(normal.dot(down)).to.be.closeTo(-1.0, 0.00001);
+
+            expect(north.dot(down)).to.be.closeTo(0.0, Number.EPSILON);
+            expect(north.dot(east)).to.be.closeTo(0.0, Number.EPSILON);
+            expect(east.dot(down)).to.be.closeTo(0.0, Number.EPSILON);
         });
     });
 });
