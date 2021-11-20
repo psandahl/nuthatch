@@ -31,7 +31,7 @@ export class ExploringWorldNavigator implements WorldNavigator {
         this.position = new Three.Vector3();
         this.orientation = new Three.Matrix4();
         this.lookAt(
-            new Three.Vector3(5, 0, 1),
+            new Three.Vector3(5, 0, 0),
             new Three.Vector3(0, 0, 0),
             new Three.Vector3(0, 0, 1)
         );

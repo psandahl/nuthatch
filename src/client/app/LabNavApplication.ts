@@ -24,14 +24,14 @@ export class LabNavApplication implements Application {
         const axes = new Three.AxesHelper(1.0);
         this.scene.add(axes);
 
-        /*const converter = new GeoConvert();
-        const mat = matrixLocalNed4(
-            new Three.Vector3(-2206719.103843, -4878960.298373, 3459402.703715),
-            converter
-        );
+        const converter = new GeoConvert();
+        const geoC = converter.wgs84ToEcef(new Three.Vector3(0, 0, 0));
+        console.log(geoC);
+
+        const mat = matrixLocalNed4(geoC, converter);
         const ned = new Three.AxesHelper(1.0);
         ned.setRotationFromMatrix(mat);
-        this.scene.add(ned);*/
+        //this.scene.add(ned);
     }
 
     public render(): void {
