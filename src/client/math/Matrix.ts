@@ -1,5 +1,6 @@
 import * as Three from 'three';
-import { degToRad } from 'three/src/math/MathUtils';
+
+import { degToRad } from './Helpers';
 import { GeoConvert } from './GeoConvert';
 
 /**
