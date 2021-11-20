@@ -31,7 +31,7 @@ export class ExploringWorldNavigator implements WorldNavigator {
         this.position = new Three.Vector3();
         this.orientation = new Three.Matrix4();
         this.lookAt(
-            new Three.Vector3(5, 0, 0),
+            new Three.Vector3(5, 0, 1),
             new Three.Vector3(0, 0, 0),
             new Three.Vector3(0, 0, 1)
         );
@@ -54,14 +54,6 @@ export class ExploringWorldNavigator implements WorldNavigator {
     ): void {
         this.position = position;
         this.orientation = matrixLookAtNed4(position, at, up);
-
-        console.log(this.orientation);
-        console.log(
-            new Three.Matrix4().multiplyMatrices(
-                this.orientation,
-                matrixNedToGl4()
-            )
-        );
     }
 
     public setSize(width: number, height: number): void {
@@ -82,16 +74,10 @@ export class ExploringWorldNavigator implements WorldNavigator {
             this.position.z
         );
 
-        /*const matrix = new Three.Matrix4().multiplyMatrices(
+        const matrix = new Three.Matrix4().multiplyMatrices(
             this.orientation,
             matrixNedToGl4()
-        );*/
-        const matrix = new Three.Matrix4().makeBasis(
-            new Three.Vector3(0, 1, 0),
-            new Three.Vector3(0, 0, 1),
-            new Three.Vector3(1, 0, 0)
         );
-        //console.log(matrix);
         this.camera.setRotationFromMatrix(matrix);
         this.camera.updateMatrixWorld();
     }
