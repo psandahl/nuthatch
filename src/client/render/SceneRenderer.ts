@@ -16,7 +16,7 @@ export class SceneRenderer extends Three.WebGLRenderer {
             logarithmicDepthBuffer: true,
         });
         this.setScissorTest(true);
-        this.setClearColor(new Three.Color(0.0, 0.0, 0.3));
+        this.setClearColor(new Three.Color(0.0, 0.0, 0.1));
         this.setPixelRatio(window.devicePixelRatio);
         this.domElement.tabIndex = 1;
 

@@ -1,6 +1,7 @@
 import * as Three from 'three';
 
 import { Application } from './Application';
+import { earthRadius } from '../math/Helpers';
 import { GeoConvert } from '../math/GeoConvert';
 import { matrixLocalNed4 } from '../math/Matrix';
 import { ExploringWorldNavigator } from '../render/ExploringWorldNavigator';
@@ -16,26 +17,26 @@ export class LabNavApplication implements Application {
 
         this.navigator = new ExploringWorldNavigator(
             50,
-            0.1,
-            1000.0,
+            1.0,
+            earthRadius() * 6.0,
             this.renderer.domElement
         );
 
-        const axes = new Three.AxesHelper(1.0);
-        this.scene.add(axes);
+        this.converter = new GeoConvert();
+        this.localAxes = new Three.AxesHelper(1.0);
+        this.updateLocalAxes();
+        this.scene.add(this.localAxes);
 
-        const converter = new GeoConvert();
-        const geoC = converter.wgs84ToEcef(new Three.Vector3(0, 0, 0));
-        console.log(geoC);
-
-        const mat = matrixLocalNed4(geoC, converter);
-        const ned = new Three.AxesHelper(1.0);
-        ned.setRotationFromMatrix(mat);
-        //this.scene.add(ned);
+        const sphereGeometry = new Three.SphereGeometry(earthRadius());
+        const sphereMaterial = new Three.MeshBasicMaterial({ color: 0x000088 });
+        const sphere = new Three.Mesh(sphereGeometry, sphereMaterial);
+        this.scene.add(sphere);
     }
 
     public render(): void {
         this.navigator.updateCamera();
+        this.updateLocalAxes();
+
         this.renderer.render(this.scene, this.navigator.getCamera());
     }
 
@@ -44,7 +45,33 @@ export class LabNavApplication implements Application {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
+    private pointAlongCameraAxis(): Three.Vector3 {
+        const direction = new Three.Vector3();
+        this.navigator.getCamera().getWorldDirection(direction);
+
+        return this.navigator
+            .getCamera()
+            .position.clone()
+            .addScaledVector(direction, 5.0);
+    }
+
+    private updateLocalAxes(): void {
+        const axesPosition = this.pointAlongCameraAxis();
+        this.localAxes.position.set(
+            axesPosition.x,
+            axesPosition.y,
+            axesPosition.z
+        );
+
+        this.localAxes.setRotationFromMatrix(
+            matrixLocalNed4(axesPosition, this.converter)
+        );
+        this.localAxes.updateMatrixWorld();
+    }
+
     private scene: Three.Scene;
     private renderer: SceneRenderer;
     private navigator: ExploringWorldNavigator;
+    private converter: GeoConvert;
+    private localAxes: Three.AxesHelper;
 }

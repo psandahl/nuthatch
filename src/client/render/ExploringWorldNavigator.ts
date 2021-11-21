@@ -1,6 +1,7 @@
 import * as Three from 'three';
 
 import { DrawingArea, fullDrawingArea } from './DrawingArea';
+import { earthRadius } from '../math/Helpers';
 import { matrixNedToGl4, matrixLookAtNed4 } from '../math/Matrix';
 import { WorldNavigator } from './WorldNavigator';
 
@@ -28,11 +29,11 @@ export class ExploringWorldNavigator implements WorldNavigator {
         );
         this.camera.updateProjectionMatrix();
 
-        this.position = new Three.Vector3();
+        this.position = new Three.Vector3(earthRadius() * 5, 0.0, 0.0);
         this.orientation = new Three.Matrix4();
         this.lookAt(
-            new Three.Vector3(5, 0, 0),
-            new Three.Vector3(0, 0, 0),
+            this.position,
+            new Three.Vector3(0, earthRadius(), 0),
             new Three.Vector3(0, 0, 1)
         );
         this.updateCamera();
