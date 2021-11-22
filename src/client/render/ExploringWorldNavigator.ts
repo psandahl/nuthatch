@@ -33,10 +33,12 @@ export class ExploringWorldNavigator implements WorldNavigator {
         this.orientation = new Three.Matrix4();
         this.lookAt(
             this.position,
-            new Three.Vector3(0, earthRadius(), 0),
+            new Three.Vector3(0, 0, 0),
             new Three.Vector3(0, 0, 1)
         );
         this.updateCamera();
+
+        canvas.onwheel = this.wheelHandler.bind(this);
     }
 
     public setView(
@@ -85,6 +87,17 @@ export class ExploringWorldNavigator implements WorldNavigator {
 
     public getCamera(): Three.PerspectiveCamera {
         return this.camera;
+    }
+
+    private wheelHandler(event: WheelEvent): void {
+        // Fake at the moment.
+        const heightAboveEllipsoid = this.position.length() - earthRadius();
+        const stride = Math.max(1.0, heightAboveEllipsoid / 10.0);
+        const direction = event.deltaY < 0 ? 1.0 : -1.0;
+        this.position.addScaledVector(
+            this.camera.getWorldDirection(new Three.Vector3()),
+            direction * stride
+        );
     }
 
     private width: number;
