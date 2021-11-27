@@ -29,10 +29,10 @@ export class ExploringWorldNavigator implements WorldNavigator {
         );
         this.camera.updateProjectionMatrix();
 
-        this.position = new Three.Vector3(earthRadius() * 5, 0.0, 0.0);
+        this.position = new Three.Vector3();
         this.orientation = new Three.Matrix4();
         this.lookAt(
-            this.position,
+            new Three.Vector3(earthRadius() * 5, 0.0, 0.0),
             new Three.Vector3(0, 0, 0),
             new Three.Vector3(0, 0, 1)
         );
@@ -66,7 +66,7 @@ export class ExploringWorldNavigator implements WorldNavigator {
         up: Three.Vector3
     ): void {
         this.position = position;
-        this.orientation = matrixLookAtNed4(position, at, up);
+        this.orientation = new Three.Matrix4().lookAt(position, at, up);
     }
 
     public setSize(width: number, height: number): void {
@@ -87,11 +87,7 @@ export class ExploringWorldNavigator implements WorldNavigator {
             this.position.z
         );
 
-        const matrix = new Three.Matrix4().multiplyMatrices(
-            this.orientation,
-            matrixNedToGl4()
-        );
-        this.camera.setRotationFromMatrix(matrix);
+        this.camera.setRotationFromMatrix(this.orientation);
         this.camera.updateMatrixWorld();
     }
 
@@ -145,6 +141,14 @@ export class ExploringWorldNavigator implements WorldNavigator {
                 event.clientY
             );
 
+            const rotationAxis = new Three.Vector3(0, 1, 1).normalize();
+            const rotationMatrix = new Three.Matrix4().makeRotationAxis(
+                rotationAxis,
+                degToRad(0.5)
+            );
+            this.position.applyMatrix4(rotationMatrix);
+            this.orientation.premultiply(rotationMatrix);
+
             this.panMousePosition = newMousePosition;
         }
     }
@@ -168,8 +172,7 @@ export class ExploringWorldNavigator implements WorldNavigator {
     // The navigators ECEF position.
     private position: Three.Vector3;
 
-    // Matrix carrying the orientation for the navigator. It's a NED matrix
-    // operating within an ECEF frame.
+    // Matrix carrying the orientation for the navigator.
     private orientation: Three.Matrix4;
 
     private panMousePosition?: Three.Vector2;
