@@ -141,7 +141,34 @@ export class ExploringWorldNavigator implements WorldNavigator {
                 event.clientY
             );
 
-            const rotationAxis = new Three.Vector3(0, 1, 1).normalize();
+            // Create a local NED system point in the direction of the camera (or cam
+            // up direction if looking towards center of earth).
+            const down = this.position.clone().normalize().negate();
+            const [camForward, camUp] = this.cameraForwardAndUp();
+            const dForward = Math.abs(down.dot(camForward));
+            const dUp = Math.abs(down.dot(camUp));
+
+            // TODO.
+            var forward = dForward < dUp ? camForward : camUp;
+            const right = new Three.Vector3().crossVectors(down, forward);
+            forward = new Three.Vector3().crossVectors(right, down);
+
+            const mouseVector = new Three.Vector2().subVectors(
+                newMousePosition,
+                this.panMousePosition
+            );
+
+            const mouseAngle =
+                Math.atan2(mouseVector.y, mouseVector.x) + Math.PI / 2.0;
+            forward.applyAxisAngle(down, mouseAngle);
+
+            const approxPosition = this.position
+                .clone()
+                .addScaledVector(forward, 1000.0);
+            const rotationAxis = new Three.Vector3()
+                .crossVectors(approxPosition, this.position)
+                .normalize();
+
             const rotationMatrix = new Three.Matrix4().makeRotationAxis(
                 rotationAxis,
                 degToRad(0.5)
@@ -150,6 +177,8 @@ export class ExploringWorldNavigator implements WorldNavigator {
             this.orientation.premultiply(rotationMatrix);
 
             this.panMousePosition = newMousePosition;
+
+            this.camera.updateMatrixWorld();
         }
     }
 
@@ -158,6 +187,15 @@ export class ExploringWorldNavigator implements WorldNavigator {
 
         console.log('Mouse leave canvas');
         this.panMousePosition = undefined;
+    }
+
+    private cameraForwardAndUp(): [Three.Vector3, Three.Vector3] {
+        const camX = new Three.Vector3();
+        const camY = new Three.Vector3();
+        const camZ = new Three.Vector3();
+        this.camera.matrixWorld.extractBasis(camX, camY, camZ);
+
+        return [camZ.negate(), camY];
     }
 
     // The current width of the rendering canvas.
