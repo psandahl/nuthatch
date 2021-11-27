@@ -27,9 +27,12 @@ export class LabNavApplication implements Application {
         this.updateLocalAxes();
         this.scene.add(this.localAxes);
 
+        const textureLoader = new Three.TextureLoader();
+        const earth = textureLoader.load('/images/earth_texture.png');
         const sphereGeometry = new Three.SphereGeometry(earthRadius());
-        const sphereMaterial = new Three.MeshBasicMaterial({ color: 0x000088 });
+        const sphereMaterial = new Three.MeshBasicMaterial({ map: earth });
         const sphere = new Three.Mesh(sphereGeometry, sphereMaterial);
+        sphere.rotateX(Math.PI / 2);
         this.scene.add(sphere);
     }
 

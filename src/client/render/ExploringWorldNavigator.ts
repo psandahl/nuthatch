@@ -1,7 +1,7 @@
 import * as Three from 'three';
 
 import { DrawingArea, fullDrawingArea } from './DrawingArea';
-import { earthRadius } from '../math/Helpers';
+import { degToRad, earthRadius, radToDeg } from '../math/Helpers';
 import { matrixNedToGl4, matrixLookAtNed4 } from '../math/Matrix';
 import { WorldNavigator } from './WorldNavigator';
 
@@ -38,7 +38,17 @@ export class ExploringWorldNavigator implements WorldNavigator {
         );
         this.updateCamera();
 
-        canvas.onwheel = this.wheelHandler.bind(this);
+        this.panMousePosition = undefined;
+
+        // Set mouse listeners.
+        canvas.onwheel = this.onWheel.bind(this);
+        canvas.onmousedown = this.onMouseDown.bind(this);
+        canvas.onmouseup = this.onMouseUp.bind(this);
+        canvas.onmousemove = this.onMouseMove.bind(this);
+        canvas.onmouseleave = this.onMouseLeave.bind(this);
+        canvas.oncontextmenu = (event: MouseEvent) => {
+            event.preventDefault();
+        };
     }
 
     public setView(
@@ -89,7 +99,9 @@ export class ExploringWorldNavigator implements WorldNavigator {
         return this.camera;
     }
 
-    private wheelHandler(event: WheelEvent): void {
+    private onWheel(event: WheelEvent): void {
+        event.preventDefault();
+
         // Fake at the moment.
         const heightAboveEllipsoid = this.position.length() - earthRadius();
         const stride = Math.max(1.0, heightAboveEllipsoid / 10.0);
@@ -100,9 +112,57 @@ export class ExploringWorldNavigator implements WorldNavigator {
         );
     }
 
+    private onMouseDown(event: MouseEvent): void {
+        event.preventDefault();
+
+        console.log(`Press mouse button: ${event.button}`);
+        if (event.button === 0) {
+            this.panMousePosition = new Three.Vector2(
+                event.clientX,
+                event.clientY
+            );
+        }
+
+        console.log(event);
+    }
+
+    private onMouseUp(event: MouseEvent): void {
+        event.preventDefault();
+
+        console.log(`Release mouse button: ${event.button}`);
+        if (event.button === 0) {
+            this.panMousePosition = undefined;
+        }
+    }
+
+    private onMouseMove(event: MouseEvent): void {
+        event.preventDefault();
+
+        if (this.panMousePosition) {
+            console.log('Mouse pan');
+            const newMousePosition = new Three.Vector2(
+                event.clientX,
+                event.clientY
+            );
+
+            this.panMousePosition = newMousePosition;
+        }
+    }
+
+    private onMouseLeave(event: MouseEvent): void {
+        event.preventDefault();
+
+        console.log('Mouse leave canvas');
+        this.panMousePosition = undefined;
+    }
+
+    // The current width of the rendering canvas.
     private width: number;
+
+    // The current height of the rendering canvas.
     private height: number;
 
+    // The underlying perspective camera.
     private camera: Three.PerspectiveCamera;
 
     // The navigators ECEF position.
@@ -111,4 +171,6 @@ export class ExploringWorldNavigator implements WorldNavigator {
     // Matrix carrying the orientation for the navigator. It's a NED matrix
     // operating within an ECEF frame.
     private orientation: Three.Matrix4;
+
+    private panMousePosition?: Three.Vector2;
 }
