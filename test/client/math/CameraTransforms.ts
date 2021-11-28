@@ -4,6 +4,8 @@ import {
     ndcToUv,
     pxToUv,
     undistortUv,
+    uvToCameraRay,
+    uvToWorldRay,
     uvToNdc,
     uvToPx,
 } from '../../../src/client/math/CameraTransforms';
@@ -98,7 +100,128 @@ describe('camera transforms tests', () => {
         });
     });
 
-    describe('undistortUv - just smoke tests', () => {
+    describe('uvToCameraRay', () => {
+        it('two points', () => {
+            const hFov = 1.0;
+            const vFov = 0.7;
+            const inverseProjection = matrixProjection4(
+                1.0,
+                0.7,
+                1,
+                1000
+            ).invert();
+
+            const mid = uvToCameraRay(
+                inverseProjection,
+                new Three.Vector2(0.5, 0.5)
+            );
+
+            // Just check origin once.
+            expect(mid.origin.x, 'mid.origin.x').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+            expect(mid.origin.y, 'mid.origin.y').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+            expect(mid.origin.z, 'mid.origin.z').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+
+            expect(mid.direction.x, 'mid.direction.x').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+            expect(mid.direction.y, 'mid.direction.y').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+            expect(mid.direction.z, 'mid.direction.z').to.be.closeTo(
+                -1.0,
+                Number.EPSILON
+            );
+
+            const ur = uvToCameraRay(
+                inverseProjection,
+                new Three.Vector2(1.0, 1.0)
+            );
+            // This is what the direction should look like.
+            const expectUr = new Three.Vector3(
+                Math.tan(hFov / 2.0),
+                Math.tan(vFov / 2.0),
+                -1.0
+            ).normalize();
+
+            expect(ur.direction.x, 'ur.direction.x').to.be.closeTo(
+                expectUr.x,
+                Number.EPSILON
+            );
+            expect(ur.direction.y, 'ur.direction.y').to.be.closeTo(
+                expectUr.y,
+                Number.EPSILON
+            );
+            expect(ur.direction.z, 'ur.direction.z').to.be.closeTo(
+                expectUr.z,
+                Number.EPSILON
+            );
+        });
+    });
+
+    describe('uvToWorldRay', () => {
+        it('mid point only', () => {
+            const hFov = 1.0;
+            const vFov = 0.7;
+            const inverseProjection = matrixProjection4(
+                1.0,
+                0.7,
+                1,
+                1000
+            ).invert();
+
+            const worldMatrix = new Three.Matrix4().lookAt(
+                new Three.Vector3(5, 0, 0),
+                new Three.Vector3(),
+                new Three.Vector3(0, 0, 1)
+            );
+            worldMatrix.setPosition(5.0, 0.0, 0.0);
+
+            const mid = uvToWorldRay(
+                inverseProjection,
+                worldMatrix,
+                new Three.Vector2(0.5, 0.5)
+            );
+
+            expect(mid.origin.x, 'mid.origin.x').to.be.closeTo(
+                5.0,
+                Number.EPSILON
+            );
+            expect(mid.origin.y, 'mid.origin.y').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+            expect(mid.origin.z, 'mid.origin.z').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+
+            expect(mid.direction.x, 'mid.direction.x').to.be.closeTo(
+                -1.0,
+                Number.EPSILON
+            );
+            expect(mid.direction.y, 'mid.direction.y').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+            expect(mid.direction.z, 'mid.direction.z').to.be.closeTo(
+                0.0,
+                Number.EPSILON
+            );
+        });
+    });
+
+    describe('undistortUv', () => {
         const projection = matrixProjection4(1.0, 0.7, 1, 1000);
         const inverseProjection = projection.clone().invert();
 

@@ -49,6 +49,57 @@ export function ndcToUv(ndc: Three.Vector2): Three.Vector2 {
 }
 
 /**
+ * Generate a camera space ray.
+ * @param inverseProjection The inverse projection matrix
+ * @param uv UV coordinate
+ * @returns A camera space ray.
+ */
+export function uvToCameraRay(
+    inverseProjection: Three.Matrix4,
+    uv: Three.Vector2
+): Three.Ray {
+    const ndc2 = uvToNdc(uv);
+    const ndc = new Three.Vector3(ndc2.x, ndc2.y, 1.0);
+    const cam = ndc.applyMatrix4(inverseProjection);
+
+    return new Three.Ray(new Three.Vector3(0, 0, 0), cam.normalize());
+}
+
+/**
+ * Generate a world space ray.
+ * @param inverseProjection The inverse projection matrix
+ * @param inverseWorld The inverse world matrix
+ * @param uv UV coordinate
+ * @returns A world space ray.
+ */
+export function uvToWorldRay(
+    inverseProjection: Three.Matrix4,
+    worldMatrix: Three.Matrix4,
+    uv: Three.Vector2
+): Three.Ray {
+    return uvToCameraRay(inverseProjection, uv).applyMatrix4(worldMatrix);
+}
+
+/**
+ * Generate a world space ray.
+ * @param camera The perspective camera
+ * @param size The image size
+ * @param px The pixel coordinate
+ * @returns A world space ray.
+ */
+export function pxToWorldRay(
+    camera: Three.PerspectiveCamera,
+    size: Size,
+    px: Three.Vector2
+): Three.Ray {
+    return uvToWorldRay(
+        camera.projectionMatrixInverse,
+        camera.matrixWorld,
+        pxToUv(size, px)
+    );
+}
+
+/**
  * Undistort a UV coordinate.
  * @param projection The projection matrix
  * @param inverseProjection The inverse projection matrix

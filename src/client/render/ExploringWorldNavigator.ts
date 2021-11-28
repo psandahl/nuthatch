@@ -3,6 +3,7 @@ import * as Three from 'three';
 import { DrawingArea, fullDrawingArea } from '../types/DrawingArea';
 import { degToRad, earthRadius, radToDeg } from '../math/Helpers';
 import { matrixNedToGl4, matrixLookAtNed4 } from '../math/Matrix';
+import { pxToUv, pxToWorldRay } from '../math/CameraTransforms';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
 
@@ -32,7 +33,7 @@ export class ExploringWorldNavigator implements WorldNavigator {
         this.position = new Three.Vector3();
         this.orientation = new Three.Matrix4();
         this.lookAt(
-            new Three.Vector3(earthRadius() * 5, 0.0, 0.0),
+            new Three.Vector3(earthRadius() * 3, 0.0, 0.0),
             new Three.Vector3(0, 0, 0),
             new Three.Vector3(0, 0, 1)
         );
@@ -111,21 +112,17 @@ export class ExploringWorldNavigator implements WorldNavigator {
     private onMouseDown(event: MouseEvent): void {
         event.preventDefault();
 
-        console.log(`Press mouse button: ${event.button}`);
         if (event.button === 0) {
             this.panMousePosition = new Three.Vector2(
                 event.clientX,
                 event.clientY
             );
         }
-
-        console.log(event);
     }
 
     private onMouseUp(event: MouseEvent): void {
         event.preventDefault();
 
-        console.log(`Release mouse button: ${event.button}`);
         if (event.button === 0) {
             this.panMousePosition = undefined;
         }
@@ -135,11 +132,13 @@ export class ExploringWorldNavigator implements WorldNavigator {
         event.preventDefault();
 
         if (this.panMousePosition) {
-            console.log('Mouse pan');
             const newMousePosition = new Three.Vector2(
                 event.clientX,
                 event.clientY
             );
+
+            // Calculate the meters per pixel given the current ellipsoid height.
+            const mpp = this.mppFromEllipsoidHeight();
 
             // Create a local NED system point in the direction of the camera (or cam
             // up direction if looking towards center of earth).
@@ -158,9 +157,11 @@ export class ExploringWorldNavigator implements WorldNavigator {
                 this.panMousePosition
             );
 
-            const mouseAngle =
+            const panLength = mouseVector.length();
+
+            const panDirection =
                 Math.atan2(mouseVector.y, mouseVector.x) + Math.PI / 2.0;
-            forward.applyAxisAngle(down, mouseAngle);
+            forward.applyAxisAngle(down, panDirection);
 
             const approxPosition = this.position
                 .clone()
@@ -169,9 +170,15 @@ export class ExploringWorldNavigator implements WorldNavigator {
                 .crossVectors(approxPosition, this.position)
                 .normalize();
 
+            const cameraMoveDistance = panLength * mpp;
+            const cameraRotationAngle = Math.atan2(
+                cameraMoveDistance,
+                this.position.length()
+            );
+
             const rotationMatrix = new Three.Matrix4().makeRotationAxis(
                 rotationAxis,
-                degToRad(0.5)
+                cameraRotationAngle
             );
             this.position.applyMatrix4(rotationMatrix);
             this.orientation.premultiply(rotationMatrix);
@@ -185,7 +192,6 @@ export class ExploringWorldNavigator implements WorldNavigator {
     private onMouseLeave(event: MouseEvent): void {
         event.preventDefault();
 
-        console.log('Mouse leave canvas');
         this.panMousePosition = undefined;
     }
 
@@ -196,6 +202,39 @@ export class ExploringWorldNavigator implements WorldNavigator {
         this.camera.matrixWorld.extractBasis(camX, camY, camZ);
 
         return [camZ.negate(), camY];
+    }
+
+    private mppFromEllipsoidHeight(): number {
+        // A little fake for now.
+        const [width, height] = this.size;
+        const midPixel = new Three.Vector2(
+            (width - 1.0) / 2.0,
+            (height - 1.0) / 2.0
+        );
+
+        this.camera.updateMatrixWorld();
+        this.camera.updateProjectionMatrix();
+
+        const midRay = pxToWorldRay(this.camera, this.size, midPixel);
+        const plusX = pxToWorldRay(
+            this.camera,
+            this.size,
+            midPixel.clone().add(new Three.Vector2(1.0, 0.0))
+        );
+        const plusY = pxToWorldRay(
+            this.camera,
+            this.size,
+            midPixel.clone().add(new Three.Vector2(0.0, 1.0))
+        );
+
+        const angleX = Math.acos(midRay.direction.dot(plusX.direction));
+        const angleY = Math.acos(midRay.direction.dot(plusY.direction));
+
+        const heightAboveEllipsoid = this.position.length() - earthRadius();
+        const meterX = heightAboveEllipsoid * Math.tan(angleX);
+        const meterY = heightAboveEllipsoid * Math.tan(angleY);
+
+        return Math.hypot(meterX, meterY);
     }
 
     // The current size of the rendering canvas.

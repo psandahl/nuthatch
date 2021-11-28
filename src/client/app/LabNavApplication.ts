@@ -31,7 +31,7 @@ export class LabNavApplication implements Application {
 
         const textureLoader = new Three.TextureLoader();
         const earth = textureLoader.load('/images/earth_texture.png');
-        const sphereGeometry = new Three.SphereGeometry(earthRadius());
+        const sphereGeometry = new Three.SphereGeometry(earthRadius(), 32, 32);
         const sphereMaterial = new Three.MeshBasicMaterial({ map: earth });
         const sphere = new Three.Mesh(sphereGeometry, sphereMaterial);
         sphere.rotateX(Math.PI / 2);
