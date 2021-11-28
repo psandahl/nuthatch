@@ -7,7 +7,7 @@ import { pxToUv, pxToWorldRay } from '../math/CameraTransforms';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
 
-export class ExploringWorldNavigator implements WorldNavigator {
+export class OrbitingWorldNavigator implements WorldNavigator {
     /**
      * Construct a
      * @param vFov Vertical field of view (degrees)

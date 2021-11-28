@@ -4,7 +4,7 @@ import { Application } from './Application';
 import { earthRadius } from '../math/Helpers';
 import { GeoConvert } from '../math/GeoConvert';
 import { matrixLocalNed4 } from '../math/Matrix';
-import { ExploringWorldNavigator } from '../render/ExploringWorldNavigator';
+import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { Size } from '../types/Size';
 
@@ -17,10 +17,10 @@ export class LabNavApplication implements Application {
         this.renderer.setSize(width, height);
         document.body.appendChild(this.renderer.domElement);
 
-        this.navigator = new ExploringWorldNavigator(
+        this.navigator = new OrbitingWorldNavigator(
             50,
             1.0,
-            earthRadius() * 6.0,
+            earthRadius() * 4.0,
             this.renderer.domElement
         );
 
@@ -76,7 +76,7 @@ export class LabNavApplication implements Application {
 
     private scene: Three.Scene;
     private renderer: SceneRenderer;
-    private navigator: ExploringWorldNavigator;
+    private navigator: OrbitingWorldNavigator;
     private converter: GeoConvert;
     private localAxes: Three.AxesHelper;
 }
