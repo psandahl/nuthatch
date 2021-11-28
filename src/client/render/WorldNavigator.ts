@@ -1,6 +1,7 @@
 import * as Three from 'three';
 
 import { DrawingArea } from './DrawingArea';
+import { Size } from '../types/Size';
 
 /**
  * Common interface contract for a world navigator.
@@ -32,10 +33,9 @@ export interface WorldNavigator {
     /**
      * Notification that the rendering canvas' size has changed. Mostly usable
      * for an exploring navigator, to change aspect ratio).
-     * @param width The new width for the rendering canvas
-     * @param height The new height for the rendering canvas
+     * @param size The new size
      */
-    setSize(width: number, height: number): void;
+    setSize(size: Size): void;
 
     /**
      * Report the navigator's drawing area (may have changed after a setSize).

@@ -7,16 +7,17 @@ import { CameraMode, SceneCamera } from '../render/SceneCamera';
 import { fetchImage } from '../data/Load';
 import { ImageReceiver } from './ImageReceiver';
 import { SceneRenderer } from '../render/SceneRenderer';
+import { Size } from '../types/Size';
 import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
 
 export class LabApplication implements Application, ImageReceiver {
-    public constructor(width: number, height: number) {
-        this.width = width;
-        this.height = height;
+    public constructor(size: Size) {
+        this.size = size;
 
         this.scene = new Three.Scene();
 
         this.sceneCamera = new SceneCamera();
+        const [width, height] = size; // tmp
         this.sceneCamera.resize(width, height);
         this.sceneCamera.setFov(1.0, 0.7);
         this.sceneCamera.position.z = 5;
@@ -42,10 +43,10 @@ export class LabApplication implements Application, ImageReceiver {
         window.onkeydown = (event: KeyboardEvent) => {
             if (event.code == 'KeyC') {
                 this.sceneCamera.setMode(CameraMode.CanvasAdapting);
-                this.resize(this.width, this.height);
+                this.resize(this.size);
             } else if (event.code == 'KeyF') {
                 this.sceneCamera.setMode(CameraMode.CameraAdapting);
-                this.resize(this.width, this.height);
+                this.resize(this.size);
             }
         };
 
@@ -57,9 +58,8 @@ export class LabApplication implements Application, ImageReceiver {
         this.stats.update();
     }
 
-    public resize(width: number, height: number): void {
-        this.width = width;
-        this.height = height;
+    public resize(size: Size): void {
+        const [width, height] = size;
 
         this.sceneCamera.resize(width, height);
         const drawingArea =
@@ -87,8 +87,7 @@ export class LabApplication implements Application, ImageReceiver {
         );
     }
 
-    private width: number;
-    private height: number;
+    private size: Size;
     private scene: Three.Scene;
     private sceneCamera: SceneCamera;
     private sceneRenderer: SceneRenderer;

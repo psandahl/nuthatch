@@ -6,6 +6,7 @@ import { GeoConvert } from '../math/GeoConvert';
 import { matrixLocalNed4 } from '../math/Matrix';
 import { ExploringWorldNavigator } from '../render/ExploringWorldNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
+import { Size } from '../types/Size';
 
 export class LabNavApplication implements Application {
     constructor(width: number, height: number) {
@@ -43,8 +44,8 @@ export class LabNavApplication implements Application {
         this.renderer.render(this.scene, this.navigator.getCamera());
     }
 
-    public resize(width: number, height: number): void {
-        this.navigator.setSize(width, height);
+    public resize(size: Size): void {
+        this.navigator.setSize(size);
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 

@@ -2,6 +2,7 @@ import * as Three from 'three';
 
 import { DrawingArea, fullDrawingArea } from './DrawingArea';
 import { matrixEulerEcef4, matrixEcefToGl4 } from '../math/Matrix';
+import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
 
 /**
@@ -21,8 +22,7 @@ export class MouseTerrainNavigator implements WorldNavigator {
         far: number,
         canvas: HTMLCanvasElement
     ) {
-        this.width = canvas.width;
-        this.height = canvas.height;
+        this.size = [canvas.width, canvas.height];
         this.camera = new Three.PerspectiveCamera(
             vFov,
             canvas.width / canvas.height,
@@ -77,9 +77,9 @@ export class MouseTerrainNavigator implements WorldNavigator {
      * @param width The new width
      * @param height The new height
      */
-    public setSize(width: number, height: number): void {
-        this.width = width;
-        this.height = height;
+    public setSize(size: Size): void {
+        this.size = size;
+        const [width, height] = size;
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
     }
@@ -89,7 +89,8 @@ export class MouseTerrainNavigator implements WorldNavigator {
      * @returns The drawing area.
      */
     public getDrawingArea(): DrawingArea {
-        return fullDrawingArea(this.width, this.height);
+        const [width, height] = this.size;
+        return fullDrawingArea(width, height);
     }
 
     /**
@@ -143,8 +144,7 @@ export class MouseTerrainNavigator implements WorldNavigator {
         return x.negate();
     }
 
-    private width: number;
-    private height: number;
+    private size: Size;
     private camera: Three.PerspectiveCamera;
     private position: Three.Vector3;
     private orientation: Three.Vector3;

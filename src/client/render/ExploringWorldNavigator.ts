@@ -3,6 +3,7 @@ import * as Three from 'three';
 import { DrawingArea, fullDrawingArea } from './DrawingArea';
 import { degToRad, earthRadius, radToDeg } from '../math/Helpers';
 import { matrixNedToGl4, matrixLookAtNed4 } from '../math/Matrix';
+import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
 
 export class ExploringWorldNavigator implements WorldNavigator {
@@ -69,7 +70,8 @@ export class ExploringWorldNavigator implements WorldNavigator {
         this.orientation = new Three.Matrix4().lookAt(position, at, up);
     }
 
-    public setSize(width: number, height: number): void {
+    public setSize(size: Size): void {
+        const [width, height] = size;
         this.width = width;
         this.height = height;
         this.camera.aspect = width / height;

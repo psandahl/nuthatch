@@ -1,12 +1,14 @@
 import { LabApplication } from './app/LabApplication';
 import { Lab3DTilesApplication } from './app/Lab3DTilesApplication';
 import { LabNavApplication } from './app/LabNavApplication';
+import { windowSize } from './types/Size';
 
 window.onload = async () => {
-    const app = new LabNavApplication(window.innerWidth, window.innerHeight);
+    //const app = new LabNavApplication(window.innerWidth, window.innerHeight);
+    const app = new LabApplication(windowSize());
 
     window.onresize = () => {
-        app.resize(window.innerWidth, window.innerHeight);
+        app.resize(windowSize());
     };
 
     const tickFrame = () => {
