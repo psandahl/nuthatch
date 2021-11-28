@@ -1,5 +1,35 @@
 import * as Three from 'three';
 
+import { Size } from '../types/Size';
+
+/**
+ * Translate from pixel to UV.
+ * @param size The size of the image
+ * @param px The pixel
+ * @returns The UV coordinate.
+ */
+export function pxToUv(size: Size, px: Three.Vector2): Three.Vector2 {
+    const [width, height] = size;
+    const u = px.x / (width - 1.0);
+    const v = 1.0 - px.y / (height - 1.0);
+
+    return new Three.Vector2(u, v);
+}
+
+/**
+ * Translate from UV to pixel.
+ * @param size The size of the image
+ * @param uv The UV coordinate
+ * @returns The pixel.
+ */
+export function uvToPx(size: Size, uv: Three.Vector2): Three.Vector2 {
+    const [width, height] = size;
+    const x = uv.x * (width - 1.0);
+    const y = (1.0 - uv.y) * (height - 1.0);
+
+    return new Three.Vector2(x, y);
+}
+
 /**
  * Convert from UV coordinates to NDC coordinates.
  * @param uv UV coordinate
