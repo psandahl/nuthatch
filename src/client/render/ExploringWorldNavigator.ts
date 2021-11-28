@@ -1,6 +1,6 @@
 import * as Three from 'three';
 
-import { DrawingArea, fullDrawingArea } from './DrawingArea';
+import { DrawingArea, fullDrawingArea } from '../types/DrawingArea';
 import { degToRad, earthRadius, radToDeg } from '../math/Helpers';
 import { matrixNedToGl4, matrixLookAtNed4 } from '../math/Matrix';
 import { Size } from '../types/Size';
@@ -20,8 +20,7 @@ export class ExploringWorldNavigator implements WorldNavigator {
         far: number,
         canvas: HTMLCanvasElement
     ) {
-        this.width = canvas.width;
-        this.height = canvas.height;
+        this.size = [canvas.width, canvas.height];
         this.camera = new Three.PerspectiveCamera(
             vFov,
             canvas.width / canvas.height,
@@ -71,15 +70,14 @@ export class ExploringWorldNavigator implements WorldNavigator {
     }
 
     public setSize(size: Size): void {
+        this.size = size;
         const [width, height] = size;
-        this.width = width;
-        this.height = height;
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
     }
 
     public getDrawingArea(): DrawingArea {
-        return fullDrawingArea(this.width, this.height);
+        return fullDrawingArea(this.size);
     }
 
     public updateCamera(): void {
@@ -200,11 +198,8 @@ export class ExploringWorldNavigator implements WorldNavigator {
         return [camZ.negate(), camY];
     }
 
-    // The current width of the rendering canvas.
-    private width: number;
-
-    // The current height of the rendering canvas.
-    private height: number;
+    // The current size of the rendering canvas.
+    private size: Size;
 
     // The underlying perspective camera.
     private camera: Three.PerspectiveCamera;

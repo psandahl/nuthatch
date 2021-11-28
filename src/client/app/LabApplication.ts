@@ -2,7 +2,7 @@ import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import { Application } from './Application';
-import { calculateDrawingArea, fullDrawingArea } from '../render/DrawingArea';
+import { calculateDrawingArea, fullDrawingArea } from '../types/DrawingArea';
 import { CameraMode, SceneCamera } from '../render/SceneCamera';
 import { fetchImage } from '../data/Load';
 import { ImageReceiver } from './ImageReceiver';
@@ -64,12 +64,8 @@ export class LabApplication implements Application, ImageReceiver {
         this.sceneCamera.resize(width, height);
         const drawingArea =
             this.sceneCamera.getMode() == CameraMode.CanvasAdapting
-                ? fullDrawingArea(width, height)
-                : calculateDrawingArea(
-                      width,
-                      height,
-                      this.sceneCamera.getAspectRatio()
-                  );
+                ? fullDrawingArea(size)
+                : calculateDrawingArea(size, this.sceneCamera.getAspectRatio());
         this.sceneRenderer.setDrawingArea(drawingArea);
     }
 

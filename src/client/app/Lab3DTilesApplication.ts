@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TilesRenderer } from '3d-tiles-renderer';
 
 import { Application } from './Application';
-import { fullDrawingArea } from '../render/DrawingArea';
+import { fullDrawingArea } from '../types/DrawingArea';
 import { SceneCamera } from '../render/SceneCamera';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { Size } from '../types/Size';
@@ -84,7 +84,7 @@ export class Lab3DTilesApplication implements Application {
     public resize(size: Size): void {
         const [width, height] = size;
         this.camera.resize(width, height);
-        this.renderer.setDrawingArea(fullDrawingArea(width, height));
+        this.renderer.setDrawingArea(fullDrawingArea(this.size));
     }
 
     private size: Size;

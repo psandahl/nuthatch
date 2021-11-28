@@ -1,6 +1,6 @@
 import * as Three from 'three';
 
-import { DrawingArea, fullDrawingArea } from './DrawingArea';
+import { DrawingArea, fullDrawingArea } from '../types/DrawingArea';
 import { matrixEulerEcef4, matrixEcefToGl4 } from '../math/Matrix';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
@@ -89,8 +89,7 @@ export class MouseTerrainNavigator implements WorldNavigator {
      * @returns The drawing area.
      */
     public getDrawingArea(): DrawingArea {
-        const [width, height] = this.size;
-        return fullDrawingArea(width, height);
+        return fullDrawingArea(this.size);
     }
 
     /**

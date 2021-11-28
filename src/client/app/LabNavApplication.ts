@@ -9,10 +9,11 @@ import { SceneRenderer } from '../render/SceneRenderer';
 import { Size } from '../types/Size';
 
 export class LabNavApplication implements Application {
-    constructor(width: number, height: number) {
+    constructor(size: Size) {
         this.scene = new Three.Scene();
 
         this.renderer = new SceneRenderer();
+        const [width, height] = size;
         this.renderer.setSize(width, height);
         document.body.appendChild(this.renderer.domElement);
 

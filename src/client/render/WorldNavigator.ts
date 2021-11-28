@@ -1,6 +1,6 @@
 import * as Three from 'three';
 
-import { DrawingArea } from './DrawingArea';
+import { DrawingArea } from '../types/DrawingArea';
 import { Size } from '../types/Size';
 
 /**

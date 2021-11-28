@@ -1,5 +1,5 @@
 import * as Three from 'three';
-import { DrawingArea, fullDrawingArea } from './DrawingArea';
+import { DrawingArea, fullDrawingArea } from '../types/DrawingArea';
 
 /**
  * A renderer specialized for rendereing the scene. It is adapted for a
@@ -23,7 +23,7 @@ export class SceneRenderer extends Three.WebGLRenderer {
         document.body.appendChild(this.domElement);
 
         this.setDrawingArea(
-            fullDrawingArea(window.innerWidth, window.innerHeight)
+            fullDrawingArea([window.innerWidth, window.innerHeight])
         );
     }
 
