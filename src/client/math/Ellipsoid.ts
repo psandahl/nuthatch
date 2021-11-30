@@ -6,7 +6,10 @@ import { TetrahedronBufferGeometry } from 'three';
  */
 export const SemiMajorAxis = 6378137.0;
 
-const InverseFlattening = 298.257223563;
+/**
+ * The inverse flattening factor.
+ */
+export const InverseFlattening = 298.257223563;
 
 /**
  * The radius at the ellipsoid's poles.

@@ -1,14 +1,6 @@
 import * as Three from 'three';
 
 /**
- * Get the earth radius.
- * @returns The earth radius in meters.
- */
-export function earthRadius(): number {
-    return 63712000.0;
-}
-
-/**
  * Convert from degrees to radians.
  * @param deg Angle in degrees
  * @returns Angle in radians

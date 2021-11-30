@@ -1,9 +1,14 @@
 import * as Three from 'three';
 
 import { DrawingArea, fullDrawingArea } from '../types/DrawingArea';
-import { degToRad, earthRadius, radToDeg } from '../math/Helpers';
+import { degToRad, radToDeg } from '../math/Helpers';
 import { matrixNedToGl4, matrixLookAtNed4 } from '../math/Matrix';
 import { pxToUv, pxToWorldRay } from '../math/CameraTransforms';
+import {
+    heightAboveEllipsoid,
+    SemiMajorAxis,
+    surfacePosition,
+} from '../math/Ellipsoid';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
 
@@ -33,7 +38,7 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.position = new Three.Vector3();
         this.orientation = new Three.Matrix4();
         this.lookAt(
-            new Three.Vector3(earthRadius() * 3, 0.0, 0.0),
+            new Three.Vector3(SemiMajorAxis * 3, 0.0, 0.0),
             new Three.Vector3(0, 0, 0),
             new Three.Vector3(0, 0, 1)
         );
@@ -100,8 +105,10 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         event.preventDefault();
 
         // Fake at the moment.
-        const heightAboveEllipsoid = this.position.length() - earthRadius();
-        const stride = Math.max(1.0, heightAboveEllipsoid / 10.0);
+        const stride = Math.max(
+            1.0,
+            heightAboveEllipsoid(this.position) / 10.0
+        );
         const direction = event.deltaY < 0 ? 1.0 : -1.0;
         this.position.addScaledVector(
             this.camera.getWorldDirection(new Three.Vector3()),
@@ -173,7 +180,7 @@ export class OrbitingWorldNavigator implements WorldNavigator {
             const cameraMoveDistance = panLength * mpp;
             const cameraRotationAngle = Math.atan2(
                 cameraMoveDistance,
-                this.position.length()
+                surfacePosition(this.position).length()
             );
 
             const rotationMatrix = new Three.Matrix4().makeRotationAxis(
@@ -230,9 +237,9 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         const angleX = Math.acos(midRay.direction.dot(plusX.direction));
         const angleY = Math.acos(midRay.direction.dot(plusY.direction));
 
-        const heightAboveEllipsoid = this.position.length() - earthRadius();
-        const meterX = heightAboveEllipsoid * Math.tan(angleX);
-        const meterY = heightAboveEllipsoid * Math.tan(angleY);
+        const aboveEllipsoid = heightAboveEllipsoid(this.position);
+        const meterX = aboveEllipsoid * Math.tan(angleX);
+        const meterY = aboveEllipsoid * Math.tan(angleY);
 
         return Math.hypot(meterX, meterY);
     }

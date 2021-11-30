@@ -1,11 +1,11 @@
 import * as Three from 'three';
 
 import { Application } from './Application';
-import { earthRadius } from '../math/Helpers';
 import { GeoConvert } from '../math/GeoConvert';
 import { matrixLocalNed4 } from '../math/Matrix';
 import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
+import { SemiMajorAxis, InverseFlattening } from '../math/Ellipsoid';
 import { Size } from '../types/Size';
 
 export class LabNavApplication implements Application {
@@ -20,7 +20,7 @@ export class LabNavApplication implements Application {
         this.navigator = new OrbitingWorldNavigator(
             50,
             1.0,
-            earthRadius() * 4.0,
+            SemiMajorAxis * 4.0,
             this.renderer.domElement
         );
 
@@ -31,9 +31,10 @@ export class LabNavApplication implements Application {
 
         const textureLoader = new Three.TextureLoader();
         const earth = textureLoader.load('/images/earth_texture.png');
-        const sphereGeometry = new Three.SphereGeometry(earthRadius(), 32, 32);
+        const sphereGeometry = new Three.SphereGeometry(SemiMajorAxis, 32, 32);
         const sphereMaterial = new Three.MeshBasicMaterial({ map: earth });
         const sphere = new Three.Mesh(sphereGeometry, sphereMaterial);
+        sphere.scale.set(1, 1.0 - 1.0 / InverseFlattening, 1.0);
         sphere.rotateX(Math.PI / 2);
         this.scene.add(sphere);
     }
