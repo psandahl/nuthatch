@@ -43,9 +43,6 @@ export function intersectEllipsoid(ray: Three.Ray): number | undefined {
         const t1 = (-projOrigin + Math.sqrt(d)) / (2.0 * directionNormSq);
         const t = Math.min(t0, t1);
 
-        console.log('t0: ', t0);
-        console.log('t1: ', t1);
-
         if (t >= 0.0) {
             return t;
         }
@@ -64,24 +61,36 @@ export function intersectEllipsoid(ray: Three.Ray): number | undefined {
 }
 
 /**
+ * Get the closest surface position from the given position.
+ * @param position The position above the ellipsoid
+ * @returns The position at the ellipsoid surface.
+ */
+export function surfacePosition(position: Three.Vector3): Three.Vector3 {
+    var surfPosition = new Three.Vector3(
+        position.x / SemiMajorAxis,
+        position.y / SemiMajorAxis,
+        position.z / SemiMinorAxis
+    );
+    const length = surfPosition.length();
+
+    surfPosition.x *= SemiMajorAxis;
+    surfPosition.y *= SemiMajorAxis;
+    surfPosition.z *= SemiMinorAxis;
+    surfPosition.divideScalar(length);
+
+    return surfPosition;
+}
+
+/**
  * Get a position's height above the ellipsoid.
  * @param position The world position
  * @returns Height above the ellipsoid.
  */
 export function heightAboveEllipsoid(position: Three.Vector3): number {
-    var adjPosition = new Three.Vector3(
-        position.x / SemiMajorAxis,
-        position.y / SemiMajorAxis,
-        position.z / SemiMinorAxis
+    const deltaPos = new Three.Vector3().subVectors(
+        position,
+        surfacePosition(position)
     );
-    const length = adjPosition.length();
-
-    adjPosition.x *= SemiMajorAxis;
-    adjPosition.y *= SemiMajorAxis;
-    adjPosition.z *= SemiMinorAxis;
-    adjPosition.divideScalar(length);
-
-    const deltaPos = new Three.Vector3().subVectors(position, adjPosition);
     const height = deltaPos.length();
 
     if (deltaPos.dot(position) < 0.0) {
