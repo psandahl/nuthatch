@@ -180,7 +180,7 @@ export class OrbitingWorldNavigator implements WorldNavigator {
             const cameraMoveDistance = panLength * mpp;
             const cameraRotationAngle = Math.atan2(
                 cameraMoveDistance,
-                surfacePosition(this.position).length()
+                this.position.length()
             );
 
             const rotationMatrix = new Three.Matrix4().makeRotationAxis(
