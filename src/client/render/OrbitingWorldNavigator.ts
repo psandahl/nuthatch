@@ -9,6 +9,7 @@ import {
 } from '../math/Ellipsoid';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
+import { radToDeg } from '../math/Helpers';
 
 export class OrbitingWorldNavigator implements WorldNavigator {
     /**
@@ -153,67 +154,68 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         event.preventDefault();
 
         if (this.panMousePosition) {
-            const newMousePosition = new Three.Vector2(
-                event.clientX,
-                event.clientY
-            );
-
-            // Create a local NED system point in the direction of the camera (or cam
-            // up direction if looking towards center of earth).
-            const down = this.position.clone().normalize().negate();
-            const [camForward, camUp] = this.cameraForwardAndUp();
-            const dForward = Math.abs(down.dot(camForward));
-            const dUp = Math.abs(down.dot(camUp));
-
-            // Select which of the camera's forward or up axes that best
-            // reprent forward for the sake of panning direction.
-            var forward = dForward < dUp ? camForward : camUp;
-            const right = new Three.Vector3().crossVectors(down, forward);
-            forward = new Three.Vector3().crossVectors(right, down);
-
-            const mouseVector = new Three.Vector2().subVectors(
-                newMousePosition,
-                this.panMousePosition
-            );
-
-            const panLength = mouseVector.length();
-
-            // Get the mouse move direction and apply it to the local NED system.
-            const panDirection =
-                Math.atan2(mouseVector.y, mouseVector.x) + Math.PI / 2.0;
-            forward.applyAxisAngle(down, panDirection);
-
-            // Approximate a position in the direction of move and derive
-            // a world rotation axis from it.
-            const approxPosition = this.position
-                .clone()
-                .addScaledVector(forward, 1000.0);
-            const rotationAxis = new Three.Vector3()
-                .crossVectors(approxPosition, this.position)
-                .normalize();
-
-            // Calculate the meters per pixel given the current ellipsoid height.
-            const mpp = this.mppFromEllipsoidHeight();
-            const cameraMoveDistance = panLength * mpp;
-
-            // Rotate the camera to keep the relative view.
-            const cameraRotationAngle = Math.atan2(
-                cameraMoveDistance,
-                this.position.length()
-            );
-
-            const rotationMatrix = new Three.Matrix4().makeRotationAxis(
-                rotationAxis,
-                cameraRotationAngle
-            );
-            this.position.applyMatrix4(rotationMatrix);
-            this.orientation.premultiply(rotationMatrix);
-
-            // Remember the new mouse position.
-            this.panMousePosition = newMousePosition;
-
-            this.camera.updateMatrixWorld();
+            this.onPan(event);
         }
+    }
+
+    private onPan(event: MouseEvent): void {
+        const newMousePosition = new Three.Vector2(
+            event.clientX,
+            event.clientY
+        );
+
+        // Create a local NED system point in the direction of the camera (or cam
+        // up direction if looking towards center of earth).
+        const down = this.position.clone().normalize().negate();
+
+        // Select which of the camera's forward or up axes that best
+        // reprent forward for the sake of panning direction.
+        var assumedForward = this.assumedCameraForwardAndUp();
+        const right = new Three.Vector3().crossVectors(down, assumedForward);
+        assumedForward = new Three.Vector3().crossVectors(right, down);
+
+        const mouseVector = new Three.Vector2().subVectors(
+            newMousePosition,
+            this.panMousePosition!
+        );
+
+        const panLength = mouseVector.length();
+
+        // Get the mouse move direction and apply it to the local NED system.
+        const panDirection =
+            Math.atan2(mouseVector.y, mouseVector.x) + Math.PI / 2.0;
+        assumedForward.applyAxisAngle(down, panDirection);
+
+        // Approximate a position in the direction of move and derive
+        // a world rotation axis from it.
+        const approxPosition = this.position
+            .clone()
+            .addScaledVector(assumedForward, 1000.0);
+        const rotationAxis = new Three.Vector3()
+            .crossVectors(approxPosition, this.position)
+            .normalize();
+
+        // Calculate the meters per pixel given the current ellipsoid height.
+        const mpp = this.mppFromEllipsoidHeight();
+        const cameraMoveDistance = panLength * mpp;
+
+        // Rotate the camera to keep the relative view.
+        const cameraRotationAngle = Math.atan2(
+            cameraMoveDistance,
+            this.position.length()
+        );
+
+        const rotationMatrix = new Three.Matrix4().makeRotationAxis(
+            rotationAxis,
+            cameraRotationAngle
+        );
+        this.position.applyMatrix4(rotationMatrix);
+        this.orientation.premultiply(rotationMatrix);
+
+        // Remember the new mouse position.
+        this.panMousePosition = newMousePosition;
+
+        this.camera.updateMatrixWorld();
     }
 
     private onMouseLeave(event: MouseEvent): void {
@@ -231,6 +233,18 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.camera.matrixWorld.extractBasis(camX, camY, camZ);
 
         return [camZ.negate(), camY];
+    }
+
+    private assumedCameraForwardAndUp(): Three.Vector3 {
+        const [forward, up] = this.cameraForwardAndUp();
+        const down = this.position.clone().normalize().negate();
+
+        const angle = radToDeg(Math.acos(forward.dot(down)));
+        if (angle > 1.0 && angle < 179.0) {
+            return forward;
+        } else {
+            return up;
+        }
     }
 
     private mppFromEllipsoidHeight(): number {
