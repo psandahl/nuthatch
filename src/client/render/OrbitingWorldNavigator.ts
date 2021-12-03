@@ -9,7 +9,7 @@ import {
 } from '../math/Ellipsoid';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
-import { radToDeg } from '../math/Helpers';
+import { degToRad, radToDeg } from '../math/Helpers';
 
 export class OrbitingWorldNavigator implements WorldNavigator {
     /**
@@ -155,6 +155,8 @@ export class OrbitingWorldNavigator implements WorldNavigator {
 
         if (this.panMousePosition) {
             this.onPan(event);
+        } else if (this.rotateMousePosition && this.rotateAnchorPosition) {
+            this.onRotate(event);
         }
     }
 
@@ -212,10 +214,59 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.position.applyMatrix4(rotationMatrix);
         this.orientation.premultiply(rotationMatrix);
 
-        // Remember the new mouse position.
         this.panMousePosition = newMousePosition;
+        this.updateCamera();
+    }
 
-        this.camera.updateMatrixWorld();
+    private onRotate(event: MouseEvent): void {
+        const newMousePosition = new Three.Vector2(
+            event.clientX,
+            event.clientY
+        );
+
+        // Get the vector between the anchor position and the camera's position.
+        const anchorVector = new Three.Vector3().subVectors(
+            this.position,
+            this.rotateAnchorPosition!
+        );
+
+        // Get the camera basis vectors.
+        const [camX, _camY, _camZ] = this.extractBasis();
+
+        // Pick a tilt axis, depending on the angle between the camera
+        // X axis and the anchor vector.
+        const tiltAxis =
+            camX.dot(anchorVector.clone().normalize()) > 0.0
+                ? camX
+                : camX.clone().negate();
+
+        const tiltAxisLength =
+            tiltAxis.dot(anchorVector.clone().normalize()) *
+            anchorVector.length();
+
+        const tiltPivotPoint = this.rotateAnchorPosition!.addScaledVector(
+            tiltAxis,
+            tiltAxisLength
+        );
+
+        const tiltedPosition = tiltPivotPoint
+            .clone()
+            .add(
+                new Three.Vector3()
+                    .subVectors(this.position, tiltPivotPoint)
+                    .applyAxisAngle(camX, degToRad(0.1))
+            );
+
+        this.position.set(tiltedPosition.x, tiltedPosition.y, tiltedPosition.z);
+
+        const rotationMatrix = new Three.Matrix4().makeRotationAxis(
+            camX,
+            degToRad(0.1)
+        );
+        this.orientation.premultiply(rotationMatrix);
+
+        this.rotateMousePosition = newMousePosition;
+        this.updateCamera();
     }
 
     private onMouseLeave(event: MouseEvent): void {
@@ -226,11 +277,18 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.rotateAnchorPosition = undefined;
     }
 
-    private cameraForwardAndUp(): [Three.Vector3, Three.Vector3] {
+    private extractBasis(): [Three.Vector3, Three.Vector3, Three.Vector3] {
+        // Remember: this is a OpenGL camera orientation.
         const camX = new Three.Vector3();
         const camY = new Three.Vector3();
         const camZ = new Three.Vector3();
         this.camera.matrixWorld.extractBasis(camX, camY, camZ);
+
+        return [camX, camY, camZ];
+    }
+
+    private cameraForwardAndUp(): [Three.Vector3, Three.Vector3] {
+        const [_camX, camY, camZ] = this.extractBasis();
 
         return [camZ.negate(), camY];
     }
