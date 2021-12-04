@@ -243,11 +243,11 @@ export class OrbitingWorldNavigator implements WorldNavigator {
     private tiltMouse(deltaY: number, anchorVector: Three.Vector3): void {
         const [_width, height] = this.size;
 
-        // Get the camera basis vectors.
-        const [camX, _camY, _camZ] = extractBasis(this.orientation);
-
         // Calculate the tilt angle from the mouse move.
         const tiltAngle = -(deltaY / height) * degToRad(90.0);
+
+        // Get the camera basis vectors.
+        const [camX, camY, _camZ] = extractBasis(this.orientation);
 
         // Pick a tilt axis, depending on the angle between the camera
         // X axis and the anchor vector.
@@ -256,15 +256,19 @@ export class OrbitingWorldNavigator implements WorldNavigator {
                 ? camX
                 : camX.clone().negate();
 
+        // Calculate the tilt axis length (anchorVector is the hypotenuse,
+        // tilt axis will be near side).
         const tiltAxisLength =
             tiltAxis.dot(anchorVector.clone().normalize()) *
             anchorVector.length();
 
+        // Create the pivot point along the axis.
         const tiltPivotPoint = this.rotateAnchorPosition!.addScaledVector(
             tiltAxis,
             tiltAxisLength
         );
 
+        // Rotate a vector between the pivot point and the camera.
         const tiltedPosition = tiltPivotPoint
             .clone()
             .add(
@@ -273,13 +277,36 @@ export class OrbitingWorldNavigator implements WorldNavigator {
                     .applyAxisAngle(camX, tiltAngle)
             );
 
-        this.position.set(tiltedPosition.x, tiltedPosition.y, tiltedPosition.z);
-
+        // Calculate a camera rotation matrix (remember,
+        // this is a GL camera == camX is side).
         const rotationMatrix = new Three.Matrix4().makeRotationAxis(
             camX,
             tiltAngle
         );
-        this.orientation.premultiply(rotationMatrix);
+
+        // What would be the effective tilt if the tilt angle is applied?
+        const [_newX, newY, _newZ] = extractBasis(
+            this.orientation.clone().premultiply(rotationMatrix)
+        );
+        const effectiveTilt = radToDeg(
+            Math.acos(
+                newY.negate().dot(tiltedPosition.clone().normalize().negate())
+            )
+        );
+
+        if (effectiveTilt >= 10.0 && effectiveTilt <= 90.0) {
+            // Ok. Commit proposed change.
+            this.position.set(
+                tiltedPosition.x,
+                tiltedPosition.y,
+                tiltedPosition.z
+            );
+            this.orientation.premultiply(rotationMatrix);
+        } else {
+            console.log(
+                `Effective tilt ${effectiveTilt} outside range. Tilt action is ignored`
+            );
+        }
     }
 
     private onMouseLeave(event: MouseEvent): void {
