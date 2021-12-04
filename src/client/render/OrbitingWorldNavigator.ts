@@ -224,14 +224,29 @@ export class OrbitingWorldNavigator implements WorldNavigator {
             event.clientY
         );
 
+        const deltaX = newMousePosition.x - this.rotateMousePosition!.x;
+        const deltaY = newMousePosition.y - this.rotateMousePosition!.y;
+
         // Get the vector between the anchor position and the camera's position.
         const anchorVector = new Three.Vector3().subVectors(
             this.position,
             this.rotateAnchorPosition!
         );
 
+        this.tiltMouse(deltaY, anchorVector);
+
+        this.rotateMousePosition = newMousePosition;
+        this.updateCamera();
+    }
+
+    private tiltMouse(deltaY: number, anchorVector: Three.Vector3): void {
+        const [_width, height] = this.size;
+
         // Get the camera basis vectors.
         const [camX, _camY, _camZ] = this.extractBasis();
+
+        // Calculate the tilt angle from the mouse move.
+        const tiltAngle = -(deltaY / height) * degToRad(90.0);
 
         // Pick a tilt axis, depending on the angle between the camera
         // X axis and the anchor vector.
@@ -254,19 +269,16 @@ export class OrbitingWorldNavigator implements WorldNavigator {
             .add(
                 new Three.Vector3()
                     .subVectors(this.position, tiltPivotPoint)
-                    .applyAxisAngle(camX, degToRad(0.1))
+                    .applyAxisAngle(camX, tiltAngle)
             );
 
         this.position.set(tiltedPosition.x, tiltedPosition.y, tiltedPosition.z);
 
         const rotationMatrix = new Three.Matrix4().makeRotationAxis(
             camX,
-            degToRad(0.1)
+            tiltAngle
         );
         this.orientation.premultiply(rotationMatrix);
-
-        this.rotateMousePosition = newMousePosition;
-        this.updateCamera();
     }
 
     private onMouseLeave(event: MouseEvent): void {
