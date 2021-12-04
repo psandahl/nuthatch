@@ -7,6 +7,7 @@ import {
     intersectEllipsoid,
     SemiMajorAxis,
 } from '../math/Ellipsoid';
+import { extractBasis } from '../math/Matrix';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
 import { degToRad, radToDeg } from '../math/Helpers';
@@ -243,7 +244,7 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         const [_width, height] = this.size;
 
         // Get the camera basis vectors.
-        const [camX, _camY, _camZ] = this.extractBasis();
+        const [camX, _camY, _camZ] = extractBasis(this.orientation);
 
         // Calculate the tilt angle from the mouse move.
         const tiltAngle = -(deltaY / height) * degToRad(90.0);
@@ -289,18 +290,8 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.rotateAnchorPosition = undefined;
     }
 
-    private extractBasis(): [Three.Vector3, Three.Vector3, Three.Vector3] {
-        // Remember: this is a OpenGL camera orientation.
-        const camX = new Three.Vector3();
-        const camY = new Three.Vector3();
-        const camZ = new Three.Vector3();
-        this.camera.matrixWorld.extractBasis(camX, camY, camZ);
-
-        return [camX, camY, camZ];
-    }
-
     private cameraForwardAndUp(): [Three.Vector3, Three.Vector3] {
-        const [_camX, camY, camZ] = this.extractBasis();
+        const [_camX, camY, camZ] = extractBasis(this.orientation);
 
         return [camZ.negate(), camY];
     }

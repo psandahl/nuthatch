@@ -164,3 +164,20 @@ export function matrixLocalNed4(
 
     return new Three.Matrix4().makeBasis(north, east, down);
 }
+
+/**
+ * Helper function to extract basis vectors.
+ * @param matrix A matrix.
+ * @returns The basis vectors.
+ */
+export function extractBasis(
+    matrix: Three.Matrix4
+): [Three.Vector3, Three.Vector3, Three.Vector3] {
+    const x = new Three.Vector3();
+    const y = new Three.Vector3();
+    const z = new Three.Vector3();
+
+    matrix.extractBasis(x, y, z);
+
+    return [x, y, z];
+}
