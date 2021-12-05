@@ -52,22 +52,9 @@ export class Lab3DTilesApplication implements Application {
                 console.log('center: ', center);
 
                 const normal = center.clone().normalize();
-                /*const camPos = center
-                    .clone()
-                    .addScaledVector(normal, 2000)
-                    .applyAxisAngle(new Three.Vector3(1, 0, 0), Math.PI / 4);
-                console.log('cam pos: ', camPos);
-                */
+                const camPos = center.clone().addScaledVector(normal, 1000);
 
-                const camPos = center
-                    .clone()
-                    .add(new Three.Vector3(1000, 0, 0));
-
-                this.navigator.lookAt(
-                    camPos,
-                    center,
-                    new Three.Vector3(0, 0, 1)
-                );
+                this.navigator.tiltedAt(camPos);
             }
         };
     }

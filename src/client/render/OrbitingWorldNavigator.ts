@@ -7,10 +7,11 @@ import {
     intersectEllipsoid,
     SemiMajorAxis,
 } from '../math/Ellipsoid';
-import { extractBasis } from '../math/Matrix';
+import { extractBasis, matrixLocalNed4, matrixNedToGl4 } from '../math/Matrix';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
 import { degToRad, radToDeg } from '../math/Helpers';
+import { GeoConvert } from '../math/GeoConvert';
 
 export class OrbitingWorldNavigator implements WorldNavigator {
     /**
@@ -35,13 +36,12 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         );
         this.camera.updateProjectionMatrix();
 
+        this.converter = new GeoConvert();
+
         this.position = new Three.Vector3();
         this.orientation = new Three.Matrix4();
-        this.lookAt(
-            new Three.Vector3(SemiMajorAxis * 3, 0.0, 0.0),
-            new Three.Vector3(0, 0, 0),
-            new Three.Vector3(0, 0, 1)
-        );
+
+        this.tiltedAt(new Three.Vector3(SemiMajorAxis * 3, 0.0, 0.0));
         this.updateCamera();
 
         this.panMousePosition = undefined;
@@ -77,6 +77,14 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.orientation = new Three.Matrix4().lookAt(position, at, up);
     }
 
+    public neutralAt(position: Three.Vector3): void {
+        this.at(position, 0);
+    }
+
+    public tiltedAt(position: Three.Vector3): void {
+        this.at(position, -Math.PI / 2.0);
+    }
+
     public setSize(size: Size): void {
         this.size = size;
         const [width, height] = size;
@@ -103,10 +111,24 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         return this.camera;
     }
 
+    private at(position: Three.Vector3, tiltAngle: number): void {
+        var matrix = matrixNedToGl4().premultiply(
+            matrixLocalNed4(position, this.converter)
+        );
+
+        const [camX, _camY, _camZ] = extractBasis(matrix);
+        const tiltMatrix = new Three.Matrix4().makeRotationAxis(
+            camX,
+            tiltAngle
+        );
+
+        this.position = position;
+        this.orientation = matrix.premultiply(tiltMatrix);
+    }
+
     private onWheel(event: WheelEvent): void {
         event.preventDefault();
 
-        // Fake at the moment.
         const stride = Math.max(
             1.0,
             heightAboveEllipsoid(this.position) / 10.0
@@ -401,6 +423,9 @@ export class OrbitingWorldNavigator implements WorldNavigator {
 
     // The underlying perspective camera.
     private camera: Three.PerspectiveCamera;
+
+    // A coordinate system converter.
+    private converter: GeoConvert;
 
     // The navigator's ECEF position.
     private position: Three.Vector3;
