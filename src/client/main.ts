@@ -4,7 +4,8 @@ import { LabNavApplication } from './app/LabNavApplication';
 import { windowSize } from './types/Size';
 
 window.onload = async () => {
-    const app = new LabNavApplication(windowSize());
+    const app = new Lab3DTilesApplication(windowSize());
+    //const app = new LabNavApplication(windowSize());
     //const app = new LabApplication(windowSize());
 
     window.onresize = () => {

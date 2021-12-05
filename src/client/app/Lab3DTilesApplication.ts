@@ -8,89 +8,85 @@ import { fullDrawingArea } from '../types/DrawingArea';
 import { SceneCamera } from '../render/SceneCamera';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { Size } from '../types/Size';
+import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
+import { SemiMajorAxis } from '../math/Ellipsoid';
 
 export class Lab3DTilesApplication implements Application {
     public constructor(size: Size) {
-        this.size = size;
         const [width, height] = size;
 
         this.scene = new Three.Scene();
+
         this.renderer = new SceneRenderer();
-        this.camera = new SceneCamera();
-        this.camera.resize(width, height);
-        this.camera.position.z = 5;
+        this.renderer.setSize(width, height);
 
-        /*const geo = new Three.BoxGeometry(1, 1, 1);
-        const mat = new Three.MeshBasicMaterial({
-            color: 0xffff00,
-            wireframe: true,
-        });
-        const mesh = new Three.Mesh(geo, mat);
-        mesh.position.set(1, 2, 1);
-        this.scene.add(mesh);
+        document.body.appendChild(this.renderer.domElement);
 
-        console.log(mesh.getWorldPosition(new Three.Vector3()));
-        */
+        this.navigator = new OrbitingWorldNavigator(
+            50,
+            1.0,
+            SemiMajorAxis * 4.0,
+            this.renderer.domElement
+        );
 
         this.tilesRenderer = new TilesRenderer(
             '3d-tiles/1.0/TilesetWithDiscreteLOD/tileset.json'
         );
 
-        this.tilesRenderer.setCamera(this.camera);
+        this.tilesRenderer.setCamera(this.navigator.getCamera());
         this.tilesRenderer.setResolutionFromRenderer(
-            this.camera,
+            this.navigator.getCamera(),
             this.renderer
         );
         this.scene.add(this.tilesRenderer.group);
+
+        this.light = new Three.AmbientLight(0x404040);
+        this.scene.add(this.light);
 
         this.tilesRenderer.onLoadTileSet = (tileSet: Object) => {
             const tilesBox = new Three.Box3();
             if (this.tilesRenderer.getBounds(tilesBox)) {
                 const center = new Three.Vector3();
                 tilesBox.getCenter(center);
+
                 console.log('center: ', center);
 
                 const normal = center.clone().normalize();
-                const camPos = center.clone().addScaledVector(normal, 2000);
+                /*const camPos = center
+                    .clone()
+                    .addScaledVector(normal, 2000)
+                    .applyAxisAngle(new Three.Vector3(1, 0, 0), Math.PI / 4);
                 console.log('cam pos: ', camPos);
-                this.camera.position.set(camPos.x, camPos.y, camPos.z);
+                */
 
-                const light = new Three.SpotLight(0xffffff, 0.4);
-                light.position.set(camPos.x, camPos.y, camPos.z);
-                this.scene.add(light);
+                const camPos = center
+                    .clone()
+                    .add(new Three.Vector3(1000, 0, 0));
 
-                this.camera.up = normal;
-                this.camera.lookAt(center);
+                this.navigator.lookAt(
+                    camPos,
+                    center,
+                    new Three.Vector3(0, 0, 1)
+                );
             }
         };
-
-        this.navigator = new OrbitControls(
-            this.camera,
-            this.renderer.domElement
-        );
-
-        this.navigator.maxZoom = 2.0;
     }
 
     public render(): void {
-        this.navigator.update();
-        this.camera.updateMatrixWorld();
-
+        this.navigator.updateCamera();
         this.tilesRenderer.update();
 
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.scene, this.navigator.getCamera());
     }
 
     public resize(size: Size): void {
-        const [width, height] = size;
-        this.camera.resize(width, height);
-        this.renderer.setDrawingArea(fullDrawingArea(this.size));
+        this.navigator.setSize(size);
+        this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
-    private size: Size;
     private scene: Three.Scene;
     private renderer: SceneRenderer;
-    private camera: SceneCamera;
-    private navigator: OrbitControls;
+    private navigator: OrbitingWorldNavigator;
     private tilesRenderer: TilesRenderer;
+    private light: Three.AmbientLight;
 }
