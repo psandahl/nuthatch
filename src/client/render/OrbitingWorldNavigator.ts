@@ -133,9 +133,6 @@ export class OrbitingWorldNavigator implements WorldNavigator {
             if (t) {
                 this.rotateMousePosition = px;
                 this.rotateAnchorPosition = ray.at(t, new Three.Vector3());
-                console.log(
-                    `Rotate anchor at x: ${this.rotateAnchorPosition.x}, y: ${this.rotateAnchorPosition.y}, z: ${this.rotateAnchorPosition.z}`
-                );
             }
         }
     }
@@ -235,6 +232,7 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         );
 
         this.tiltMouse(deltaY, anchorVector);
+        this.rotateMouse(deltaX, anchorVector);
 
         this.rotateMousePosition = newMousePosition;
         this.updateCamera();
@@ -263,10 +261,11 @@ export class OrbitingWorldNavigator implements WorldNavigator {
             anchorVector.length();
 
         // Create the pivot point along the axis.
-        const tiltPivotPoint = this.rotateAnchorPosition!.addScaledVector(
-            tiltAxis,
-            tiltAxisLength
-        );
+        const tiltPivotPoint =
+            this.rotateAnchorPosition!.clone().addScaledVector(
+                tiltAxis,
+                tiltAxisLength
+            );
 
         // Rotate a vector between the pivot point and the camera.
         const tiltedPosition = tiltPivotPoint
@@ -307,6 +306,36 @@ export class OrbitingWorldNavigator implements WorldNavigator {
                 `Effective tilt ${effectiveTilt} outside range. Tilt action is ignored`
             );
         }
+    }
+
+    private rotateMouse(deltaX: number, anchorVector: Three.Vector3): void {
+        const [width, _height] = this.size;
+
+        // Calculate the rotate angle from the mouse move.
+        const rotateAngle = -(deltaX / width) * degToRad(360.0);
+
+        // The anchor vector shall be rotate around the anchor up vector.
+        const anchorUp = this.rotateAnchorPosition!.clone().normalize();
+        const rotatedAnchorVector = anchorVector
+            .clone()
+            .applyAxisAngle(anchorUp, rotateAngle);
+
+        // Create the rotated position.
+        const rotatedPosition =
+            this.rotateAnchorPosition!.clone().add(rotatedAnchorVector);
+
+        this.position.set(
+            rotatedPosition.x,
+            rotatedPosition.y,
+            rotatedPosition.z
+        );
+
+        // Create the camera rotation matrix.
+        const rotationMatrix = new Three.Matrix4().makeRotationAxis(
+            anchorUp,
+            rotateAngle
+        );
+        this.orientation.premultiply(rotationMatrix);
     }
 
     private onMouseLeave(event: MouseEvent): void {
