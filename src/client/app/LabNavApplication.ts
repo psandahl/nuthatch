@@ -1,7 +1,7 @@
 import * as Three from 'three';
 
 import { Application } from './Application';
-import { GeoConvert } from '../math/GeoConvert';
+import { GeoConvertWgs84 } from '../math/GeoConvert';
 import { matrixLocalNed4 } from '../math/Matrix';
 import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
@@ -24,7 +24,7 @@ export class LabNavApplication implements Application {
             this.renderer.domElement
         );
 
-        this.converter = new GeoConvert();
+        this.converter = new GeoConvertWgs84();
         this.localAxes = new Three.AxesHelper(1.0);
         this.updateLocalAxes();
         this.scene.add(this.localAxes);
@@ -78,6 +78,6 @@ export class LabNavApplication implements Application {
     private scene: Three.Scene;
     private renderer: SceneRenderer;
     private navigator: OrbitingWorldNavigator;
-    private converter: GeoConvert;
+    private converter: GeoConvertWgs84;
     private localAxes: Three.AxesHelper;
 }

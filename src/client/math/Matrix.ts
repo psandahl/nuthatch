@@ -1,7 +1,7 @@
 import * as Three from 'three';
 
 import { degToRad } from './Helpers';
-import { GeoConvert } from './GeoConvert';
+import { GeoConvertWgs84 } from './GeoConvert';
 
 /**
  * Create a yaw, pitch, roll rotation matrix for an ECEF reference frame.
@@ -147,7 +147,7 @@ export function matrixProjection4(
  */
 export function matrixLocalNed4(
     position: Three.Vector3,
-    converter: GeoConvert
+    converter: GeoConvertWgs84
 ): Three.Matrix4 {
     const wgs84 = converter.ecefToWgs84(position);
     const lat = degToRad(wgs84.x);

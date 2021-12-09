@@ -11,7 +11,7 @@ import { extractBasis, matrixLocalNed4, matrixNedToGl4 } from '../math/Matrix';
 import { Size } from '../types/Size';
 import { WorldNavigator } from './WorldNavigator';
 import { degToRad, radToDeg } from '../math/Helpers';
-import { GeoConvert } from '../math/GeoConvert';
+import { GeoConvertWgs84 } from '../math/GeoConvert';
 
 export class OrbitingWorldNavigator implements WorldNavigator {
     /**
@@ -36,7 +36,7 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         );
         this.camera.updateProjectionMatrix();
 
-        this.converter = new GeoConvert();
+        this.converter = new GeoConvertWgs84();
 
         this.position = new Three.Vector3();
         this.orientation = new Three.Matrix4();
@@ -425,7 +425,7 @@ export class OrbitingWorldNavigator implements WorldNavigator {
     private camera: Three.PerspectiveCamera;
 
     // A coordinate system converter.
-    private converter: GeoConvert;
+    private converter: GeoConvertWgs84;
 
     // The navigator's ECEF position.
     private position: Three.Vector3;
