@@ -4,7 +4,7 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { Application } from './Application';
 import { calculateDrawingArea, fullDrawingArea } from '../types/DrawingArea';
 import { CameraMode, SceneCamera } from '../render/SceneCamera';
-import { fetchImage } from '../data/Load';
+import { fetchImage } from '../data/ImageLoad';
 import { ImageReceiver } from './ImageReceiver';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { Size } from '../types/Size';
@@ -69,7 +69,7 @@ export class LabApplication implements Application, ImageReceiver {
         this.sceneRenderer.setDrawingArea(drawingArea);
     }
 
-    public receiveImageSuccessed(
+    public receiveImageSucceeded(
         image: HTMLImageElement,
         id: number,
         url: string

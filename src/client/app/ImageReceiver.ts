@@ -8,7 +8,7 @@ export interface ImageReceiver {
      * @param id The id used in the request
      * @param url The url used in the request
      */
-    receiveImageSuccessed(
+    receiveImageSucceeded(
         image: HTMLImageElement,
         id: number,
         url: string
