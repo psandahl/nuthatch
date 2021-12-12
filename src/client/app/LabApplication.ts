@@ -5,7 +5,7 @@ import { Application } from './Application';
 import { calculateDrawingArea, fullDrawingArea } from '../types/DrawingArea';
 import { CameraMode, SceneCamera } from '../render/SceneCamera';
 import { fetchImage } from '../data/ImageLoad';
-import { ImageReceiver } from './ImageReceiver';
+import { ImageReceiver } from '../types/ImageReceiver';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { Size } from '../types/Size';
 import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';

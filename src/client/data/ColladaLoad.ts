@@ -4,7 +4,7 @@ import {
     ColladaLoader,
 } from 'three/examples/jsm/loaders/ColladaLoader';
 
-import { ColladaReceiver } from '../app/ColladaReceiver';
+import { ColladaReceiver } from '../types/ColladaReceiver';
 import { GeoConvertUtm } from '../math/GeoConvert';
 
 /**

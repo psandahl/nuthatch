@@ -4,7 +4,7 @@ import { Application } from './Application';
 import { Collada } from 'three/examples/jsm/loaders/ColladaLoader';
 import { fetchCollada, modifyTerrainColladaModel } from '../data/ColladaLoad';
 import { GeoConvertUtm } from '../math/GeoConvert';
-import { ColladaReceiver } from './ColladaReceiver';
+import { ColladaReceiver } from '../types/ColladaReceiver';
 import { Size } from '../types/Size';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';

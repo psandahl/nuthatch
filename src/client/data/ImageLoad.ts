@@ -1,6 +1,6 @@
 import * as Three from 'three';
 
-import { ImageReceiver } from '../app/ImageReceiver';
+import { ImageReceiver } from '../types/ImageReceiver';
 
 /**
  * Asynchronously load fetch an image an give it to the receiver.
