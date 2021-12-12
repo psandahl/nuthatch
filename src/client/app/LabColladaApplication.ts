@@ -1,4 +1,5 @@
 import * as Three from 'three';
+import Stats from 'three/examples/jsm/libs/stats.module';
 
 import { Application } from './Application';
 import { Collada } from 'three/examples/jsm/loaders/ColladaLoader';
@@ -9,6 +10,8 @@ import { Size } from '../types/Size';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
+import { makeGlobe } from '../render/Globe';
+import { CameraAxesHelper } from '../render/CameraAxesHelper';
 
 export class LabColladaApplication implements Application, ColladaReceiver {
     public constructor(size: Size) {
@@ -28,24 +31,24 @@ export class LabColladaApplication implements Application, ColladaReceiver {
             this.renderer.domElement
         );
 
+        this.cameraAxesHelper = new CameraAxesHelper();
+
+        this.stats = Stats();
+        document.body.appendChild(this.stats.dom);
+
+        this.scene.add(this.cameraAxesHelper.renderable());
+        this.scene.add(makeGlobe());
         this.scene.add(new Three.AmbientLight(0x404040, 2.0));
 
-        fetchCollada(1, 'collada/10/523/10_523_593/10_523_593.dae', this);
-        fetchCollada(2, 'collada/10/523/10_523_594/10_523_594.dae', this);
-        fetchCollada(3, 'collada/10/523/10_523_595/10_523_595.dae', this);
-
-        fetchCollada(4, 'collada/10/524/10_524_593/10_524_593.dae', this);
-        fetchCollada(5, 'collada/10/524/10_524_594/10_524_594.dae', this);
-        fetchCollada(6, 'collada/10/524/10_524_595/10_524_595.dae', this);
-
-        fetchCollada(7, 'collada/10/525/10_525_593/10_525_593.dae', this);
-        fetchCollada(8, 'collada/10/525/10_525_594/10_525_594.dae', this);
-        fetchCollada(9, 'collada/10/525/10_525_595/10_525_595.dae', this);
+        this.fetchModelData();
     }
 
     public render(): void {
         this.navigator.updateCamera();
+        this.cameraAxesHelper.updateFromCamera(this.navigator.getCamera());
         this.renderer.render(this.scene, this.navigator.getCamera());
+
+        this.stats.update();
     }
 
     public resize(size: Size): void {
@@ -77,8 +80,24 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         console.warn(`failed to load collada ${url}`);
     }
 
+    private fetchModelData(): void {
+        fetchCollada(1, 'collada/10/523/10_523_593/10_523_593.dae', this);
+        fetchCollada(2, 'collada/10/523/10_523_594/10_523_594.dae', this);
+        fetchCollada(3, 'collada/10/523/10_523_595/10_523_595.dae', this);
+
+        fetchCollada(4, 'collada/10/524/10_524_593/10_524_593.dae', this);
+        fetchCollada(5, 'collada/10/524/10_524_594/10_524_594.dae', this);
+        fetchCollada(6, 'collada/10/524/10_524_595/10_524_595.dae', this);
+
+        fetchCollada(7, 'collada/10/525/10_525_593/10_525_593.dae', this);
+        fetchCollada(8, 'collada/10/525/10_525_594/10_525_594.dae', this);
+        fetchCollada(9, 'collada/10/525/10_525_595/10_525_595.dae', this);
+    }
+
     private geoConvertUtm: GeoConvertUtm;
     private scene: Three.Scene;
     private renderer: SceneRenderer;
     private navigator: OrbitingWorldNavigator;
+    private cameraAxesHelper: CameraAxesHelper;
+    private stats: Stats;
 }
