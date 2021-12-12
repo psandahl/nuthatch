@@ -1,13 +1,12 @@
 import * as Three from 'three';
 
 import { Application } from './Application';
-import { GeoConvertWgs84 } from '../math/GeoConvert';
-import { matrixLocalNed4 } from '../math/Matrix';
 import { makeGlobe } from '../render/Globe';
 import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
-import { SemiMajorAxis, InverseFlattening } from '../math/Ellipsoid';
+import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Size } from '../types/Size';
+import { CameraAxesHelper } from '../render/CameraAxesHelper';
 
 export class LabNavApplication implements Application {
     constructor(size: Size) {
@@ -25,17 +24,14 @@ export class LabNavApplication implements Application {
             this.renderer.domElement
         );
 
-        this.converter = new GeoConvertWgs84();
-        this.localAxes = new Three.AxesHelper(1.0);
-        this.updateLocalAxes();
-        this.scene.add(this.localAxes);
-
+        this.cameraAxesHelper = new CameraAxesHelper();
+        this.scene.add(this.cameraAxesHelper.renderable());
         this.scene.add(makeGlobe());
     }
 
     public render(): void {
         this.navigator.updateCamera();
-        this.updateLocalAxes();
+        this.cameraAxesHelper.updateFromCamera(this.navigator.getCamera());
 
         this.renderer.render(this.scene, this.navigator.getCamera());
     }
@@ -45,33 +41,8 @@ export class LabNavApplication implements Application {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
-    private pointAlongCameraAxis(): Three.Vector3 {
-        const direction = new Three.Vector3();
-        this.navigator.getCamera().getWorldDirection(direction);
-
-        return this.navigator
-            .getCamera()
-            .position.clone()
-            .addScaledVector(direction, 5.0);
-    }
-
-    private updateLocalAxes(): void {
-        const axesPosition = this.pointAlongCameraAxis();
-        this.localAxes.position.set(
-            axesPosition.x,
-            axesPosition.y,
-            axesPosition.z
-        );
-
-        this.localAxes.setRotationFromMatrix(
-            matrixLocalNed4(axesPosition, this.converter)
-        );
-        this.localAxes.updateMatrixWorld();
-    }
-
     private scene: Three.Scene;
     private renderer: SceneRenderer;
     private navigator: OrbitingWorldNavigator;
-    private converter: GeoConvertWgs84;
-    private localAxes: Three.AxesHelper;
+    private cameraAxesHelper: CameraAxesHelper;
 }

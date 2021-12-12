@@ -2,6 +2,10 @@ import * as Three from 'three';
 
 import { SemiMajorAxis, InverseFlattening } from '../math/Ellipsoid';
 
+/**
+ * Helper function to create a simple textured globe.
+ * @returns A globe mesh.
+ */
 export function makeGlobe(): Three.Mesh {
     const textureLoader = new Three.TextureLoader();
     const earth = textureLoader.load('/images/earth_texture.png');
