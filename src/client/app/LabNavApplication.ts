@@ -3,6 +3,7 @@ import * as Three from 'three';
 import { Application } from './Application';
 import { GeoConvertWgs84 } from '../math/GeoConvert';
 import { matrixLocalNed4 } from '../math/Matrix';
+import { makeGlobe } from '../render/Globe';
 import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { SemiMajorAxis, InverseFlattening } from '../math/Ellipsoid';
@@ -29,14 +30,7 @@ export class LabNavApplication implements Application {
         this.updateLocalAxes();
         this.scene.add(this.localAxes);
 
-        const textureLoader = new Three.TextureLoader();
-        const earth = textureLoader.load('/images/earth_texture.png');
-        const sphereGeometry = new Three.SphereGeometry(SemiMajorAxis, 32, 32);
-        const sphereMaterial = new Three.MeshBasicMaterial({ map: earth });
-        const sphere = new Three.Mesh(sphereGeometry, sphereMaterial);
-        sphere.scale.set(1, 1.0 - 1.0 / InverseFlattening, 1.0);
-        sphere.rotateX(Math.PI / 2);
-        this.scene.add(sphere);
+        this.scene.add(makeGlobe());
     }
 
     public render(): void {
