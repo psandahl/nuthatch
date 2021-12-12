@@ -28,7 +28,19 @@ export class LabColladaApplication implements Application, ColladaReceiver {
             this.renderer.domElement
         );
 
+        this.scene.add(new Three.AmbientLight(0x404040, 2.0));
+
         fetchCollada(1, 'collada/10/523/10_523_593/10_523_593.dae', this);
+        fetchCollada(2, 'collada/10/523/10_523_594/10_523_594.dae', this);
+        fetchCollada(3, 'collada/10/523/10_523_595/10_523_595.dae', this);
+
+        fetchCollada(4, 'collada/10/524/10_524_593/10_524_593.dae', this);
+        fetchCollada(5, 'collada/10/524/10_524_594/10_524_594.dae', this);
+        fetchCollada(6, 'collada/10/524/10_524_595/10_524_595.dae', this);
+
+        fetchCollada(7, 'collada/10/525/10_525_593/10_525_593.dae', this);
+        fetchCollada(8, 'collada/10/525/10_525_594/10_525_594.dae', this);
+        fetchCollada(9, 'collada/10/525/10_525_595/10_525_595.dae', this);
     }
 
     public render(): void {
@@ -39,8 +51,6 @@ export class LabColladaApplication implements Application, ColladaReceiver {
     public resize(size: Size): void {
         this.navigator.setSize(size);
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
-
-        console.log(this.navigator.getCamera().position);
     }
 
     public receiveColladaSucceeded(
@@ -54,16 +64,12 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         );
         if (result) {
             const center = bbox.getCenter(new Three.Vector3());
-            console.log('center: ', center);
 
             const normal = center.clone().normalize();
-            const camPos = center.clone().addScaledVector(normal, 1000.0);
+            const camPos = center.clone().addScaledVector(normal, 3000.0);
             this.navigator.tiltedAt(camPos);
 
             this.scene.add(model.scene);
-            this.scene.add(new Three.Box3Helper(bbox));
-
-            console.log('added');
         }
     }
 

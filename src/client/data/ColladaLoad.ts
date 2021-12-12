@@ -7,6 +7,12 @@ import {
 import { ColladaReceiver } from '../app/ColladaReceiver';
 import { GeoConvertUtm } from '../math/GeoConvert';
 
+/**
+ * Fetch a collada model.
+ * @param id The id of the request
+ * @param url The urls for the model
+ * @param receiver The receiver of the model
+ */
 export function fetchCollada(
     id: number,
     url: string,
@@ -23,6 +29,12 @@ export function fetchCollada(
     );
 }
 
+/**
+ * Convert a Collada model to ECEF.
+ * @param convert The UTM to ECEF converter
+ * @param model The model to be converted.
+ * @returns Status of conversion plus bounding box.
+ */
 export function modifyTerrainColladaModel(
     convert: GeoConvertUtm,
     model: Collada
@@ -53,8 +65,12 @@ export function modifyTerrainColladaModel(
                     position.setXYZ(i, ecef.x, ecef.y, ecef.z);
                 }
 
-                // The world matrix must be reset to identity.
+                // The mesh matrices and position must be reset.
+                mesh.matrix = new Three.Matrix4();
                 mesh.matrixWorld = new Three.Matrix4();
+                mesh.normalMatrix.copy(new Three.Matrix3());
+                mesh.quaternion.copy(new Three.Quaternion());
+                mesh.position.set(0, 0, 0);
 
                 // Recompute vertex normals and bounding box.
                 mesh.geometry.computeVertexNormals();
@@ -63,16 +79,18 @@ export function modifyTerrainColladaModel(
                 // Add to bounding box if several meshes in model.
                 bbox.union(mesh.geometry.boundingBox!);
 
-                mesh.material = new Three.MeshBasicMaterial({
-                    color: 0xffff00,
-                    wireframe: false,
-                });
+                //mesh.material = new Three.MeshNormalMaterial();
             } else {
                 console.warn('Collada mesh does not meet expectations');
                 result = false;
             }
         }
     });
+
+    model.scene.matrix = new Three.Matrix4();
+    model.scene.matrixWorld = new Three.Matrix4();
+    model.scene.quaternion.copy(new Three.Quaternion());
+    model.scene.position.set(0, 0, 0);
 
     return [result, bbox];
 }
