@@ -11,7 +11,7 @@ import * as Three from 'three';
 
 import { describe } from 'mocha';
 import { expect } from 'chai';
-import { GeoConvert } from '../../../src/client/math/GeoConvert';
+import { GeoConvertWgs84 } from '../../../src/client/math/GeoConvert';
 import { degToRad } from '../../../src/client/math/Helpers';
 
 describe('matrix tests', () => {
@@ -210,7 +210,7 @@ describe('matrix tests', () => {
     });
 
     describe('matrixLocalNed4', () => {
-        const converter = new GeoConvert();
+        const converter = new GeoConvertWgs84();
         const north = new Three.Vector3();
         const east = new Three.Vector3();
         const down = new Three.Vector3();

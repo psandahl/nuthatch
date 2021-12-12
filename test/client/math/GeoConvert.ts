@@ -1,13 +1,13 @@
 import * as Three from 'three';
 
-import { GeoConvert } from '../../../src/client/math/GeoConvert';
+import { GeoConvertWgs84 } from '../../../src/client/math/GeoConvert';
 
 import { describe } from 'mocha';
 import { expect } from 'chai';
 
 describe('geo conversion between ecef and wgs84', () => {
     it('from ecef to wgs84', () => {
-        const converter = new GeoConvert();
+        const converter = new GeoConvertWgs84();
         const wgs84 = converter.ecefToWgs84(
             new Three.Vector3(-2206719.103843, -4878960.298373, 3459402.703715)
         );
@@ -17,7 +17,7 @@ describe('geo conversion between ecef and wgs84', () => {
     });
 
     it('from wgs84 to ecef', () => {
-        const converter = new GeoConvert();
+        const converter = new GeoConvertWgs84();
         const ecef = converter.wgs84ToEcef(
             new Three.Vector3(33.03956, -114.336902, 3237.725)
         );
