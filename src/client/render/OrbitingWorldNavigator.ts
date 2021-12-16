@@ -61,11 +61,12 @@ export class OrbitingWorldNavigator implements WorldNavigator {
 
     public setView(
         position: Three.Vector3,
-        orientation: Three.Vector3,
+        platform: Three.Vector3,
+        lever: Three.Vector3,
         hFov: number,
         vFov: number
     ): void {
-        console.warn('setView is not implemented in ExploringWorldNavigator');
+        console.error('setView is not implemented in ExploringWorldNavigator');
     }
 
     public lookAt(

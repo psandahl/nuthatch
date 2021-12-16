@@ -47,12 +47,13 @@ export class MouseTerrainNavigator implements WorldNavigator {
      */
     public setView(
         position: Three.Vector3,
-        orientation: Three.Vector3,
+        platform: Three.Vector3,
+        lever: Three.Vector3,
         hFov: number,
         vFov: number
     ): void {
         this.position = position;
-        this.orientation = orientation;
+        this.orientation = platform;
         this.ecefRotation = matrixEulerEcef4(
             this.orientation.x,
             this.orientation.y,

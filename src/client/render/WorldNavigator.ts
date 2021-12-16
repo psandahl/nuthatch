@@ -8,22 +8,24 @@ import { Size } from '../types/Size';
  */
 export interface WorldNavigator {
     /**
-     * Set the view for the navigator (usable for a tracking navigator).
-     * @param position The ECEF position for the navigator
-     * @param orientation The ECEF orientation for the navigator (radians)
-     * @param hFov The horizontal field of view (radians)
-     * @param vFov The vertical field of view (radians)
+     * Set the view for the navigator (usable for a camera tracking navigator).
+     * @param position The Wgs84 position for the navigator
+     * @param platform The Wgs84 platform orientation for the navigator (degrees)
+     * @param lever The Wgs84 lever orientation for the navigator (degrees)
+     * @param hFov The horizontal field of view (degrees)
+     * @param vFov The vertical field of view (degrees)
      */
     setView(
         position: Three.Vector3,
-        orientation: Three.Vector3,
+        platform: Three.Vector3,
+        lever: Three.Vector3,
         hFov: number,
         vFov: number
     ): void;
 
     /**
      * Set the view for the navigator (usable as starting point for an
-     * exploring navigator).
+     * orbiting navigator).
      * @param position The ECEF for the navigator
      * @param at The ECEF position where to look
      * @param up The ECEF up direction
@@ -31,8 +33,9 @@ export interface WorldNavigator {
     lookAt(position: Three.Vector3, at: Three.Vector3, up: Three.Vector3): void;
 
     /**
-     * Notification that the rendering canvas' size has changed. Mostly usable
-     * for an exploring navigator, to change aspect ratio).
+     * Notification that the rendering canvas' size has changed. For an orbiting
+     * navigator it may result in change of aspect ratio and for a tracking
+     * navigator it may result in change of the drawing area.
      * @param size The new size
      */
     setSize(size: Size): void;
