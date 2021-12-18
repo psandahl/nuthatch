@@ -45,7 +45,7 @@ export function matrixEulerEcef4(
         1.0,
     ];
 
-    return matrix;
+    return matrix.transpose();
 }
 
 /**
@@ -57,9 +57,9 @@ export function decomposeMatrixEulerEcef4(
     matrix: Three.Matrix4
 ): [number, number, number] {
     return [
-        Math.atan2(matrix.elements[4], matrix.elements[0]),
-        -Math.asin(matrix.elements[8]),
-        Math.atan2(matrix.elements[9], matrix.elements[10]),
+        Math.atan2(matrix.elements[1], matrix.elements[0]),
+        -Math.asin(matrix.elements[2]),
+        Math.atan2(matrix.elements[6], matrix.elements[10]),
     ];
 }
 
@@ -76,7 +76,7 @@ export function matrixEcefToNed4(): Three.Matrix4 {
  * @returns A transform matrix from NED to OpenGL.
  */
 export function matrixNedToGl4(): Three.Matrix4 {
-    return matrixEulerEcef4(-Math.PI / 2.0, Math.PI / 2.0, 0.0);
+    return matrixEulerEcef4(Math.PI / 2.0, 0.0, -Math.PI / 2.0);
 }
 
 /**

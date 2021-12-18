@@ -59,7 +59,7 @@ export class TrackingWorldNavigator implements WorldNavigator {
             degToRad(lever.x),
             degToRad(lever.y),
             degToRad(lever.z)
-        ).transpose();
+        );
         matrix = leverRotation.premultiply(matrix);
 
         this.camera.position.copy(geoc);

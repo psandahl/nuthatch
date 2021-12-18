@@ -29,7 +29,7 @@ describe('matrix tests', () => {
 
         it('90 deg yaw rotation', () => {
             const rotated = new Three.Vector3(1.0, 0.0, 0.0).applyMatrix4(
-                matrixEulerEcef4(Math.PI / 2.0, 0.0, 0.0)
+                matrixEulerEcef4(-Math.PI / 2.0, 0.0, 0.0)
             );
             const expected = new Three.Vector3(0.0, -1.0, 0.0);
             expect(rotated.x).to.be.closeTo(expected.x, Number.EPSILON);
@@ -39,7 +39,7 @@ describe('matrix tests', () => {
 
         it('90 deg pitch rotation', () => {
             const rotated = new Three.Vector3(1.0, 0.0, 0.0).applyMatrix4(
-                matrixEulerEcef4(0.0, Math.PI / 2.0, 0.0)
+                matrixEulerEcef4(0.0, -Math.PI / 2.0, 0.0)
             );
             const expected = new Three.Vector3(0.0, 0.0, 1.0);
             expect(rotated.x).to.be.closeTo(expected.x, Number.EPSILON);
@@ -49,7 +49,7 @@ describe('matrix tests', () => {
 
         it('90 deg roll rotation', () => {
             const rotated = new Three.Vector3(0.0, 0.0, 1.0).applyMatrix4(
-                matrixEulerEcef4(0.0, 0.0, Math.PI / 2.0)
+                matrixEulerEcef4(0.0, 0.0, -Math.PI / 2.0)
             );
             const expected = new Three.Vector3(0.0, 1.0, 0.0);
             expect(rotated.x).to.be.closeTo(expected.x, Number.EPSILON);
