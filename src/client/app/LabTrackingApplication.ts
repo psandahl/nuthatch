@@ -41,6 +41,8 @@ export class LabTrackingApplication implements Application {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
+    public tick(elapsed: number): void {}
+
     private scene: Three.Scene;
     private renderer: SceneRenderer;
     private navigator: TrackingWorldNavigator;

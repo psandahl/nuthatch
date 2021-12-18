@@ -69,6 +69,8 @@ export class LabApplication implements Application, ImageReceiver {
         this.sceneRenderer.setDrawingArea(drawingArea);
     }
 
+    public tick(elapsed: number): void {}
+
     public receiveImageSucceeded(
         image: HTMLImageElement,
         id: number,

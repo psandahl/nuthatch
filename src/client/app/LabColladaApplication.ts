@@ -56,6 +56,8 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
+    public tick(elapsed: number): void {}
+
     public receiveColladaSucceeded(
         model: Collada,
         id: number,
