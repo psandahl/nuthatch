@@ -67,6 +67,7 @@ export class LabTrackingApplication implements Application, ColladaReceiver {
             //6.81619,
             //3.8372
         );
+        this.renderer.setDrawingArea(this.navigator.getDrawingArea());
 
         this.cameraAxesHelper = new CameraAxesHelper();
         this.scene.add(this.cameraAxesHelper.renderable());
