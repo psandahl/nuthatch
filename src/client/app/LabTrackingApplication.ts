@@ -70,7 +70,7 @@ export class LabTrackingApplication
                 new Three.Vector3(
                     obj.position.x,
                     obj.position.y,
-                    -obj.position.z
+                    obj.position.z
                 ),
                 new Three.Vector3(
                     obj.platform.yaw,
