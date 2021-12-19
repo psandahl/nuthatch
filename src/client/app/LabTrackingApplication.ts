@@ -1,4 +1,5 @@
 import * as Three from 'three';
+import Stats from 'three/examples/jsm/libs/stats.module';
 
 import { Application } from './Application';
 import { CameraAxesHelper } from '../render/CameraAxesHelper';
@@ -39,6 +40,9 @@ export class LabTrackingApplication
         this.cameraAxesHelper = new CameraAxesHelper();
         this.scene.add(this.cameraAxesHelper.renderable());
 
+        this.stats = Stats();
+        document.body.appendChild(this.stats.dom);
+
         this.scene.add(makeGlobe());
 
         this.scene.add(new Three.AmbientLight(0x404040, 2.0));
@@ -51,6 +55,8 @@ export class LabTrackingApplication
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
         this.cameraAxesHelper.updateFromCamera(this.navigator.getCamera());
         this.renderer.render(this.scene, this.navigator.getCamera());
+
+        this.stats.update();
     }
 
     public resize(size: Size): void {
@@ -145,6 +151,7 @@ export class LabTrackingApplication
     private renderer: SceneRenderer;
     private navigator: TrackingWorldNavigator;
     private cameraAxesHelper: CameraAxesHelper;
+    private stats: Stats;
     private sequence: UAV.UAVCamera[] = [];
     private numLoadedModels: number = 0;
     private modelLoaded: boolean = false;
