@@ -11,8 +11,13 @@ import { GeoConvertUtm } from '../math/GeoConvert';
 import { ColladaReceiver } from '../types/ColladaReceiver';
 import { fetchCollada, modifyTerrainColladaModel } from '../data/ColladaLoad';
 import { Collada } from 'three/examples/jsm/loaders/ColladaLoader';
+import { fetchJSON } from '../data/JSONLoad';
+import { JSONReceiver } from '../types/JSONReceiver';
+import * as UAV from '../types/UAVCamera';
 
-export class LabTrackingApplication implements Application, ColladaReceiver {
+export class LabTrackingApplication
+    implements Application, ColladaReceiver, JSONReceiver
+{
     public constructor(size: Size) {
         this.geoConvertUtm = new GeoConvertUtm(10);
         this.scene = new Three.Scene();
@@ -31,54 +36,19 @@ export class LabTrackingApplication implements Application, ColladaReceiver {
             SemiMajorAxis
         );
 
-        /*
-        pos x> 45.5056
-        pos y> -122.675
-        pos z> 2006.28
-        platform yaw> 0
-        platform pitch> 0
-        platform roll> 0
-        sensor yaw> 4.9761
-        sensor pitch> -55.3083
-        sensor roll> -11.6802
-        horizontal fov> 41.0183
-        vertical fov> 23.7648
-
-        x: 45.5071
-        y: -122.67
-        z: 2004.15
-
-        yaw: -11.1586
-        pitch: -56.5292
-        roll: -11.1679
-
-        hfov: 6.81619
-        vfov: 3.8372
-
-        */
-        this.navigator.setView(
-            new Three.Vector3(45.5056, -122.675, 2006.28),
-            //new Three.Vector3(45.5071, -122.67, 2004.15),
-            new Three.Vector3(0, 0, 0),
-            new Three.Vector3(4.9761, -55.3083, -11.6802),
-            //new Three.Vector3(-11.1586, -56.5292, -11.1679),
-            41.0183,
-            23.7648
-            //6.81619,
-            //3.8372
-        );
-        this.renderer.setDrawingArea(this.navigator.getDrawingArea());
-
         this.cameraAxesHelper = new CameraAxesHelper();
         this.scene.add(this.cameraAxesHelper.renderable());
 
         this.scene.add(makeGlobe());
 
         this.scene.add(new Three.AmbientLight(0x404040, 2.0));
+
         this.fetchModelData();
+        this.fetchSequence();
     }
 
     public render(): void {
+        this.renderer.setDrawingArea(this.navigator.getDrawingArea());
         this.cameraAxesHelper.updateFromCamera(this.navigator.getCamera());
         this.renderer.render(this.scene, this.navigator.getCamera());
     }
@@ -88,7 +58,39 @@ export class LabTrackingApplication implements Application, ColladaReceiver {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
-    public tick(elapsed: number): void {}
+    public tick(elapsed: number): void {
+        if (
+            this.sequenceLoaded &&
+            this.modelLoaded &&
+            this.sequence.length > 0
+        ) {
+            const obj = this.sequence[this.sequenceIndex];
+
+            this.navigator.setView(
+                new Three.Vector3(
+                    obj.position.x,
+                    obj.position.y,
+                    -obj.position.z
+                ),
+                new Three.Vector3(
+                    obj.platform.yaw,
+                    obj.platform.pitch,
+                    obj.platform.roll
+                ),
+                new Three.Vector3(
+                    obj.lever.yaw,
+                    obj.lever.pitch,
+                    obj.lever.roll
+                ),
+                obj.fov.hfov,
+                obj.fov.vfov
+            );
+
+            if (++this.sequenceIndex === this.sequence.length) {
+                this.sequenceIndex = 0;
+            }
+        }
+    }
 
     public receiveColladaSucceeded(
         model: Collada,
@@ -100,13 +102,24 @@ export class LabTrackingApplication implements Application, ColladaReceiver {
             model
         );
         if (result) {
-            console.log('add model');
             this.scene.add(model.scene);
+            if (++this.numLoadedModels == 9) {
+                this.modelLoaded = true;
+            }
         }
     }
 
     public receiveColladaFailed(id: number, url: string): void {
         console.warn(`failed to load collada ${url}`);
+    }
+
+    public receiveJSONSucceeded(obj: object, id: number, url: string): void {
+        this.sequence = obj as UAV.UAVCamera[];
+        this.sequenceLoaded = true;
+    }
+
+    public receiveJSONFailed(id: number, url: string): void {
+        console.warn(`failed to load JSON ${url}`);
     }
 
     private fetchModelData(): void {
@@ -123,9 +136,18 @@ export class LabTrackingApplication implements Application, ColladaReceiver {
         fetchCollada(9, 'collada/10/525/10_525_595/10_525_595.dae', this);
     }
 
+    private fetchSequence(): void {
+        fetchJSON(1, 'sequences/sequence.json', this);
+    }
+
     private geoConvertUtm: GeoConvertUtm;
     private scene: Three.Scene;
     private renderer: SceneRenderer;
     private navigator: TrackingWorldNavigator;
     private cameraAxesHelper: CameraAxesHelper;
+    private sequence: UAV.UAVCamera[] = [];
+    private numLoadedModels: number = 0;
+    private modelLoaded: boolean = false;
+    private sequenceLoaded: boolean = false;
+    private sequenceIndex: number = 0;
 }

@@ -29,5 +29,5 @@ window.onload = async () => {
         currentMillis = now;
     };
 
-    window.setInterval(tickMillis, 1000.0 / 60.0);
+    window.setInterval(tickMillis, 1000.0 / 30.0);
 };
