@@ -12,6 +12,7 @@ import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { makeGlobe } from '../render/Globe';
 import { CameraAxesHelper } from '../render/CameraAxesHelper';
+import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
 
 export class LabColladaApplication implements Application, ColladaReceiver {
     public constructor(size: Size) {
@@ -83,17 +84,10 @@ export class LabColladaApplication implements Application, ColladaReceiver {
     }
 
     private fetchModelData(): void {
-        fetchCollada(1, 'collada/10/523/10_523_593/10_523_593.dae', this);
-        fetchCollada(2, 'collada/10/523/10_523_594/10_523_594.dae', this);
-        fetchCollada(3, 'collada/10/523/10_523_595/10_523_595.dae', this);
-
-        fetchCollada(4, 'collada/10/524/10_524_593/10_524_593.dae', this);
-        fetchCollada(5, 'collada/10/524/10_524_594/10_524_594.dae', this);
-        fetchCollada(6, 'collada/10/524/10_524_595/10_524_595.dae', this);
-
-        fetchCollada(7, 'collada/10/525/10_525_593/10_525_593.dae', this);
-        fetchCollada(8, 'collada/10/525/10_525_594/10_525_594.dae', this);
-        fetchCollada(9, 'collada/10/525/10_525_595/10_525_595.dae', this);
+        const models = dummyUrlsLvl12();
+        for (var i = 0; i < models.length; ++i) {
+            fetchCollada(i + 1, models[i], this);
+        }
     }
 
     private geoConvertUtm: GeoConvertUtm;
