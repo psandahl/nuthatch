@@ -28,8 +28,6 @@ export class LabTrackingApplication
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        document.body.appendChild(this.renderer.domElement);
-
         this.navigator = new TrackingWorldNavigator(
             size,
             30,

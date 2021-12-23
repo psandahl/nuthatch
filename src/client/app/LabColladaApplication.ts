@@ -23,8 +23,6 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        document.body.appendChild(this.renderer.domElement);
-
         this.navigator = new OrbitingWorldNavigator(
             50,
             1.0,

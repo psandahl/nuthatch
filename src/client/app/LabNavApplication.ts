@@ -15,7 +15,6 @@ export class LabNavApplication implements Application {
         this.renderer = new SceneRenderer();
         const [width, height] = size;
         this.renderer.setSize(width, height);
-        document.body.appendChild(this.renderer.domElement);
 
         this.navigator = new OrbitingWorldNavigator(
             50,
