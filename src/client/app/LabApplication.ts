@@ -11,7 +11,7 @@ import { Size } from '../types/Size';
 import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
 
 export class LabApplication implements Application, ImageReceiver {
-    public constructor(size: Size) {
+    public constructor(size: Size, renderTarget: HTMLCanvasElement) {
         this.size = size;
 
         this.scene = new Three.Scene();
@@ -22,7 +22,7 @@ export class LabApplication implements Application, ImageReceiver {
         this.sceneCamera.setFov(1.0, 0.7);
         this.sceneCamera.position.z = 5;
 
-        this.sceneRenderer = new SceneRenderer();
+        this.sceneRenderer = new SceneRenderer(renderTarget);
 
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);

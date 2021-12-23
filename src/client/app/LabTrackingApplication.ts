@@ -20,10 +20,10 @@ import * as UAV from '../types/UAVCamera';
 export class LabTrackingApplication
     implements Application, ColladaReceiver, JSONReceiver
 {
-    public constructor(size: Size) {
+    public constructor(size: Size, renderTarget: HTMLCanvasElement) {
         this.geoConvertUtm = new GeoConvertUtm(10);
         this.scene = new Three.Scene();
-        this.renderer = new SceneRenderer();
+        this.renderer = new SceneRenderer(renderTarget);
 
         const [width, height] = size;
         this.renderer.setSize(width, height);

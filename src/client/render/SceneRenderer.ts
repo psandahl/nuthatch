@@ -9,11 +9,12 @@ export class SceneRenderer extends Three.WebGLRenderer {
     /**
      * Construct the scene renderer.
      */
-    constructor() {
+    constructor(canvas: HTMLCanvasElement) {
         super({
             antialias: true,
             precision: 'highp',
             logarithmicDepthBuffer: true,
+            canvas: canvas,
         });
         this.setScissorTest(true);
         this.setClearColor(new Three.Color(0.0, 0.0, 0.1));

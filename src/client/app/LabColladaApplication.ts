@@ -15,11 +15,11 @@ import { CameraAxesHelper } from '../render/CameraAxesHelper';
 import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
 
 export class LabColladaApplication implements Application, ColladaReceiver {
-    public constructor(size: Size) {
+    public constructor(size: Size, renderTarget: HTMLCanvasElement) {
         this.geoConvertUtm = new GeoConvertUtm(10);
         this.scene = new Three.Scene();
 
-        this.renderer = new SceneRenderer();
+        this.renderer = new SceneRenderer(renderTarget);
         const [width, height] = size;
         this.renderer.setSize(width, height);
 

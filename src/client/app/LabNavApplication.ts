@@ -9,10 +9,10 @@ import { Size } from '../types/Size';
 import { CameraAxesHelper } from '../render/CameraAxesHelper';
 
 export class LabNavApplication implements Application {
-    constructor(size: Size) {
+    constructor(size: Size, renderTarget: HTMLCanvasElement) {
         this.scene = new Three.Scene();
 
-        this.renderer = new SceneRenderer();
+        this.renderer = new SceneRenderer(renderTarget);
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
