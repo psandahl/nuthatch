@@ -2,7 +2,7 @@ import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import { Application } from './Application';
-import { CameraAxesHelper } from '../render/CameraAxesHelper';
+import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { makeGlobe } from '../render/Globe';
 import { Size } from '../types/Size';
 import { SceneRenderer } from '../render/SceneRenderer';
@@ -36,8 +36,8 @@ export class LabTrackingApplication
             SemiMajorAxis
         );
 
-        this.cameraAxesHelper = new CameraAxesHelper();
-        this.scene.add(this.cameraAxesHelper.renderable());
+        this.cameraNavAxesHelper = new CameraNavAxesHelper();
+        this.scene.add(this.cameraNavAxesHelper.renderable());
 
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
@@ -52,7 +52,7 @@ export class LabTrackingApplication
 
     public render(): void {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
-        this.cameraAxesHelper.updateFromCamera(this.navigator.getCamera());
+        this.cameraNavAxesHelper.updateFromCamera(this.navigator.getCamera());
         this.renderer.render(this.scene, this.navigator.getCamera());
 
         this.stats.update();
@@ -134,7 +134,7 @@ export class LabTrackingApplication
     private scene: Three.Scene;
     private renderer: SceneRenderer;
     private navigator: TrackingWorldNavigator;
-    private cameraAxesHelper: CameraAxesHelper;
+    private cameraNavAxesHelper: CameraNavAxesHelper;
     private stats: Stats;
     private sequence: UAV.UAVCamera[] = [];
     private sequenceIndex: number = 0;

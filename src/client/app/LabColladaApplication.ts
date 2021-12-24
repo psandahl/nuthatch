@@ -11,7 +11,7 @@ import { SceneRenderer } from '../render/SceneRenderer';
 import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { makeGlobe } from '../render/Globe';
-import { CameraAxesHelper } from '../render/CameraAxesHelper';
+import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
 
 export class LabColladaApplication implements Application, ColladaReceiver {
@@ -30,12 +30,12 @@ export class LabColladaApplication implements Application, ColladaReceiver {
             this.renderer.domElement
         );
 
-        this.cameraAxesHelper = new CameraAxesHelper();
+        this.cameraNavAxesHelper = new CameraNavAxesHelper();
 
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
 
-        this.scene.add(this.cameraAxesHelper.renderable());
+        this.scene.add(this.cameraNavAxesHelper.renderable());
         this.scene.add(makeGlobe());
         this.scene.add(new Three.AmbientLight(0x404040, 2.0));
 
@@ -44,7 +44,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
 
     public render(): void {
         this.navigator.updateCamera();
-        this.cameraAxesHelper.updateFromCamera(this.navigator.getCamera());
+        this.cameraNavAxesHelper.updateFromCamera(this.navigator.getCamera());
         this.renderer.render(this.scene, this.navigator.getCamera());
 
         this.stats.update();
@@ -92,6 +92,6 @@ export class LabColladaApplication implements Application, ColladaReceiver {
     private scene: Three.Scene;
     private renderer: SceneRenderer;
     private navigator: OrbitingWorldNavigator;
-    private cameraAxesHelper: CameraAxesHelper;
+    private cameraNavAxesHelper: CameraNavAxesHelper;
     private stats: Stats;
 }
