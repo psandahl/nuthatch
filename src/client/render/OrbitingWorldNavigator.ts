@@ -1,5 +1,6 @@
 import * as Three from 'three';
 
+import { MouseEventTag, WheelEventTag } from '../app/Application';
 import { DrawingArea, fullDrawingArea } from '../types/DrawingArea';
 import { pxToUv, pxToWorldRay } from '../math/CameraTransforms';
 import {
@@ -47,16 +48,6 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.panMousePosition = undefined;
         this.rotateMousePosition = undefined;
         this.rotateAnchorPosition = undefined;
-
-        // Set mouse listeners.
-        canvas.onwheel = this.onWheel.bind(this);
-        canvas.onmousedown = this.onMouseDown.bind(this);
-        canvas.onmouseup = this.onMouseUp.bind(this);
-        canvas.onmousemove = this.onMouseMove.bind(this);
-        canvas.onmouseleave = this.onMouseLeave.bind(this);
-        canvas.oncontextmenu = (event: MouseEvent) => {
-            event.preventDefault();
-        };
     }
 
     public setView(
@@ -127,23 +118,39 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.orientation = matrix.premultiply(tiltMatrix);
     }
 
-    private onWheel(event: WheelEvent): void {
-        event.preventDefault();
-
+    public onWheel(tag: WheelEventTag, event: WheelEvent): void {
         const stride = Math.max(
             1.0,
             heightAboveEllipsoid(this.position) / 10.0
         );
-        const direction = event.deltaY < 0 ? 1.0 : -1.0;
+        const direction = tag == WheelEventTag.Backward ? 1.0 : -1.0;
         this.position.addScaledVector(
             this.camera.getWorldDirection(new Three.Vector3()),
             direction * stride
         );
     }
 
-    private onMouseDown(event: MouseEvent): void {
-        event.preventDefault();
+    public onMouse(tag: MouseEventTag, event: MouseEvent): void {
+        switch (tag) {
+            case MouseEventTag.Down:
+                this.onMouseDown(event);
+                break;
 
+            case MouseEventTag.Up:
+                this.onMouseUp(event);
+                break;
+
+            case MouseEventTag.Move:
+                this.onMouseMove(event);
+                break;
+
+            case MouseEventTag.Leave:
+                this.onMouseLeave(event);
+                break;
+        }
+    }
+
+    private onMouseDown(event: MouseEvent): void {
         if (event.button === 0) {
             this.panMousePosition = new Three.Vector2(
                 event.clientX,
@@ -161,8 +168,6 @@ export class OrbitingWorldNavigator implements WorldNavigator {
     }
 
     private onMouseUp(event: MouseEvent): void {
-        event.preventDefault();
-
         if (event.button === 0) {
             this.panMousePosition = undefined;
         } else if (event.button === 2) {
@@ -172,8 +177,6 @@ export class OrbitingWorldNavigator implements WorldNavigator {
     }
 
     private onMouseMove(event: MouseEvent): void {
-        event.preventDefault();
-
         if (this.panMousePosition) {
             this.onPan(event);
         } else if (this.rotateMousePosition && this.rotateAnchorPosition) {
@@ -362,8 +365,6 @@ export class OrbitingWorldNavigator implements WorldNavigator {
     }
 
     private onMouseLeave(event: MouseEvent): void {
-        event.preventDefault();
-
         this.panMousePosition = undefined;
         this.rotateMousePosition = undefined;
         this.rotateAnchorPosition = undefined;

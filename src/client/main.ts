@@ -17,8 +17,8 @@ window.onload = async () => {
     if (renderTarget) {
         // Initialize application.
         //const app = new LabNavApplication(windowSize(), renderTarget);
-        const app = new LabApplication(windowSize(), renderTarget);
-        //const app = new LabTrackingApplication(windowSize(), renderTarget);
+        //const app = new LabApplication(windowSize(), renderTarget);
+        const app = new LabTrackingApplication(windowSize(), renderTarget);
         //const app = new LabColladaApplication(windowSize(), renderTarget);
 
         // Handle window resize.

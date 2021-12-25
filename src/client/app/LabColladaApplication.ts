@@ -63,8 +63,14 @@ export class LabColladaApplication implements Application, ColladaReceiver {
     public tick(elapsed: number): void {}
 
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
-    public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
-    public onMouse(tag: MouseEventTag, event: MouseEvent): void {}
+
+    public onWheel(tag: WheelEventTag, event: WheelEvent): void {
+        this.navigator.onWheel(tag, event);
+    }
+
+    public onMouse(tag: MouseEventTag, event: MouseEvent): void {
+        this.navigator.onMouse(tag, event);
+    }
 
     public receiveColladaSucceeded(
         model: Collada,

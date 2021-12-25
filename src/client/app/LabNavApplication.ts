@@ -48,8 +48,14 @@ export class LabNavApplication implements Application {
     public tick(elapsed: number): void {}
 
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
-    public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
-    public onMouse(tag: MouseEventTag, event: MouseEvent): void {}
+
+    public onWheel(tag: WheelEventTag, event: WheelEvent): void {
+        this.navigator.onWheel(tag, event);
+    }
+
+    public onMouse(tag: MouseEventTag, event: MouseEvent): void {
+        this.navigator.onMouse(tag, event);
+    }
 
     private scene: Three.Scene;
     private renderer: SceneRenderer;
