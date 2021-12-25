@@ -45,16 +45,6 @@ export class LabApplication implements Application, ImageReceiver {
         );
         this.scene.add(this.texturedQuad.mesh());
 
-        window.onkeydown = (event: KeyboardEvent) => {
-            if (event.code == 'KeyC') {
-                this.sceneCamera.setMode(CameraMode.CanvasAdapting);
-                this.resize(this.size);
-            } else if (event.code == 'KeyF') {
-                this.sceneCamera.setMode(CameraMode.CameraAdapting);
-                this.resize(this.size);
-            }
-        };
-
         fetchImage(1, 'images/city.jpg', this);
     }
 
@@ -76,7 +66,17 @@ export class LabApplication implements Application, ImageReceiver {
 
     public tick(elapsed: number): void {}
 
-    public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
+    public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {
+        if (tag == KeyboardEventTag.Down) {
+            if (event.code == 'KeyC') {
+                this.sceneCamera.setMode(CameraMode.CanvasAdapting);
+                this.resize(this.size);
+            } else if (event.code == 'KeyF') {
+                this.sceneCamera.setMode(CameraMode.CameraAdapting);
+                this.resize(this.size);
+            }
+        }
+    }
     public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {}
 

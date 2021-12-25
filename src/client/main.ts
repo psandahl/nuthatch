@@ -17,8 +17,8 @@ window.onload = async () => {
     if (renderTarget) {
         // Initialize application.
         //const app = new LabNavApplication(windowSize(), renderTarget);
-        //const app = new LabApplication(windowSize(), renderTarget);
-        const app = new LabTrackingApplication(windowSize(), renderTarget);
+        const app = new LabApplication(windowSize(), renderTarget);
+        //const app = new LabTrackingApplication(windowSize(), renderTarget);
         //const app = new LabColladaApplication(windowSize(), renderTarget);
 
         // Handle window resize.
@@ -43,12 +43,18 @@ window.onload = async () => {
         window.setInterval(tickMillis, 1000.0 / 30.0);
 
         // Event handlers.
-        renderTarget.onkeydown = (event: KeyboardEvent) => {
-            event.preventDefault();
-            app.onKey(KeyboardEventTag.Down, event);
+        window.onkeydown = (event: KeyboardEvent) => {
+            if (
+                event.code != 'F5' &&
+                event.code != 'F11' &&
+                event.code != 'F12'
+            ) {
+                event.preventDefault();
+                app.onKey(KeyboardEventTag.Down, event);
+            }
         };
 
-        renderTarget.onkeyup = (event: KeyboardEvent) => {
+        window.onkeyup = (event: KeyboardEvent) => {
             event.preventDefault();
             app.onKey(KeyboardEventTag.Up, event);
         };
