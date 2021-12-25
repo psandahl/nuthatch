@@ -1,6 +1,11 @@
 import * as Three from 'three';
 
-import { Application } from './Application';
+import {
+    KeyboardEventTag,
+    MouseEventTag,
+    WheelEventTag,
+    Application,
+} from './Application';
 import { makeGlobe } from '../render/Globe';
 import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
@@ -41,6 +46,10 @@ export class LabNavApplication implements Application {
     }
 
     public tick(elapsed: number): void {}
+
+    public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
+    public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
+    public onMouse(tag: MouseEventTag, event: MouseEvent): void {}
 
     private scene: Three.Scene;
     private renderer: SceneRenderer;

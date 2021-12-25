@@ -1,7 +1,12 @@
 import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
-import { Application } from './Application';
+import {
+    KeyboardEventTag,
+    MouseEventTag,
+    WheelEventTag,
+    Application,
+} from './Application';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { makeGlobe } from '../render/Globe';
 import { Size } from '../types/Size';
@@ -92,6 +97,10 @@ export class LabTrackingApplication
             }
         }
     }
+
+    public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
+    public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
+    public onMouse(tag: MouseEventTag, event: MouseEvent): void {}
 
     public receiveColladaSucceeded(
         model: Collada,

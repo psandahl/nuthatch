@@ -1,7 +1,12 @@
 import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
-import { Application } from './Application';
+import {
+    KeyboardEventTag,
+    MouseEventTag,
+    WheelEventTag,
+    Application,
+} from './Application';
 import { Collada } from 'three/examples/jsm/loaders/ColladaLoader';
 import { fetchCollada, modifyTerrainColladaModel } from '../data/ColladaLoad';
 import { GeoConvertUtm } from '../math/GeoConvert';
@@ -56,6 +61,10 @@ export class LabColladaApplication implements Application, ColladaReceiver {
     }
 
     public tick(elapsed: number): void {}
+
+    public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
+    public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
+    public onMouse(tag: MouseEventTag, event: MouseEvent): void {}
 
     public receiveColladaSucceeded(
         model: Collada,

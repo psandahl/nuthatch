@@ -1,7 +1,12 @@
 import * as Three from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
-import { Application } from './Application';
+import {
+    KeyboardEventTag,
+    MouseEventTag,
+    WheelEventTag,
+    Application,
+} from './Application';
 import { calculateDrawingArea, fullDrawingArea } from '../types/DrawingArea';
 import { CameraMode, SceneCamera } from '../render/SceneCamera';
 import { fetchImage } from '../data/ImageLoad';
@@ -70,6 +75,10 @@ export class LabApplication implements Application, ImageReceiver {
     }
 
     public tick(elapsed: number): void {}
+
+    public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
+    public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
+    public onMouse(tag: MouseEventTag, event: MouseEvent): void {}
 
     public receiveImageSucceeded(
         image: HTMLImageElement,
