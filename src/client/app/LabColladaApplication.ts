@@ -32,7 +32,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
             50,
             1.0,
             SemiMajorAxis,
-            this.renderer.domElement
+            size
         );
 
         this.cameraNavAxesHelper = new CameraNavAxesHelper();

@@ -25,7 +25,7 @@ export class LabNavApplication implements Application {
             50,
             1.0,
             SemiMajorAxis * 4.0,
-            this.renderer.domElement
+            size
         );
 
         this.cameraNavAxesHelper = new CameraNavAxesHelper();

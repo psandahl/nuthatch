@@ -20,18 +20,13 @@ export class OrbitingWorldNavigator implements WorldNavigator {
      * @param vFov Vertical field of view (degrees)
      * @param near Near plane
      * @param far Far plane
-     * @param canvas The rendering canvas
+     * @param size Size of the rendering target
      */
-    constructor(
-        vFov: number,
-        near: number,
-        far: number,
-        canvas: HTMLCanvasElement
-    ) {
-        this.size = [canvas.width, canvas.height];
+    constructor(vFov: number, near: number, far: number, size: Size) {
+        this.size = size;
         this.camera = new Three.PerspectiveCamera(
             vFov,
-            canvas.width / canvas.height,
+            size[0] / size[1],
             near,
             far
         );
