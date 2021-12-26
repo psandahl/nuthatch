@@ -45,16 +45,6 @@ export class OrbitingWorldNavigator implements WorldNavigator {
         this.rotateAnchorPosition = undefined;
     }
 
-    public setView(
-        position: Three.Vector3,
-        platform: Three.Vector3,
-        lever: Three.Vector3,
-        hFov: number,
-        vFov: number
-    ): void {
-        console.error('setView is not implemented in ExploringWorldNavigator');
-    }
-
     public lookAt(
         position: Three.Vector3,
         at: Three.Vector3,

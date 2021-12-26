@@ -70,14 +70,6 @@ export class TrackingWorldNavigator implements WorldNavigator {
         this.updateCamera();
     }
 
-    public lookAt(
-        position: Three.Vector3,
-        at: Three.Vector3,
-        up: Three.Vector3
-    ): void {
-        console.error('lookAt is not implemented in TrackingWorldNavigator');
-    }
-
     public setSize(size: Size): void {
         this.size = size;
     }
