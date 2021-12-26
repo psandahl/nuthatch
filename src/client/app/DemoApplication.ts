@@ -14,6 +14,7 @@ import { SceneRenderer } from '../render/SceneRenderer';
 import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { WorldNavigator } from '../render/WorldNavigator';
+import { extractBasis, matrixNedToGl4 } from '../math/Matrix';
 
 enum NavigatorMode {
     Orbiting,
@@ -21,6 +22,11 @@ enum NavigatorMode {
 }
 
 export class DemoApplication implements Application {
+    /**
+     * Construct the demo application.
+     * @param size The initial size for the window
+     * @param renderTarget The canvas element to render to
+     */
     public constructor(size: Size, renderTarget: HTMLCanvasElement) {
         // Create the scene.
         this.scene = new Three.Scene();
@@ -37,6 +43,15 @@ export class DemoApplication implements Application {
             size
         );
 
+        // Create a tracking navigator with reasonable settings.
+        this.trackingNavigator = new TrackingWorldNavigator(
+            30,
+            20,
+            1,
+            SemiMajorAxis,
+            size
+        );
+
         // Set the current navigator.
         this.navigator = this.orbitingNavigator;
 
@@ -49,17 +64,30 @@ export class DemoApplication implements Application {
         this.scene.add(this.navAxesHelper.renderable());
     }
 
+    /**
+     * Render the scene.
+     */
     public render(): void {
+        // Let the navigator update its camera.
         this.navigator.updateCamera();
 
+        // Update the axes helper from the navigator's camera.
         this.navAxesHelper.updateFromCamera(this.navigator.getCamera());
 
+        // Set the drawing area for the renderer and render the scene.
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
         this.renderer.render(this.scene, this.navigator.getCamera());
     }
 
+    /**
+     * Resize the application.
+     * @param size The new size
+     */
     public resize(size: Size): void {
+        // Set new size for the navigator.
         this.navigator.setSize(size);
+
+        // Update the renderer with the navigator's new drawing area.
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
@@ -72,11 +100,15 @@ export class DemoApplication implements Application {
     }
 
     public onWheel(tag: WheelEventTag, event: WheelEvent): void {
-        this.orbitingNavigator.onWheel(tag, event);
+        if (this.navigatorMode == NavigatorMode.Orbiting) {
+            this.orbitingNavigator.onWheel(tag, event);
+        }
     }
 
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {
-        this.orbitingNavigator.onMouse(tag, event);
+        if (this.navigatorMode == NavigatorMode.Orbiting) {
+            this.orbitingNavigator.onMouse(tag, event);
+        }
     }
 
     private onKeyDown(event: KeyboardEvent): void {
@@ -88,11 +120,39 @@ export class DemoApplication implements Application {
     }
 
     private switchToOrbitingMode(): void {
-        console.log('to orbiting');
+        if (this.navigatorMode == NavigatorMode.Tracking) {
+            // The orbiting navigator shall inherit the pose of
+            // the tracking navigator.
+
+            // Get a NED matrix from the tracking camera and extract its
+            // basis vectors.
+            const gl4ToNed = matrixNedToGl4().invert();
+            const [front, _right, down] = extractBasis(
+                gl4ToNed.premultiply(
+                    this.trackingNavigator.getCamera().matrixWorld
+                )
+            );
+
+            // Then use the data to set the orbiter.
+            this.orbitingNavigator.lookAt(
+                this.trackingNavigator.getCamera().position.clone(),
+                this.trackingNavigator
+                    .getCamera()
+                    .position.clone()
+                    .addScaledVector(front, 1.0),
+                down.negate()
+            );
+
+            this.navigator = this.orbitingNavigator;
+            this.navigatorMode = NavigatorMode.Orbiting;
+        }
     }
 
     private switchToTrackingMode(): void {
-        console.log('to tracking');
+        if (this.navigatorMode == NavigatorMode.Orbiting) {
+            this.navigator = this.trackingNavigator;
+            this.navigatorMode = NavigatorMode.Tracking;
+        }
     }
 
     private scene: Three.Scene;
@@ -100,7 +160,7 @@ export class DemoApplication implements Application {
 
     private navigatorMode = NavigatorMode.Orbiting;
     private orbitingNavigator: OrbitingWorldNavigator;
-    //private trackingNavigator: TrackingWorldNavigator;
+    private trackingNavigator: TrackingWorldNavigator;
     private navigator: WorldNavigator;
 
     private globe: Three.Mesh;

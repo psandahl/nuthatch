@@ -13,11 +13,11 @@ import {
 
 export class TrackingWorldNavigator implements WorldNavigator {
     public constructor(
-        size: Size,
         hFov: number,
         vFov: number,
         near: number,
-        far: number
+        far: number,
+        size: Size
     ) {
         this.size = size;
         this.camera = new Three.PerspectiveCamera(
@@ -30,7 +30,7 @@ export class TrackingWorldNavigator implements WorldNavigator {
         this.converter = new GeoConvertWgs84();
         this.setView(
             new Three.Vector3(0, 0, 100000),
-            new Three.Vector3(0, 90, 0),
+            new Three.Vector3(0, -90, 0),
             new Three.Vector3(0, 0, 0),
             hFov,
             vFov
