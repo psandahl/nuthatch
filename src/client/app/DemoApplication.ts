@@ -16,6 +16,9 @@ import { SceneRenderer } from '../render/SceneRenderer';
 import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { extractBasis, matrixNedToGl4 } from '../math/Matrix';
+import { fetchJSON } from '../data/JSONLoad';
+import { JSONReceiver } from '../types/JSONReceiver';
+import * as Tracking from '../types/TrackingCamera';
 
 /**
  * Internal navigation mode.
@@ -28,7 +31,7 @@ enum NavigatorMode {
 /**
  * Demo application with a few bells and whistles.
  */
-export class DemoApplication implements Application {
+export class DemoApplication implements Application, JSONReceiver {
     /**
      * Construct the demo application.
      * @param size The initial size for the window
@@ -74,6 +77,9 @@ export class DemoApplication implements Application {
         // Create camera navigation axes helper.
         this.navAxesHelper = new CameraNavAxesHelper();
         this.scene.add(this.navAxesHelper.renderable());
+
+        // As the last step in the constructor - load external data.
+        this.fetchData();
     }
 
     /**
@@ -145,6 +151,36 @@ export class DemoApplication implements Application {
         }
     }
 
+    /**
+     * Notification of a successful JSON fetch.
+     * @param obj The JSON object as result from the request
+     * @param id Id for the request
+     * @param url Url for the request
+     */
+    public receiveJSONSucceeded(obj: object, _id: number, url: string): void {
+        // The tracking data is the only JSON the application is expecting.
+        this.track = obj as Tracking.Camera[];
+        if (this.track && this.track.length > 0) {
+            this.setTrackingNavigatorToCurrent();
+            this.switchToTrackingMode();
+        } else {
+            const err = `Unexpected error in converting JSON data from '${url}'`;
+            console.error(err);
+            alert(err);
+        }
+    }
+
+    /**
+     * Notification that a JSON fetch has failed.
+     * @param id Id for the request
+     * @param url Url for the request
+     */
+    public receiveJSONFailed(_id: number, url: string): void {
+        const err = `Failed to load JSON data from '${url}'`;
+        console.error(err);
+        alert(err);
+    }
+
     private onKeyDown(event: KeyboardEvent): void {
         if (event.code == 'KeyO') {
             this.switchToOrbitingMode();
@@ -184,9 +220,30 @@ export class DemoApplication implements Application {
 
     private switchToTrackingMode(): void {
         if (this.navigatorMode == NavigatorMode.Orbiting) {
+            // Just continue where the tracking navigator currently is.
             this.navigator = this.trackingNavigator;
             this.navigatorMode = NavigatorMode.Tracking;
         }
+    }
+
+    private setTrackingNavigatorToCurrent(): void {
+        // Set the tracking navigator with the current track data.
+        const cam = this.track[this.trackIndex];
+        this.trackingNavigator.setView(
+            new Three.Vector3(cam.position.x, cam.position.y, cam.position.z),
+            new Three.Vector3(
+                cam.platform.yaw,
+                cam.platform.roll,
+                cam.platform.roll
+            ),
+            new Three.Vector3(cam.lever.yaw, cam.lever.pitch, cam.lever.roll),
+            cam.fov.hfov,
+            cam.fov.vfov
+        );
+    }
+
+    private fetchData(): void {
+        fetchJSON(1, 'sequences/sequence.json', this);
     }
 
     private scene: Three.Scene;
@@ -200,4 +257,7 @@ export class DemoApplication implements Application {
 
     private globe: Three.Mesh;
     private navAxesHelper: CameraNavAxesHelper;
+
+    private track: Tracking.Camera[] = [];
+    private trackIndex = 0;
 }
