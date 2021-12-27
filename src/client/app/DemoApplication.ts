@@ -17,11 +17,17 @@ import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { extractBasis, matrixNedToGl4 } from '../math/Matrix';
 
+/**
+ * Internal navigation mode.
+ */
 enum NavigatorMode {
     Orbiting,
     Tracking,
 }
 
+/**
+ * Demo application with a few bells and whistles.
+ */
 export class DemoApplication implements Application {
     /**
      * Construct the demo application.
@@ -57,7 +63,8 @@ export class DemoApplication implements Application {
             size
         );
 
-        // Set the current navigator.
+        // Set the current navigator - start with the orbiting navigator.
+        // When tracking data is loaded the mode will be switched.
         this.navigator = this.orbitingNavigator;
 
         // Create a textured globe to use as fallback terrain texture.
@@ -153,7 +160,7 @@ export class DemoApplication implements Application {
 
             // Get a NED matrix from the tracking camera and extract its
             // basis vectors.
-            const gl4ToNed = matrixNedToGl4().invert();
+            const gl4ToNed = matrixNedToGl4().transpose();
             const [front, _right, down] = extractBasis(
                 gl4ToNed.premultiply(
                     this.trackingNavigator.getCamera().matrixWorld
