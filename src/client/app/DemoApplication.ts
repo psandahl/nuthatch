@@ -1,4 +1,5 @@
 import * as Three from 'three';
+import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {
     Application,
@@ -34,6 +35,10 @@ export class DemoApplication implements Application {
         // Create the renderer.
         this.renderer = new SceneRenderer(renderTarget);
         this.renderer.setSize(size[0], size[1]);
+
+        // Create the runtime stats widget.
+        this.stats = Stats();
+        document.body.appendChild(this.stats.dom);
 
         // Create an orbiting navigator with reasonable settings.
         this.orbitingNavigator = new OrbitingNavigator(
@@ -77,6 +82,9 @@ export class DemoApplication implements Application {
         // Set the drawing area for the renderer and render the scene.
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
         this.renderer.render(this.scene, this.navigator.getCamera());
+
+        // Update the runtime stats after the rendering.
+        this.stats.update();
     }
 
     /**
@@ -91,20 +99,39 @@ export class DemoApplication implements Application {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
+    /**
+     * Handle the video fps notification.
+     * @param elapsed The number of milliseconds since latest tick
+     */
     public tick(elapsed: number): void {}
 
+    /**
+     * Handle keyboard events.
+     * @param tag The tag for the event
+     * @param event The event
+     */
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {
         if (tag == KeyboardEventTag.Down) {
             this.onKeyDown(event);
         }
     }
 
+    /**
+     * Handle wheel events.
+     * @param tag The tag for the event
+     * @param event The event
+     */
     public onWheel(tag: WheelEventTag, event: WheelEvent): void {
         if (this.navigatorMode == NavigatorMode.Orbiting) {
             this.orbitingNavigator.onWheel(tag, event);
         }
     }
 
+    /**
+     * Handle mouse events.
+     * @param tag The tag for the event
+     * @param event The event
+     */
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {
         if (this.navigatorMode == NavigatorMode.Orbiting) {
             this.orbitingNavigator.onMouse(tag, event);
@@ -157,6 +184,7 @@ export class DemoApplication implements Application {
 
     private scene: Three.Scene;
     private renderer: SceneRenderer;
+    private stats: Stats;
 
     private navigatorMode = NavigatorMode.Orbiting;
     private orbitingNavigator: OrbitingNavigator;
