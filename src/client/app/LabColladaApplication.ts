@@ -13,7 +13,7 @@ import { GeoConvertUtm } from '../math/GeoConvert';
 import { ColladaReceiver } from '../types/ColladaReceiver';
 import { Size } from '../types/Size';
 import { SceneRenderer } from '../render/SceneRenderer';
-import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
+import { OrbitingNavigator } from '../render/OrbitingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
@@ -28,12 +28,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        this.navigator = new OrbitingWorldNavigator(
-            50,
-            1.0,
-            SemiMajorAxis,
-            size
-        );
+        this.navigator = new OrbitingNavigator(50, 1.0, SemiMajorAxis, size);
 
         this.cameraNavAxesHelper = new CameraNavAxesHelper();
 
@@ -106,7 +101,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
     private geoConvertUtm: GeoConvertUtm;
     private scene: Three.Scene;
     private renderer: SceneRenderer;
-    private navigator: OrbitingWorldNavigator;
+    private navigator: OrbitingNavigator;
     private cameraNavAxesHelper: CameraNavAxesHelper;
     private stats: Stats;
 }

@@ -11,7 +11,7 @@ import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { makeGlobe } from '../render/Globe';
 import { Size } from '../types/Size';
 import { SceneRenderer } from '../render/SceneRenderer';
-import { TrackingWorldNavigator } from '../render/TrackingWorldNavigator';
+import { TrackingNavigator } from '../render/TrackingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { GeoConvertUtm } from '../math/GeoConvert';
 import { ColladaReceiver } from '../types/ColladaReceiver';
@@ -33,13 +33,7 @@ export class LabTrackingApplication
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        this.navigator = new TrackingWorldNavigator(
-            30,
-            20,
-            1,
-            SemiMajorAxis,
-            size
-        );
+        this.navigator = new TrackingNavigator(30, 20, 1, SemiMajorAxis, size);
 
         this.cameraNavAxesHelper = new CameraNavAxesHelper();
         this.scene.add(this.cameraNavAxesHelper.renderable());
@@ -142,7 +136,7 @@ export class LabTrackingApplication
     private geoConvertUtm: GeoConvertUtm;
     private scene: Three.Scene;
     private renderer: SceneRenderer;
-    private navigator: TrackingWorldNavigator;
+    private navigator: TrackingNavigator;
     private cameraNavAxesHelper: CameraNavAxesHelper;
     private stats: Stats;
     private sequence: UAV.UAVCamera[] = [];

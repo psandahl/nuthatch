@@ -7,13 +7,13 @@ import {
     WheelEventTag,
 } from './Application';
 import { Size } from '../types/Size';
-import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
-import { TrackingWorldNavigator } from '../render/TrackingWorldNavigator';
+import { Navigator } from '../render/Navigator';
+import { OrbitingNavigator } from '../render/OrbitingNavigator';
+import { TrackingNavigator } from '../render/TrackingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
-import { WorldNavigator } from '../render/WorldNavigator';
 import { extractBasis, matrixNedToGl4 } from '../math/Matrix';
 
 enum NavigatorMode {
@@ -36,7 +36,7 @@ export class DemoApplication implements Application {
         this.renderer.setSize(size[0], size[1]);
 
         // Create an orbiting navigator with reasonable settings.
-        this.orbitingNavigator = new OrbitingWorldNavigator(
+        this.orbitingNavigator = new OrbitingNavigator(
             50.0,
             1.0,
             SemiMajorAxis * 4.0,
@@ -44,7 +44,7 @@ export class DemoApplication implements Application {
         );
 
         // Create a tracking navigator with reasonable settings.
-        this.trackingNavigator = new TrackingWorldNavigator(
+        this.trackingNavigator = new TrackingNavigator(
             30,
             20,
             1,
@@ -159,9 +159,9 @@ export class DemoApplication implements Application {
     private renderer: SceneRenderer;
 
     private navigatorMode = NavigatorMode.Orbiting;
-    private orbitingNavigator: OrbitingWorldNavigator;
-    private trackingNavigator: TrackingWorldNavigator;
-    private navigator: WorldNavigator;
+    private orbitingNavigator: OrbitingNavigator;
+    private trackingNavigator: TrackingNavigator;
+    private navigator: Navigator;
 
     private globe: Three.Mesh;
     private navAxesHelper: CameraNavAxesHelper;

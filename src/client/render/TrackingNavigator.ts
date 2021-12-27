@@ -4,14 +4,14 @@ import { degToRad, aspectRatioFromFov } from '../math/Helpers';
 import { DrawingArea, calculateDrawingArea } from '../types/DrawingArea';
 import { GeoConvertWgs84 } from '../math/GeoConvert';
 import { Size } from '../types/Size';
-import { WorldNavigator } from './WorldNavigator';
+import { Navigator } from './Navigator';
 import {
     matrixEulerEcef4,
     matrixLocalNed4,
     matrixNedToGl4,
 } from '../math/Matrix';
 
-export class TrackingWorldNavigator implements WorldNavigator {
+export class TrackingNavigator implements Navigator {
     public constructor(
         hFov: number,
         vFov: number,

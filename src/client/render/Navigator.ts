@@ -4,9 +4,9 @@ import { DrawingArea } from '../types/DrawingArea';
 import { Size } from '../types/Size';
 
 /**
- * Common interface contract for a world navigator.
+ * Common interface contract for a navigator.
  */
-export interface WorldNavigator {
+export interface Navigator {
     /**
      * Notification that the rendering canvas' size has changed. For an orbiting
      * navigator it may result in change of aspect ratio and for a tracking

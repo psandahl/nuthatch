@@ -10,11 +10,11 @@ import {
 } from '../math/Ellipsoid';
 import { extractBasis, matrixLocalNed4, matrixNedToGl4 } from '../math/Matrix';
 import { Size } from '../types/Size';
-import { WorldNavigator } from './WorldNavigator';
+import { Navigator } from './Navigator';
 import { degToRad, radToDeg } from '../math/Helpers';
 import { GeoConvertWgs84 } from '../math/GeoConvert';
 
-export class OrbitingWorldNavigator implements WorldNavigator {
+export class OrbitingNavigator implements Navigator {
     /**
      * Construct a
      * @param vFov Vertical field of view (degrees)

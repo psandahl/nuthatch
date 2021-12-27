@@ -7,7 +7,7 @@ import {
     Application,
 } from './Application';
 import { makeGlobe } from '../render/Globe';
-import { OrbitingWorldNavigator } from '../render/OrbitingWorldNavigator';
+import { OrbitingNavigator } from '../render/OrbitingNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Size } from '../types/Size';
@@ -21,7 +21,7 @@ export class LabNavApplication implements Application {
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        this.navigator = new OrbitingWorldNavigator(
+        this.navigator = new OrbitingNavigator(
             50,
             1.0,
             SemiMajorAxis * 4.0,
@@ -59,6 +59,6 @@ export class LabNavApplication implements Application {
 
     private scene: Three.Scene;
     private renderer: SceneRenderer;
-    private navigator: OrbitingWorldNavigator;
+    private navigator: OrbitingNavigator;
     private cameraNavAxesHelper: CameraNavAxesHelper;
 }
