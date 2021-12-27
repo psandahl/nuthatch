@@ -20,7 +20,7 @@ import { Collada } from 'three/examples/jsm/loaders/ColladaLoader';
 import { fetchJSON } from '../data/JSONLoad';
 import { JSONReceiver } from '../types/JSONReceiver';
 import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
-import * as UAV from '../types/UAVCamera';
+import * as Track from '../types/TrackingCamera';
 
 export class LabTrackingApplication
     implements Application, ColladaReceiver, JSONReceiver
@@ -115,7 +115,7 @@ export class LabTrackingApplication
     }
 
     public receiveJSONSucceeded(obj: object, id: number, url: string): void {
-        this.sequence = obj as UAV.UAVCamera[];
+        this.sequence = obj as Track.Camera[];
     }
 
     public receiveJSONFailed(id: number, url: string): void {
@@ -139,6 +139,6 @@ export class LabTrackingApplication
     private navigator: TrackingNavigator;
     private cameraNavAxesHelper: CameraNavAxesHelper;
     private stats: Stats;
-    private sequence: UAV.UAVCamera[] = [];
+    private sequence: Track.Camera[] = [];
     private sequenceIndex: number = 0;
 }
