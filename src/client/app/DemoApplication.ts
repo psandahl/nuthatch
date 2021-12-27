@@ -116,7 +116,12 @@ export class DemoApplication implements Application, JSONReceiver {
      * Handle the video fps notification.
      * @param elapsed The number of milliseconds since latest tick
      */
-    public tick(elapsed: number): void {}
+    public tick(elapsed: number): void {
+        if (this.trackingValid() && this.autoPlay) {
+            this.setTrackingNavigatorToCurrent();
+            this.incTrackIndex();
+        }
+    }
 
     /**
      * Handle keyboard events.
@@ -186,6 +191,22 @@ export class DemoApplication implements Application, JSONReceiver {
             this.switchToOrbitingMode();
         } else if (event.code == 'KeyT') {
             this.switchToTrackingMode();
+        } else if (event.code == 'KeyA' && this.trackingValid()) {
+            this.autoPlay = !this.autoPlay;
+        } else if (
+            event.code == 'KeyN' &&
+            this.trackingValid() &&
+            !this.autoPlay
+        ) {
+            this.incTrackIndex();
+            this.setTrackingNavigatorToCurrent();
+        } else if (
+            event.code == 'KeyP' &&
+            this.trackingValid() &&
+            !this.autoPlay
+        ) {
+            this.decTrackIndex();
+            this.setTrackingNavigatorToCurrent();
         }
     }
 
@@ -242,6 +263,24 @@ export class DemoApplication implements Application, JSONReceiver {
         );
     }
 
+    private trackingValid(): boolean {
+        return (
+            this.navigatorMode == NavigatorMode.Tracking &&
+            this.track.length > 0
+        );
+    }
+
+    private incTrackIndex(): void {
+        this.trackIndex = (this.trackIndex + 1) % this.track.length;
+    }
+
+    private decTrackIndex(): void {
+        this.trackIndex = (this.trackIndex - 1) % this.track.length;
+        if (this.trackIndex == -1) {
+            this.trackIndex = this.track.length - 1;
+        }
+    }
+
     private fetchData(): void {
         fetchJSON(1, 'sequences/sequence.json', this);
     }
@@ -260,4 +299,6 @@ export class DemoApplication implements Application, JSONReceiver {
 
     private track: Tracking.Camera[] = [];
     private trackIndex = 0;
+
+    private autoPlay = false;
 }
