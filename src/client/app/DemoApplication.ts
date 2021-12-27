@@ -30,6 +30,12 @@ enum NavigatorMode {
 
 /**
  * Demo application with a few bells and whistles.
+ * Keyboard commands:
+ * 'o' switch to orbiting navigation from the current pose.
+ * 't' switch to tracking navigation from where the track is.
+ * 'a' toggle autoplay for tracking navigation.
+ * 'n' next frame for tracking navigation (not autoplay).
+ * 'p' previous frame for tracking navigation (not autoplay).
  */
 export class DemoApplication implements Application, JSONReceiver {
     /**
