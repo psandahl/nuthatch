@@ -18,7 +18,12 @@ import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { extractBasis, matrixNedToGl4 } from '../math/Matrix';
 import { fetchJSON } from '../data/JSONLoad';
 import { JSONReceiver } from '../types/JSONReceiver';
+import { ColladaReceiver } from '../types/ColladaReceiver';
+import { fetchCollada, modifyTerrainColladaModel } from '../data/ColladaLoad';
+import { Collada } from 'three/examples/jsm/loaders/ColladaLoader';
+import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
 import * as Tracking from '../types/TrackingCamera';
+import { GeoConvertUtm } from '../math/GeoConvert';
 
 /**
  * Internal navigation mode.
@@ -37,13 +42,18 @@ enum NavigatorMode {
  * 'n' next frame for tracking navigation (not autoplay).
  * 'p' previous frame for tracking navigation (not autoplay).
  */
-export class DemoApplication implements Application, JSONReceiver {
+export class DemoApplication
+    implements Application, JSONReceiver, ColladaReceiver
+{
     /**
      * Construct the demo application.
      * @param size The initial size for the window
      * @param renderTarget The canvas element to render to
      */
     public constructor(size: Size, renderTarget: HTMLCanvasElement) {
+        // Note: this one depends on the zone for the dataset.
+        this.geoConvertUtm = new GeoConvertUtm(10);
+
         // Create the scene.
         this.scene = new Three.Scene();
 
@@ -83,6 +93,10 @@ export class DemoApplication implements Application, JSONReceiver {
         // Create camera navigation axes helper.
         this.navAxesHelper = new CameraNavAxesHelper();
         this.scene.add(this.navAxesHelper.renderable());
+
+        // To see the textured terrain a light source is needed.
+        this.ambientLight = new Three.AmbientLight(0x404040, 2.0);
+        this.scene.add(this.ambientLight);
 
         // As the last step in the constructor - load external data.
         this.fetchData();
@@ -192,6 +206,41 @@ export class DemoApplication implements Application, JSONReceiver {
         alert(err);
     }
 
+    /**
+     * Notification of a successful Collada fetch.
+     * @param model
+     * @param id Id for the request
+     * @param url Url for the request
+     */
+    public receiveColladaSucceeded(
+        model: Collada,
+        _id: number,
+        url: string
+    ): void {
+        const [result, bbox] = modifyTerrainColladaModel(
+            this.geoConvertUtm,
+            model
+        );
+        if (result) {
+            this.scene.add(model.scene);
+        } else {
+            const err = `Unexpected error in converting Collada data from '${url}'`;
+            console.error(err);
+            alert(err);
+        }
+    }
+
+    /**
+     * Notification that a Collada fetch has failed.
+     * @param id Id for the request
+     * @param url Url for the request
+     */
+    public receiveColladaFailed(_id: number, url: string): void {
+        const err = `Failed to load Collada data from '${url}'`;
+        console.error(err);
+        alert(err);
+    }
+
     private onKeyDown(event: KeyboardEvent): void {
         if (event.code == 'KeyO') {
             this.switchToOrbitingMode();
@@ -288,8 +337,14 @@ export class DemoApplication implements Application, JSONReceiver {
     }
 
     private fetchData(): void {
+        const models = dummyUrlsLvl12();
+        for (var i = 0; i < models.length; ++i) {
+            fetchCollada(i + 1, models[i], this);
+        }
         fetchJSON(1, 'sequences/sequence.json', this);
     }
+
+    private geoConvertUtm: GeoConvertUtm;
 
     private scene: Three.Scene;
     private renderer: SceneRenderer;
@@ -302,6 +357,7 @@ export class DemoApplication implements Application, JSONReceiver {
 
     private globe: Three.Mesh;
     private navAxesHelper: CameraNavAxesHelper;
+    private ambientLight: Three.AmbientLight;
 
     private track: Tracking.Camera[] = [];
     private trackIndex = 0;
