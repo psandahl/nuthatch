@@ -23,6 +23,7 @@ import { Collada } from 'three/examples/jsm/loaders/ColladaLoader';
 import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
 import * as Tracking from '../types/TrackingCamera';
 import { GeoConvertUtm } from '../math/GeoConvert';
+import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
 
 /**
  * Internal navigation mode.
@@ -97,6 +98,15 @@ export class DemoApplication
         this.ambientLight = new Three.AmbientLight(0x404040, 2.0);
         this.scene.add(this.ambientLight);
 
+        // Create the image loader used for video images.
+        this.imageLoader = new Three.ImageLoader();
+
+        // Create the texture quad used for video overlay.
+        this.texturedQuad = new TexturedFullscreenQuad();
+        // Note render order.
+        this.texturedQuad.mesh().renderOrder = 1;
+        this.scene.add(this.texturedQuad.mesh());
+
         // As the last step in the constructor - load external data.
         this.fetchData();
     }
@@ -137,7 +147,7 @@ export class DemoApplication
      */
     public tick(elapsed: number): void {
         if (this.trackingValid() && this.autoPlay) {
-            this.setTrackingNavigatorToCurrent();
+            this.loadFromTrack();
             this.incTrackIndex();
         }
     }
@@ -185,7 +195,7 @@ export class DemoApplication
         // The tracking data is the only JSON the application is expecting.
         this.track = obj as Tracking.Camera[];
         if (this.track && this.track.length > 0) {
-            this.setTrackingNavigatorToCurrent();
+            this.loadFromTrack();
             this.switchToTrackingMode();
         } else {
             const err = `Unexpected error in converting JSON data from '${url}'`;
@@ -253,19 +263,22 @@ export class DemoApplication
             !this.autoPlay
         ) {
             this.incTrackIndex();
-            this.setTrackingNavigatorToCurrent();
+            this.loadFromTrack();
         } else if (
             event.code == 'KeyP' &&
             this.trackingValid() &&
             !this.autoPlay
         ) {
             this.decTrackIndex();
-            this.setTrackingNavigatorToCurrent();
+            this.loadFromTrack();
         }
     }
 
     private switchToOrbitingMode(): void {
         if (this.navigatorMode == NavigatorMode.Tracking) {
+            // Video overlay shall not be visible in orbiting mode.
+            this.texturedQuad.mesh().visible = false;
+
             // The orbiting navigator shall inherit the pose of
             // the tracking navigator.
             const [position, at, up] = this.trackingNavigator.getLookAt();
@@ -285,6 +298,9 @@ export class DemoApplication
 
     private switchToTrackingMode(): void {
         if (this.navigatorMode == NavigatorMode.Orbiting) {
+            // Make overlay visible.
+            this.texturedQuad.mesh().visible = true;
+
             // Inherit size, otherwise just continue where tracking navigator are.
             this.trackingNavigator.setSize(this.navigator.getSize());
             this.navigator = this.trackingNavigator;
@@ -292,10 +308,24 @@ export class DemoApplication
         }
     }
 
-    private setTrackingNavigatorToCurrent(): void {
-        // Set the tracking navigator with the current track data.
-        this.trackingNavigator.setViewFromTrackingCamera(
-            this.track[this.trackIndex]
+    private loadFromTrack(): void {
+        const cam = this.track[this.trackIndex];
+        const url = `testvideo/${cam['frame-id']}.png`;
+
+        this.imageLoader.load(
+            url,
+            (image) => {
+                this.texturedQuad.updataCameraMetadata(
+                    this.trackingNavigator.getCamera().projectionMatrix,
+                    this.trackingNavigator.getCamera().projectionMatrixInverse,
+                    new Three.Vector3()
+                );
+                this.texturedQuad.updateTexture(image);
+                this.trackingNavigator.setViewFromTrackingCamera(cam);
+            },
+            (_err) => {
+                console.error(`Failed to load image '${url}'`);
+            }
         );
     }
 
@@ -339,6 +369,9 @@ export class DemoApplication
     private globe: Three.Mesh;
     private navAxesHelper: CameraNavAxesHelper;
     private ambientLight: Three.AmbientLight;
+
+    private imageLoader: Three.ImageLoader;
+    private texturedQuad: TexturedFullscreenQuad;
 
     private track: Tracking.Camera[] = [];
     private trackIndex = 0;
