@@ -74,6 +74,10 @@ export class TrackingNavigator implements Navigator {
         this.size = size;
     }
 
+    public getSize(): Size {
+        return this.size;
+    }
+
     public getDrawingArea(): DrawingArea {
         return calculateDrawingArea(this.size, this.camera.aspect);
     }

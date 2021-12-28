@@ -69,6 +69,10 @@ export class OrbitingNavigator implements Navigator {
         this.camera.updateProjectionMatrix();
     }
 
+    public getSize(): Size {
+        return this.size;
+    }
+
     public getDrawingArea(): DrawingArea {
         return fullDrawingArea(this.size);
     }

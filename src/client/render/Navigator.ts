@@ -16,6 +16,11 @@ export interface Navigator {
     setSize(size: Size): void;
 
     /**
+     * Get the current size from the navigator.
+     */
+    getSize(): Size;
+
+    /**
      * Report the navigator's drawing area (may have changed after a setSize).
      */
     getDrawingArea(): DrawingArea;

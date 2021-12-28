@@ -289,6 +289,9 @@ export class DemoApplication
                 down.negate()
             );
 
+            // Inherit size.
+            this.orbitingNavigator.setSize(this.navigator.getSize());
+
             this.navigator = this.orbitingNavigator;
             this.navigatorMode = NavigatorMode.Orbiting;
         }
@@ -296,7 +299,8 @@ export class DemoApplication
 
     private switchToTrackingMode(): void {
         if (this.navigatorMode == NavigatorMode.Orbiting) {
-            // Just continue where the tracking navigator currently is.
+            // Inherit size, otherwise just continue where tracking navigator are.
+            this.trackingNavigator.setSize(this.navigator.getSize());
             this.navigator = this.trackingNavigator;
             this.navigatorMode = NavigatorMode.Tracking;
         }
