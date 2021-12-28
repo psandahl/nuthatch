@@ -11,7 +11,19 @@ import {
     matrixNedToGl4,
 } from '../math/Matrix';
 
+/**
+ * A tracking navigator implementing the Navigator interface.
+ * A tracking navigator is strictly following commands.
+ */
 export class TrackingNavigator implements Navigator {
+    /**
+     * Create a new tracking navigator.
+     * @param hFov Initial horizontal field of view (degrees)
+     * @param vFov Initial vertical field of view (degrees)
+     * @param near Near plane
+     * @param far Far plane
+     * @param size Initial size of the rendering target
+     */
     public constructor(
         hFov: number,
         vFov: number,
@@ -37,6 +49,14 @@ export class TrackingNavigator implements Navigator {
         );
     }
 
+    /**
+     * Set the navigator's view.
+     * @param position Geodetic (WGS84) position
+     * @param platform Geodetic (WGS84) platform orientation
+     * @param lever Relative orientation for lever arm
+     * @param hFov Horizontal field of view (degrees)
+     * @param vFov Vertical field of view (degrees)
+     */
     public setView(
         position: Three.Vector3,
         platform: Three.Vector3,
@@ -70,23 +90,42 @@ export class TrackingNavigator implements Navigator {
         this.updateCamera();
     }
 
+    /**
+     * Set the size for the rendering target.
+     * @param size The new size
+     */
     public setSize(size: Size): void {
         this.size = size;
     }
 
+    /**
+     * Get the current size.
+     * @returns The size
+     */
     public getSize(): Size {
         return this.size;
     }
 
+    /**
+     * Get the drawing area.
+     * @returns The drawing area
+     */
     public getDrawingArea(): DrawingArea {
         return calculateDrawingArea(this.size, this.camera.aspect);
     }
 
+    /**
+     * Update the camera matrices.
+     */
     public updateCamera(): void {
         this.camera.updateProjectionMatrix();
         this.camera.updateMatrixWorld();
     }
 
+    /**
+     * Get the perspective camera from the navigator.
+     * @returns The perspective camera
+     */
     public getCamera(): Three.PerspectiveCamera {
         return this.camera;
     }
