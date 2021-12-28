@@ -112,7 +112,7 @@ export class LabTrackingApplication
     }
 
     private fetchSequence(): void {
-        fetchJSON(1, 'sequences/sequence.json', this);
+        fetchJSON(1, 'testvideo/sequence.json', this);
     }
 
     private geoConvertUtm: GeoConvertUtm;

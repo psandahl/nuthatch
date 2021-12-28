@@ -322,7 +322,7 @@ export class DemoApplication
         for (var i = 0; i < models.length; ++i) {
             fetchCollada(i + 1, models[i], this);
         }
-        fetchJSON(1, 'sequences/sequence.json', this);
+        fetchJSON(1, 'testvideo/sequence.json', this);
     }
 
     private geoConvertUtm: GeoConvertUtm;
