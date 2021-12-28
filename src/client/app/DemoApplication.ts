@@ -15,7 +15,6 @@ import { SemiMajorAxis } from '../math/Ellipsoid';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
-import { extractBasis, matrixNedToGl4 } from '../math/Matrix';
 import { fetchJSON } from '../data/JSONLoad';
 import { JSONReceiver } from '../types/JSONReceiver';
 import { ColladaReceiver } from '../types/ColladaReceiver';
