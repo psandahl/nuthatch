@@ -273,7 +273,9 @@ export class DemoApplication
             // Then use the data to set the orbiter.
             this.orbitingNavigator.lookAt(position, at, up);
 
-            // Inherit size.
+            // Inherit fov and size.
+            this.orbitingNavigator.getCamera().fov =
+                this.trackingNavigator.getCamera().fov;
             this.orbitingNavigator.setSize(this.navigator.getSize());
 
             this.navigator = this.orbitingNavigator;
