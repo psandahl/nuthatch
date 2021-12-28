@@ -39,6 +39,8 @@ enum NavigatorMode {
  * 'o' switch to orbiting navigation from the current pose.
  * 't' switch to tracking navigation from where the track is.
  * 'a' toggle autoplay for tracking navigation.
+ * 'v' toggle video overlay for tracking navigation.
+ * 'u' toggle undistorsion for video overlay.
  * 'n' next frame for tracking navigation (not autoplay).
  * 'p' previous frame for tracking navigation (not autoplay).
  */
@@ -257,6 +259,10 @@ export class DemoApplication
             this.switchToTrackingMode();
         } else if (event.code == 'KeyA' && this.trackingValid()) {
             this.autoPlay = !this.autoPlay;
+        } else if (event.code == 'KeyV' && this.trackingValid()) {
+            this.texturedQuad.toggleVisibility();
+        } else if (event.code == 'KeyU' && this.trackingValid()) {
+            this.texturedQuad.toggleUndistort();
         } else if (
             event.code == 'KeyN' &&
             this.trackingValid() &&
@@ -318,7 +324,7 @@ export class DemoApplication
                 this.texturedQuad.updataCameraMetadata(
                     this.trackingNavigator.getCamera().projectionMatrix,
                     this.trackingNavigator.getCamera().projectionMatrixInverse,
-                    new Three.Vector3()
+                    new Three.Vector3(cam.lens.k2, cam.lens.k3, cam.lens.k4)
                 );
                 this.texturedQuad.updateTexture(image);
                 this.trackingNavigator.setViewFromTrackingCamera(cam);

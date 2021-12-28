@@ -57,6 +57,8 @@ export class TexturedFullscreenQuad {
         // Mesh.
         this._mesh = new Three.Mesh(geometry, material);
         this._mesh.frustumCulled = false;
+
+        this._coeff = new Three.Vector3();
     }
 
     /**
@@ -78,10 +80,16 @@ export class TexturedFullscreenQuad {
         inverseProjection: Three.Matrix4,
         coeff: Three.Vector3
     ): void {
+        this._coeff = coeff;
+
         const material = this._mesh.material as Three.RawShaderMaterial;
         material.uniforms.uProjection.value = projection;
         material.uniforms.uInverseProjection.value = inverseProjection;
-        material.uniforms.uCoeff.value = coeff;
+        if (this._undistort) {
+            material.uniforms.uCoeff.value = coeff;
+        } else {
+            material.uniforms.uCoeff.value = new Three.Vector3();
+        }
     }
 
     /**
@@ -94,7 +102,29 @@ export class TexturedFullscreenQuad {
         material.uniforms.uTexture.value.needsUpdate = true;
     }
 
+    /**
+     * Toggle undistorsion.
+     */
+    public toggleUndistort(): void {
+        const material = this._mesh.material as Three.RawShaderMaterial;
+        this._undistort = !this._undistort;
+        if (this._undistort) {
+            material.uniforms.uCoeff.value = this._coeff;
+        } else {
+            material.uniforms.uCoeff.value = new Three.Vector3();
+        }
+    }
+
+    /**
+     * Toggle visibility.
+     */
+    public toggleVisibility(): void {
+        this._mesh.visible = !this._mesh.visible;
+    }
+
     private _mesh: Three.Mesh;
+    private _coeff: Three.Vector3;
+    private _undistort = true;
 
     // Vertex shader source.
     private readonly vertexSource = `#version 300 es
