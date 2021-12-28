@@ -6,6 +6,7 @@ import { GeoConvertWgs84 } from '../math/GeoConvert';
 import { Size } from '../types/Size';
 import { Navigator } from './Navigator';
 import {
+    extractBasis,
     matrixEulerEcef4,
     matrixLocalNed4,
     matrixNedToGl4,
@@ -115,6 +116,24 @@ export class TrackingNavigator implements Navigator {
             camera.fov.hfov,
             camera.fov.vfov
         );
+    }
+
+    /**
+     * Get look at parameters in ECEF space from the navigator.
+     * @returns A tuple [position, at, up]
+     */
+    public getLookAt(): [Three.Vector3, Three.Vector3, Three.Vector3] {
+        // Get a NED matrix from camera and extract its basis vectors.
+        const gl4ToNed = matrixNedToGl4().transpose();
+        const [front, _right, down] = extractBasis(
+            gl4ToNed.premultiply(this.camera.matrixWorld)
+        );
+
+        return [
+            this.camera.position.clone(),
+            this.camera.position.clone().addScaledVector(front, 1.0),
+            down.negate(),
+        ];
     }
 
     /**

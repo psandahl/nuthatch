@@ -269,25 +269,10 @@ export class DemoApplication
         if (this.navigatorMode == NavigatorMode.Tracking) {
             // The orbiting navigator shall inherit the pose of
             // the tracking navigator.
-
-            // Get a NED matrix from the tracking camera and extract its
-            // basis vectors.
-            const gl4ToNed = matrixNedToGl4().transpose();
-            const [front, _right, down] = extractBasis(
-                gl4ToNed.premultiply(
-                    this.trackingNavigator.getCamera().matrixWorld
-                )
-            );
+            const [position, at, up] = this.trackingNavigator.getLookAt();
 
             // Then use the data to set the orbiter.
-            this.orbitingNavigator.lookAt(
-                this.trackingNavigator.getCamera().position.clone(),
-                this.trackingNavigator
-                    .getCamera()
-                    .position.clone()
-                    .addScaledVector(front, 1.0),
-                down.negate()
-            );
+            this.orbitingNavigator.lookAt(position, at, up);
 
             // Inherit size.
             this.orbitingNavigator.setSize(this.navigator.getSize());
