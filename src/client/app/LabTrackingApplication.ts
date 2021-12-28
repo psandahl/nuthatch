@@ -64,26 +64,8 @@ export class LabTrackingApplication
 
     public tick(elapsed: number): void {
         if (this.sequence.length > 0) {
-            const obj = this.sequence[this.sequenceIndex];
-
-            this.navigator.setView(
-                new Three.Vector3(
-                    obj.position.x,
-                    obj.position.y,
-                    obj.position.z
-                ),
-                new Three.Vector3(
-                    obj.platform.yaw,
-                    obj.platform.pitch,
-                    obj.platform.roll
-                ),
-                new Three.Vector3(
-                    obj.lever.yaw,
-                    obj.lever.pitch,
-                    obj.lever.roll
-                ),
-                obj.fov.hfov,
-                obj.fov.vfov
+            this.navigator.setViewFromTrackingCamera(
+                this.sequence[this.sequenceIndex]
             );
 
             if (++this.sequenceIndex === this.sequence.length) {

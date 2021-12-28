@@ -308,17 +308,8 @@ export class DemoApplication
 
     private setTrackingNavigatorToCurrent(): void {
         // Set the tracking navigator with the current track data.
-        const cam = this.track[this.trackIndex];
-        this.trackingNavigator.setView(
-            new Three.Vector3(cam.position.x, cam.position.y, cam.position.z),
-            new Three.Vector3(
-                cam.platform.yaw,
-                cam.platform.roll,
-                cam.platform.roll
-            ),
-            new Three.Vector3(cam.lever.yaw, cam.lever.pitch, cam.lever.roll),
-            cam.fov.hfov,
-            cam.fov.vfov
+        this.trackingNavigator.setViewFromTrackingCamera(
+            this.track[this.trackIndex]
         );
     }
 

@@ -10,6 +10,7 @@ import {
     matrixLocalNed4,
     matrixNedToGl4,
 } from '../math/Matrix';
+import { Camera } from '../types/TrackingCamera';
 
 /**
  * A tracking navigator implementing the Navigator interface.
@@ -88,6 +89,32 @@ export class TrackingNavigator implements Navigator {
         this.camera.fov = vFov;
         this.camera.aspect = aspectRatioFromFov(degToRad(hFov), degToRad(vFov));
         this.updateCamera();
+    }
+
+    /**
+     * Set view from a tracking camera.
+     * @param camera A tracking camera
+     */
+    public setViewFromTrackingCamera(camera: Camera): void {
+        this.setView(
+            new Three.Vector3(
+                camera.position.x,
+                camera.position.y,
+                camera.position.z
+            ),
+            new Three.Vector3(
+                camera.platform.yaw,
+                camera.platform.roll,
+                camera.platform.roll
+            ),
+            new Three.Vector3(
+                camera.lever.yaw,
+                camera.lever.pitch,
+                camera.lever.roll
+            ),
+            camera.fov.hfov,
+            camera.fov.vfov
+        );
     }
 
     /**
