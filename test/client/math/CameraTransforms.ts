@@ -10,61 +10,109 @@ import {
     uvToPx,
 } from '../../../src/client/math/CameraTransforms';
 import { matrixProjection4 } from '../../../src/client/math/Matrix';
-import { Size } from '../../../src/client/types/Size';
+import { DrawingArea } from '../../../src/client/types/DrawingArea';
 
 import { describe } from 'mocha';
 import { expect } from 'chai';
 
 describe('camera transforms tests', () => {
     describe('pxToUv', () => {
-        it('five points', () => {
-            const size: Size = [1024, 768];
+        it('five points - no offset', () => {
+            const area: DrawingArea = [0, 0, 1024, 768];
 
-            const mid = pxToUv(size, new Three.Vector2(511.5, 383.5));
+            const mid = pxToUv(area, new Three.Vector2(511.5, 383.5));
             expect(mid.x, 'mid.x').to.be.closeTo(0.5, Number.EPSILON);
             expect(mid.y, 'mid.y').to.be.closeTo(0.5, Number.EPSILON);
 
-            const ul = pxToUv(size, new Three.Vector2(0, 0));
+            const ul = pxToUv(area, new Three.Vector2(0, 0));
             expect(ul.x, 'ul.x').to.be.closeTo(0.0, Number.EPSILON);
             expect(ul.y, 'ul.y').to.be.closeTo(1.0, Number.EPSILON);
 
-            const ur = pxToUv(size, new Three.Vector2(1023, 0));
+            const ur = pxToUv(area, new Three.Vector2(1023, 0));
             expect(ur.x, 'ur.x').to.be.closeTo(1.0, Number.EPSILON);
             expect(ur.y, 'ur.y').to.be.closeTo(1.0, Number.EPSILON);
 
-            const ll = pxToUv(size, new Three.Vector2(0, 767));
+            const ll = pxToUv(area, new Three.Vector2(0, 767));
             expect(ll.x, 'll.x').to.be.closeTo(0.0, Number.EPSILON);
             expect(ll.y, 'll.y').to.be.closeTo(0.0, Number.EPSILON);
 
-            const lr = pxToUv(size, new Three.Vector2(1023, 767));
+            const lr = pxToUv(area, new Three.Vector2(1023, 767));
+            expect(lr.x, 'lr.x').to.be.closeTo(1.0, Number.EPSILON);
+            expect(lr.y, 'lr.y').to.be.closeTo(0.0, Number.EPSILON);
+        });
+
+        it('five points - x offset', () => {
+            const area: DrawingArea = [10, 0, 100 - 2 * 10, 100];
+
+            const mid = pxToUv(area, new Three.Vector2(49.5, 49.5));
+            expect(mid.x, 'mid.x').to.be.closeTo(0.5, Number.EPSILON);
+            expect(mid.y, 'mid.y').to.be.closeTo(0.5, Number.EPSILON);
+
+            const ul = pxToUv(area, new Three.Vector2(10, 0));
+            expect(ul.x, 'ul.x').to.be.closeTo(0.0, Number.EPSILON);
+            expect(ul.y, 'ul.y').to.be.closeTo(1.0, Number.EPSILON);
+
+            const ur = pxToUv(area, new Three.Vector2(89, 0));
+            expect(ur.x, 'ur.x').to.be.closeTo(1.0, Number.EPSILON);
+            expect(ur.y, 'ur.y').to.be.closeTo(1.0, Number.EPSILON);
+
+            const ll = pxToUv(area, new Three.Vector2(10, 99));
+            expect(ll.x, 'll.x').to.be.closeTo(0.0, Number.EPSILON);
+            expect(ll.y, 'll.y').to.be.closeTo(0.0, Number.EPSILON);
+
+            const lr = pxToUv(area, new Three.Vector2(89, 99));
             expect(lr.x, 'lr.x').to.be.closeTo(1.0, Number.EPSILON);
             expect(lr.y, 'lr.y').to.be.closeTo(0.0, Number.EPSILON);
         });
     });
 
     describe('uvToPx', () => {
-        it('five points', () => {
-            const size: Size = [1024, 768];
+        it('five points - no offset', () => {
+            const area: DrawingArea = [0, 0, 1024, 768];
 
-            const mid = uvToPx(size, new Three.Vector2(0.5, 0.5));
+            const mid = uvToPx(area, new Three.Vector2(0.5, 0.5));
             expect(mid.x, 'mid.x').to.be.closeTo(511.5, Number.EPSILON);
             expect(mid.y, 'mid.y').to.be.closeTo(383.5, Number.EPSILON);
 
-            const ul = uvToPx(size, new Three.Vector2(0.0, 1.0));
+            const ul = uvToPx(area, new Three.Vector2(0.0, 1.0));
             expect(ul.x, 'ul.x').to.be.closeTo(0.0, Number.EPSILON);
             expect(ul.y, 'ul.y').to.be.closeTo(0.0, Number.EPSILON);
 
-            const ur = uvToPx(size, new Three.Vector2(1.0, 1.0));
+            const ur = uvToPx(area, new Three.Vector2(1.0, 1.0));
             expect(ur.x, 'ur.x').to.be.closeTo(1023.0, Number.EPSILON);
             expect(ur.y, 'ur.y').to.be.closeTo(0.0, Number.EPSILON);
 
-            const ll = uvToPx(size, new Three.Vector2(0.0, 0.0));
+            const ll = uvToPx(area, new Three.Vector2(0.0, 0.0));
             expect(ll.x, 'll.x').to.be.closeTo(0.0, Number.EPSILON);
             expect(ll.y, 'll.y').to.be.closeTo(767.0, Number.EPSILON);
 
-            const lr = uvToPx(size, new Three.Vector2(1.0, 0.0));
+            const lr = uvToPx(area, new Three.Vector2(1.0, 0.0));
             expect(lr.x, 'lr.x').to.be.closeTo(1023.0, Number.EPSILON);
             expect(lr.y, 'lr.y').to.be.closeTo(767.0, Number.EPSILON);
+        });
+
+        it('five points - x offset', () => {
+            const area: DrawingArea = [10, 0, 100 - 2 * 10, 100];
+
+            const mid = uvToPx(area, new Three.Vector2(0.5, 0.5));
+            expect(mid.x, 'mid.x').to.be.closeTo(49.5, Number.EPSILON);
+            expect(mid.y, 'mid.y').to.be.closeTo(49.5, Number.EPSILON);
+
+            const ul = uvToPx(area, new Three.Vector2(0.0, 1.0));
+            expect(ul.x, 'ul.x').to.be.closeTo(10.0, Number.EPSILON);
+            expect(ul.y, 'ul.y').to.be.closeTo(0.0, Number.EPSILON);
+
+            const ur = uvToPx(area, new Three.Vector2(1.0, 1.0));
+            expect(ur.x, 'ur.x').to.be.closeTo(89.0, Number.EPSILON);
+            expect(ur.y, 'ur.y').to.be.closeTo(0.0, Number.EPSILON);
+
+            const ll = uvToPx(area, new Three.Vector2(0.0, 0.0));
+            expect(ll.x, 'll.x').to.be.closeTo(10.0, Number.EPSILON);
+            expect(ll.y, 'll.y').to.be.closeTo(99.0, Number.EPSILON);
+
+            const lr = uvToPx(area, new Three.Vector2(1.0, 0.0));
+            expect(lr.x, 'lr.x').to.be.closeTo(89.0, Number.EPSILON);
+            expect(lr.y, 'lr.y').to.be.closeTo(99.0, Number.EPSILON);
         });
     });
 

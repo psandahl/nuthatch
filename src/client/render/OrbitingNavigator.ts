@@ -147,7 +147,7 @@ export class OrbitingNavigator implements Navigator {
             );
         } else if (event.button === 2) {
             const px = new Three.Vector2(event.clientX, event.clientY);
-            const ray = pxToWorldRay(this.camera, this.size, px);
+            const ray = pxToWorldRay(this.camera, this.getDrawingArea(), px);
             const t = intersectEllipsoid(ray);
             if (t) {
                 this.rotateMousePosition = px;
@@ -387,15 +387,19 @@ export class OrbitingNavigator implements Navigator {
         this.camera.updateMatrixWorld();
         this.camera.updateProjectionMatrix();
 
-        const midRay = pxToWorldRay(this.camera, this.size, midPixel);
+        const midRay = pxToWorldRay(
+            this.camera,
+            this.getDrawingArea(),
+            midPixel
+        );
         const plusX = pxToWorldRay(
             this.camera,
-            this.size,
+            this.getDrawingArea(),
             midPixel.clone().add(new Three.Vector2(1.0, 0.0))
         );
         const plusY = pxToWorldRay(
             this.camera,
-            this.size,
+            this.getDrawingArea(),
             midPixel.clone().add(new Three.Vector2(0.0, 1.0))
         );
 

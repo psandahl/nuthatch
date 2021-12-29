@@ -1,6 +1,6 @@
 import * as Three from 'three';
 
-import { Size } from '../types/Size';
+import { DrawingArea } from '../types/DrawingArea';
 
 /**
  * Translate from pixel to UV.
@@ -8,10 +8,10 @@ import { Size } from '../types/Size';
  * @param px The pixel
  * @returns The UV coordinate.
  */
-export function pxToUv(size: Size, px: Three.Vector2): Three.Vector2 {
-    const [width, height] = size;
-    const u = px.x / (width - 1.0);
-    const v = 1.0 - px.y / (height - 1.0);
+export function pxToUv(area: DrawingArea, px: Three.Vector2): Three.Vector2 {
+    const [xoffs, yoffs, width, height] = area;
+    const u = (px.x - xoffs) / (width - 1.0);
+    const v = 1.0 - (px.y - yoffs) / (height - 1.0);
 
     return new Three.Vector2(u, v);
 }
@@ -22,12 +22,12 @@ export function pxToUv(size: Size, px: Three.Vector2): Three.Vector2 {
  * @param uv The UV coordinate
  * @returns The pixel.
  */
-export function uvToPx(size: Size, uv: Three.Vector2): Three.Vector2 {
-    const [width, height] = size;
+export function uvToPx(area: DrawingArea, uv: Three.Vector2): Three.Vector2 {
+    const [xoffs, yoffs, width, height] = area;
     const x = uv.x * (width - 1.0);
     const y = (1.0 - uv.y) * (height - 1.0);
 
-    return new Three.Vector2(x, y);
+    return new Three.Vector2(x + xoffs, y + yoffs);
 }
 
 /**
@@ -89,13 +89,13 @@ export function uvToWorldRay(
  */
 export function pxToWorldRay(
     camera: Three.PerspectiveCamera,
-    size: Size,
+    area: DrawingArea,
     px: Three.Vector2
 ): Three.Ray {
     return uvToWorldRay(
         camera.projectionMatrixInverse,
         camera.matrixWorld,
-        pxToUv(size, px)
+        pxToUv(area, px)
     );
 }
 

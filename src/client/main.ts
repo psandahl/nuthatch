@@ -1,4 +1,3 @@
-import { AnimationObjectGroup } from 'three';
 import {
     KeyboardEventTag,
     MouseEventTag,
