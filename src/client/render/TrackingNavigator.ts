@@ -12,6 +12,7 @@ import {
     matrixNedToGl4,
 } from '../math/Matrix';
 import { Camera } from '../types/TrackingCamera';
+import { pxToUv, uvToWorldRay } from '../math/CameraTransforms';
 
 /**
  * A tracking navigator implementing the Navigator interface.
@@ -174,6 +175,24 @@ export class TrackingNavigator implements Navigator {
      */
     public getCamera(): Three.PerspectiveCamera {
         return this.camera;
+    }
+
+    /**
+     * Get a world ray for the given pixel.
+     * @param px The px to be given a ray
+     * @returns The world ray, or undefined
+     */
+    public getWorldRay(px: Three.Vector2): Three.Ray | undefined {
+        const uv = pxToUv(this.getDrawingArea(), px);
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+            return undefined;
+        } else {
+            return uvToWorldRay(
+                this.camera.projectionMatrixInverse,
+                this.camera.matrixWorld,
+                uv
+            );
+        }
     }
 
     private size: Size;

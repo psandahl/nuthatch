@@ -187,6 +187,14 @@ export class DemoApplication
      * @param event The event
      */
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {
+        const mouseRay = this.navigator.getWorldRay(
+            new Three.Vector2(event.clientX, event.clientY)
+        );
+        if (mouseRay) {
+            console.log('origin: ', mouseRay.origin);
+            console.log('direction: ', mouseRay.direction);
+        }
+
         if (this.navigatorMode == NavigatorMode.Orbiting) {
             this.orbitingNavigator.onMouse(tag, event);
         }

@@ -4,7 +4,7 @@ import { DrawingArea } from '../types/DrawingArea';
 
 /**
  * Translate from pixel to UV.
- * @param size The size of the image
+ * @param area The drawing area
  * @param px The pixel
  * @returns The UV coordinate.
  */
@@ -18,7 +18,7 @@ export function pxToUv(area: DrawingArea, px: Three.Vector2): Three.Vector2 {
 
 /**
  * Translate from UV to pixel.
- * @param size The size of the image
+ * @param area The drawing area
  * @param uv The UV coordinate
  * @returns The pixel.
  */
@@ -68,7 +68,7 @@ export function uvToCameraRay(
 /**
  * Generate a world space ray.
  * @param inverseProjection The inverse projection matrix
- * @param inverseWorld The inverse world matrix
+ * @param worldmatrix The world matrix
  * @param uv UV coordinate
  * @returns A world space ray.
  */
@@ -83,7 +83,7 @@ export function uvToWorldRay(
 /**
  * Generate a world space ray.
  * @param camera The perspective camera
- * @param size The image size
+ * @param area The drawing area
  * @param px The pixel coordinate
  * @returns A world space ray.
  */

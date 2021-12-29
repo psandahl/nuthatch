@@ -2,7 +2,7 @@ import * as Three from 'three';
 
 import { MouseEventTag, WheelEventTag } from '../app/Application';
 import { DrawingArea, fullDrawingArea } from '../types/DrawingArea';
-import { pxToUv, pxToWorldRay } from '../math/CameraTransforms';
+import { pxToUv, pxToWorldRay, uvToWorldRay } from '../math/CameraTransforms';
 import {
     heightAboveEllipsoid,
     intersectEllipsoid,
@@ -90,6 +90,19 @@ export class OrbitingNavigator implements Navigator {
 
     public getCamera(): Three.PerspectiveCamera {
         return this.camera;
+    }
+
+    public getWorldRay(px: Three.Vector2): Three.Ray | undefined {
+        const uv = pxToUv(this.getDrawingArea(), px);
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+            return undefined;
+        } else {
+            return uvToWorldRay(
+                this.camera.projectionMatrixInverse,
+                this.camera.matrixWorld,
+                uv
+            );
+        }
     }
 
     private at(position: Three.Vector3, tiltAngle: number): void {

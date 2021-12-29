@@ -35,4 +35,12 @@ export interface Navigator {
      * Get a reference to the navigator's perspective camera.
      */
     getCamera(): Three.PerspectiveCamera;
+
+    /**
+     * Get a world ray for the given pixel location. If the pixel
+     * lies outside the drawing area the value of undefined is
+     * returned.
+     * @param px Pixel location
+     */
+    getWorldRay(px: Three.Vector2): Three.Ray | undefined;
 }
