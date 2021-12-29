@@ -116,7 +116,10 @@ export class DemoApplication
     /**
      * Render the scene.
      */
-    public render(): void {
+    public animationFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {
         // Let the navigator update its camera.
         this.navigator.updateCamera();
 
@@ -132,6 +135,19 @@ export class DemoApplication
     }
 
     /**
+     * Handle the video fps notification.
+     */
+    public videoFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {
+        if (this.trackingValid() && this.autoPlay) {
+            this.loadFromTrack();
+            this.incTrackIndex();
+        }
+    }
+
+    /**
      * Resize the application.
      * @param size The new size
      */
@@ -141,17 +157,6 @@ export class DemoApplication
 
         // Update the renderer with the navigator's new drawing area.
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
-    }
-
-    /**
-     * Handle the video fps notification.
-     * @param elapsed The number of milliseconds since latest tick
-     */
-    public tick(elapsed: number): void {
-        if (this.trackingValid() && this.autoPlay) {
-            this.loadFromTrack();
-            this.incTrackIndex();
-        }
     }
 
     /**

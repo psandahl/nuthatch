@@ -42,7 +42,10 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         this.fetchModelData();
     }
 
-    public render(): void {
+    public animationFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {
         this.navigator.updateCamera();
         this.cameraNavAxesHelper.updateFromCamera(this.navigator.getCamera());
         this.renderer.render(this.scene, this.navigator.getCamera());
@@ -50,12 +53,15 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         this.stats.update();
     }
 
+    public videoFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {}
+
     public resize(size: Size): void {
         this.navigator.setSize(size);
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
-
-    public tick(elapsed: number): void {}
 
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
 

@@ -16,6 +16,8 @@ window.onload = async () => {
         'rendertarget'
     ) as HTMLCanvasElement;
     if (renderTarget) {
+        const startTime = performance.now();
+
         // Initialize application.
         const app = new DemoApplication(windowSize(), renderTarget);
         //const app = new LabNavApplication(windowSize(), renderTarget);
@@ -29,20 +31,29 @@ window.onload = async () => {
         };
 
         // Render at animation frames.
-        const tickFrame = () => {
-            app.render();
-            window.requestAnimationFrame(tickFrame);
+        var lastAnimation = startTime;
+        const tickAnimation = () => {
+            const now = performance.now();
+            const secondsSinceStart = (now - startTime) / 1000.0;
+            const millisSinceLast = now - lastAnimation;
+            lastAnimation = now;
+
+            app.animationFrame(secondsSinceStart, millisSinceLast);
+            window.requestAnimationFrame(tickAnimation);
         };
-        window.requestAnimationFrame(tickFrame);
+        window.requestAnimationFrame(tickAnimation);
 
         // Have another tick targeted at 30 FPS for video.
-        var currentMillis = new Date().getTime();
-        const tickMillis = () => {
-            const now = new Date().getTime();
-            app.tick(now - currentMillis);
-            currentMillis = now;
+        var lastVideo = startTime;
+        const tickVideo = () => {
+            const now = performance.now();
+            const secondsSinceStart = (now - startTime) / 1000.0;
+            const millisSinceLast = now - lastAnimation;
+            lastAnimation = now;
+
+            app.videoFrame(secondsSinceStart, millisSinceLast);
         };
-        window.setInterval(tickMillis, 1000.0 / 30.0);
+        window.setInterval(tickVideo, 1000.0 / 30.0);
 
         // Event handlers.
         window.onkeydown = (event: KeyboardEvent) => {

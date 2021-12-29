@@ -31,21 +31,24 @@ export enum MouseEventTag {
  */
 export interface Application {
     /**
-     * Notification to render the screen.
+     * Notification about animation frame (i.e. time to render).
+     * @param secondsSinceStart Seconds since application was loaded
+     * @param millisSinceLast Milliseconds since last frame
      */
-    render(): void;
+    animationFrame(secondsSinceStart: number, millisSinceLast: number): void;
+
+    /**
+     * Notification about video frame (e.g. time to move along track).
+     * @param secondsSinceStart Seconds since application was loaded
+     * @param millisSinceLast Milliseconds since last frame
+     */
+    videoFrame(secondsSinceStart: number, millisSinceLast: number): void;
 
     /**
      * Notification that the window size has changed.
      * @param size The new size.
      */
     resize(size: Size): void;
-
-    /**
-     * Notification of a timer event (runs at 30 tick/s).
-     * @param elapsed The number of milliseconds since last tick.
-     */
-    tick(elapsed: number): void;
 
     /**
      * Notification of a keyboard event.

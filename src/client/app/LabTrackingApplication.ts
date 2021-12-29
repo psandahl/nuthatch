@@ -49,7 +49,10 @@ export class LabTrackingApplication
         this.fetchSequence();
     }
 
-    public render(): void {
+    public animationFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
         this.cameraNavAxesHelper.updateFromCamera(this.navigator.getCamera());
         this.renderer.render(this.scene, this.navigator.getCamera());
@@ -57,12 +60,10 @@ export class LabTrackingApplication
         this.stats.update();
     }
 
-    public resize(size: Size): void {
-        this.navigator.setSize(size);
-        this.renderer.setDrawingArea(this.navigator.getDrawingArea());
-    }
-
-    public tick(elapsed: number): void {
+    public videoFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {
         if (this.sequence.length > 0) {
             this.navigator.setViewFromTrackingCamera(
                 this.sequence[this.sequenceIndex]
@@ -72,6 +73,11 @@ export class LabTrackingApplication
                 this.sequenceIndex = 0;
             }
         }
+    }
+
+    public resize(size: Size): void {
+        this.navigator.setSize(size);
+        this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
 
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}

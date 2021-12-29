@@ -33,19 +33,25 @@ export class LabNavApplication implements Application {
         this.scene.add(makeGlobe());
     }
 
-    public render(): void {
+    public animationFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {
         this.navigator.updateCamera();
         this.cameraNavAxesHelper.updateFromCamera(this.navigator.getCamera());
 
         this.renderer.render(this.scene, this.navigator.getCamera());
     }
 
+    public videoFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {}
+
     public resize(size: Size): void {
         this.navigator.setSize(size);
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
     }
-
-    public tick(elapsed: number): void {}
 
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
 

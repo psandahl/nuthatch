@@ -48,10 +48,18 @@ export class LabApplication implements Application, ImageReceiver {
         fetchImage(1, 'images/city.jpg', this);
     }
 
-    public render(): void {
+    public animationFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {
         this.sceneRenderer.render(this.scene, this.sceneCamera);
         this.stats.update();
     }
+
+    public videoFrame(
+        _secondsSinceStart: number,
+        _millisSinceLast: number
+    ): void {}
 
     public resize(size: Size): void {
         const [width, height] = size;
@@ -63,8 +71,6 @@ export class LabApplication implements Application, ImageReceiver {
                 : calculateDrawingArea(size, this.sceneCamera.getAspectRatio());
         this.sceneRenderer.setDrawingArea(drawingArea);
     }
-
-    public tick(elapsed: number): void {}
 
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {
         if (tag == KeyboardEventTag.Down) {
