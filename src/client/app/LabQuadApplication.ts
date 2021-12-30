@@ -13,7 +13,7 @@ import { SceneRenderer } from '../render/SceneRenderer';
 import { Size } from '../types/Size';
 import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
 
-export class LabApplication implements Application, ImageReceiver {
+export class LabQuadApplication implements Application, ImageReceiver {
     public constructor(size: Size, renderTarget: HTMLCanvasElement) {
         this.scene = new Three.Scene();
         this.camera = new Three.PerspectiveCamera(

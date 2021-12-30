@@ -4,7 +4,7 @@ import {
     WheelEventTag,
 } from './app/Application';
 import { DemoApplication } from './app/DemoApplication';
-import { LabApplication } from './app/LabApplication';
+import { LabQuadApplication } from './app/LabQuadApplication';
 import { LabColladaApplication } from './app/LabColladaApplication';
 import { LabNavApplication } from './app/LabNavApplication';
 import { LabTrackingApplication } from './app/LabTrackingApplication';
@@ -20,7 +20,7 @@ window.onload = async () => {
         // Initialize application.
         const app = new DemoApplication(windowSize(), renderTarget);
         //const app = new LabNavApplication(windowSize(), renderTarget);
-        //const app = new LabApplication(windowSize(), renderTarget);
+        //const app = new LabQuadApplication(windowSize(), renderTarget);
         //const app = new LabTrackingApplication(windowSize(), renderTarget);
         //const app = new LabColladaApplication(windowSize(), renderTarget);
 
@@ -47,8 +47,8 @@ window.onload = async () => {
         const tickVideo = () => {
             const now = performance.now();
             const secondsSinceStart = (now - startTime) / 1000.0;
-            const millisSinceLast = now - lastAnimation;
-            lastAnimation = now;
+            const millisSinceLast = now - lastVideo;
+            lastVideo = now;
 
             app.videoFrame(secondsSinceStart, millisSinceLast);
         };
