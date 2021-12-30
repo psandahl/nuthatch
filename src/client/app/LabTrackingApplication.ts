@@ -11,7 +11,7 @@ import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { makeGlobe } from '../render/Globe';
 import { Size } from '../types/Size';
 import { SceneRenderer } from '../render/SceneRenderer';
-import { TrackingNavigator } from '../render/TrackingNavigator';
+import { TrackingNavigator } from '../world/TrackingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { GeoConvertUtm } from '../math/GeoConvert';
 import { ColladaReceiver } from '../types/ColladaReceiver';

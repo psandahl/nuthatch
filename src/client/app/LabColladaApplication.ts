@@ -13,7 +13,7 @@ import { GeoConvertUtm } from '../math/GeoConvert';
 import { ColladaReceiver } from '../types/ColladaReceiver';
 import { Size } from '../types/Size';
 import { SceneRenderer } from '../render/SceneRenderer';
-import { OrbitingNavigator } from '../render/OrbitingNavigator';
+import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';

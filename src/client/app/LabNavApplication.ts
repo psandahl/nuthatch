@@ -7,7 +7,7 @@ import {
     Application,
 } from './Application';
 import { makeGlobe } from '../render/Globe';
-import { OrbitingNavigator } from '../render/OrbitingNavigator';
+import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Size } from '../types/Size';

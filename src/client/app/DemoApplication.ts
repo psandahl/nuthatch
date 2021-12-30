@@ -8,9 +8,9 @@ import {
     WheelEventTag,
 } from './Application';
 import { Size } from '../types/Size';
-import { Navigator } from '../render/Navigator';
-import { OrbitingNavigator } from '../render/OrbitingNavigator';
-import { TrackingNavigator } from '../render/TrackingNavigator';
+import { Navigator } from '../world/Navigator';
+import { OrbitingNavigator } from '../world/OrbitingNavigator';
+import { TrackingNavigator } from '../world/TrackingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { SceneRenderer } from '../render/SceneRenderer';
 import { makeGlobe } from '../render/Globe';
