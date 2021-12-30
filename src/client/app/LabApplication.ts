@@ -1,5 +1,4 @@
 import * as Three from 'three';
-import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {
     KeyboardEventTag,
@@ -7,8 +6,7 @@ import {
     WheelEventTag,
     Application,
 } from './Application';
-import { calculateDrawingArea, fullDrawingArea } from '../types/DrawingArea';
-import { CameraMode, SceneCamera } from '../render/SceneCamera';
+import { calculateDrawingArea } from '../types/DrawingArea';
 import { fetchImage } from '../data/ImageLoad';
 import { ImageReceiver } from '../types/ImageReceiver';
 import { SceneRenderer } from '../render/SceneRenderer';
@@ -17,32 +15,27 @@ import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
 
 export class LabApplication implements Application, ImageReceiver {
     public constructor(size: Size, renderTarget: HTMLCanvasElement) {
-        this.size = size;
-
         this.scene = new Three.Scene();
-
-        this.sceneCamera = new SceneCamera();
-        const [width, height] = size; // tmp
-        this.sceneCamera.resize(width, height);
-        this.sceneCamera.setFov(1.0, 0.7);
-        this.sceneCamera.position.z = 5;
+        this.camera = new Three.PerspectiveCamera(
+            50,
+            1280.0 / 720.0,
+            1.0,
+            100.0
+        );
+        this.camera.position.z = 5;
 
         this.sceneRenderer = new SceneRenderer(renderTarget);
-
-        this.stats = Stats();
-        document.body.appendChild(this.stats.dom);
-
-        const geo = new Three.BoxGeometry(1.0, 1.0, 1.0);
-        const mat = new Three.MeshBasicMaterial({ color: 0xffff00 });
-        const box = new Three.Mesh(geo, mat);
-        this.scene.add(box);
+        this.sceneRenderer.setDrawingArea(
+            calculateDrawingArea(size, this.camera.aspect)
+        );
 
         this.texturedQuad = new TexturedFullscreenQuad();
         this.texturedQuad.updataCameraMetadata(
-            this.sceneCamera.projectionMatrix,
-            this.sceneCamera.projectionMatrixInverse,
-            new Three.Vector3(0.0, 0.0, 0.0)
+            this.camera.projectionMatrix,
+            this.camera.projectionMatrixInverse,
+            new Three.Vector3(-8.76201, 327.685961, 0.0)
         );
+        this.texturedQuad.toggleUndistort();
         this.scene.add(this.texturedQuad.mesh());
 
         fetchImage(1, 'images/city.jpg', this);
@@ -52,8 +45,7 @@ export class LabApplication implements Application, ImageReceiver {
         _secondsSinceStart: number,
         _millisSinceLast: number
     ): void {
-        this.sceneRenderer.render(this.scene, this.sceneCamera);
-        this.stats.update();
+        this.sceneRenderer.render(this.scene, this.camera);
     }
 
     public videoFrame(
@@ -62,25 +54,14 @@ export class LabApplication implements Application, ImageReceiver {
     ): void {}
 
     public resize(size: Size): void {
-        const [width, height] = size;
-
-        this.sceneCamera.resize(width, height);
-        const drawingArea =
-            this.sceneCamera.getMode() == CameraMode.CanvasAdapting
-                ? fullDrawingArea(size)
-                : calculateDrawingArea(size, this.sceneCamera.getAspectRatio());
-        this.sceneRenderer.setDrawingArea(drawingArea);
+        this.sceneRenderer.setDrawingArea(
+            calculateDrawingArea(size, this.camera.aspect)
+        );
     }
 
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {
-        if (tag == KeyboardEventTag.Down) {
-            if (event.code == 'KeyC') {
-                this.sceneCamera.setMode(CameraMode.CanvasAdapting);
-                this.resize(this.size);
-            } else if (event.code == 'KeyF') {
-                this.sceneCamera.setMode(CameraMode.CameraAdapting);
-                this.resize(this.size);
-            }
+        if (tag == KeyboardEventTag.Down && event.code == 'KeyU') {
+            this.texturedQuad.toggleUndistort();
         }
     }
     public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
@@ -100,10 +81,8 @@ export class LabApplication implements Application, ImageReceiver {
         );
     }
 
-    private size: Size;
     private scene: Three.Scene;
-    private sceneCamera: SceneCamera;
+    private camera: Three.PerspectiveCamera;
     private sceneRenderer: SceneRenderer;
     private texturedQuad: TexturedFullscreenQuad;
-    private stats: Stats;
 }
