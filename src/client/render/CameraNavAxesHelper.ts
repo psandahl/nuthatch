@@ -10,6 +10,12 @@ export class CameraNavAxesHelper {
     public constructor() {
         this.converter = new GeoConvertWgs84();
         this.axes = new Three.AxesHelper(1.0);
+
+        // Note: Change the raycast callback to disable intersection.
+        this.axes.raycast = (
+            raycaster: Three.Raycaster,
+            intersects: Three.Intersection<Three.Object3D<Three.Event>>[]
+        ): void => {};
     }
 
     /**

@@ -58,6 +58,12 @@ export class TexturedFullscreenQuad {
         this._mesh = new Three.Mesh(geometry, material);
         this._mesh.frustumCulled = false;
 
+        // Note: Change the raycast callback to disable intersection.
+        this._mesh.raycast = (
+            raycaster: Three.Raycaster,
+            intersects: Three.Intersection<Three.Object3D<Three.Event>>[]
+        ): void => {};
+
         this._coeff = new Three.Vector3();
     }
 

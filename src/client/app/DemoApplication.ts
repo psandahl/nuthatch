@@ -11,6 +11,7 @@ import { Size } from '../types/Size';
 import { Navigator } from '../world/Navigator';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { TrackingNavigator } from '../world/TrackingNavigator';
+import { Raycaster } from '../world/Raycaster';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Renderer } from '../render/Renderer';
 import { makeGlobe } from '../render/Globe';
@@ -66,6 +67,9 @@ export class DemoApplication
         // Create the runtime stats widget.
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
+
+        // Create the raycaster for the scene.
+        this.rayCaster = new Raycaster(this.scene);
 
         // Create an orbiting navigator with reasonable settings.
         this.orbitingNavigator = new OrbitingNavigator(
@@ -187,13 +191,11 @@ export class DemoApplication
      * @param event The event
      */
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {
-        const mouseRay = this.navigator.getWorldRay(
-            new Three.Vector2(event.clientX, event.clientY)
+        this.rayCaster.intersect(
+            this.navigator.getWorldRay(
+                new Three.Vector2(event.clientX, event.clientY)
+            )
         );
-        if (mouseRay) {
-            console.log('origin: ', mouseRay.origin);
-            console.log('direction: ', mouseRay.direction);
-        }
 
         if (this.navigatorMode == NavigatorMode.Orbiting) {
             this.orbitingNavigator.onMouse(tag, event);
@@ -384,6 +386,8 @@ export class DemoApplication
     private orbitingNavigator: OrbitingNavigator;
     private trackingNavigator: TrackingNavigator;
     private navigator: Navigator;
+
+    private rayCaster: Raycaster;
 
     private globe: Three.Mesh;
     private navAxesHelper: CameraNavAxesHelper;

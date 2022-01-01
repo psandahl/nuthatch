@@ -24,7 +24,9 @@ export function fetchCollada(
         (model) => {
             receiver.receiveColladaSucceeded(model, id, url);
         },
-        (progress) => console.log(`${url} has loaded ${progress.loaded} bytes`),
+        (progress) => {
+            //console.log(`${url} has loaded ${progress.loaded} bytes`);
+        },
         (_error) => receiver.receiveColladaFailed(id, url)
     );
 }

@@ -15,5 +15,11 @@ export function makeGlobe(): Three.Mesh {
     sphere.scale.set(1, 1.0 - 1.0 / InverseFlattening, 1.0);
     sphere.rotateX(Math.PI / 2);
 
+    // Note: Change the raycast callback to disable intersection.
+    sphere.raycast = (
+        raycaster: Three.Raycaster,
+        intersects: Three.Intersection<Three.Object3D<Three.Event>>[]
+    ): void => {};
+
     return sphere;
 }
