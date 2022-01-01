@@ -100,6 +100,17 @@ export class DemoApplication
         this.navAxesHelper = new CameraNavAxesHelper();
         this.scene.add(this.navAxesHelper.renderable());
 
+        // Create arrow helpers to visualize normals.
+        this.surfaceNormal = new Three.ArrowHelper();
+        this.surfaceNormal.setLength(50);
+        this.surfaceNormal.setColor(0x0000ff);
+        this.scene.add(this.surfaceNormal);
+
+        this.vertexNormal = new Three.ArrowHelper();
+        this.vertexNormal.setLength(50);
+        this.vertexNormal.setColor(0xffff00);
+        this.scene.add(this.vertexNormal);
+
         // To see the textured terrain a light source is needed.
         this.ambientLight = new Three.AmbientLight(0x404040, 2.0);
         this.scene.add(this.ambientLight);
@@ -197,7 +208,20 @@ export class DemoApplication
             )
         );
         if (intersection) {
-            console.log('intersection: ', intersection);
+            if (intersection.surfaceNormal) {
+                this.surfaceNormal.position.copy(intersection.point);
+                this.surfaceNormal.setDirection(intersection.surfaceNormal);
+                this.surfaceNormal.visible = true;
+            }
+
+            if (intersection.vertexNormal) {
+                this.vertexNormal.position.copy(intersection.point);
+                this.vertexNormal.setDirection(intersection.vertexNormal);
+                this.vertexNormal.visible = true;
+            }
+        } else {
+            this.surfaceNormal.visible = false;
+            this.vertexNormal.visible = false;
         }
 
         if (this.navigatorMode == NavigatorMode.Orbiting) {
@@ -395,6 +419,9 @@ export class DemoApplication
     private globe: Three.Mesh;
     private navAxesHelper: CameraNavAxesHelper;
     private ambientLight: Three.AmbientLight;
+
+    private surfaceNormal: Three.ArrowHelper;
+    private vertexNormal: Three.ArrowHelper;
 
     private imageLoader: Three.ImageLoader;
     private texturedQuad: TexturedFullscreenQuad;
