@@ -11,7 +11,7 @@ import { Size } from '../types/Size';
 import { Navigator } from '../world/Navigator';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { TrackingNavigator } from '../world/TrackingNavigator';
-import { Raycaster } from '../world/Raycaster';
+import { IntersectionPoint, Raycaster } from '../world/Raycaster';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Renderer } from '../render/Renderer';
 import { makeGlobe } from '../render/Globe';
@@ -191,11 +191,14 @@ export class DemoApplication
      * @param event The event
      */
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {
-        this.rayCaster.intersect(
+        const intersection = this.rayCaster.intersect(
             this.navigator.getWorldRay(
                 new Three.Vector2(event.clientX, event.clientY)
             )
         );
+        if (intersection) {
+            console.log('intersection: ', intersection);
+        }
 
         if (this.navigatorMode == NavigatorMode.Orbiting) {
             this.orbitingNavigator.onMouse(tag, event);
