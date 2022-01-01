@@ -10,7 +10,7 @@ import {
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { makeGlobe } from '../render/Globe';
 import { Size } from '../types/Size';
-import { SceneRenderer } from '../render/SceneRenderer';
+import { Renderer } from '../render/Renderer';
 import { TrackingNavigator } from '../world/TrackingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { GeoConvertUtm } from '../math/GeoConvert';
@@ -28,7 +28,7 @@ export class LabTrackingApplication
     public constructor(size: Size, renderTarget: HTMLCanvasElement) {
         this.geoConvertUtm = new GeoConvertUtm(10);
         this.scene = new Three.Scene();
-        this.renderer = new SceneRenderer(renderTarget);
+        this.renderer = new Renderer(renderTarget);
 
         const [width, height] = size;
         this.renderer.setSize(width, height);
@@ -123,7 +123,7 @@ export class LabTrackingApplication
 
     private geoConvertUtm: GeoConvertUtm;
     private scene: Three.Scene;
-    private renderer: SceneRenderer;
+    private renderer: Renderer;
     private navigator: TrackingNavigator;
     private cameraNavAxesHelper: CameraNavAxesHelper;
     private stats: Stats;

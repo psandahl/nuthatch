@@ -5,7 +5,7 @@ import { DrawingArea, fullDrawingArea } from '../types/DrawingArea';
  * A renderer specialized for rendereing the scene. It is adapted for a
  * scenario where the canvas is filling the whole browser window.
  */
-export class SceneRenderer extends Three.WebGLRenderer {
+export class Renderer extends Three.WebGLRenderer {
     /**
      * Construct the scene renderer.
      */

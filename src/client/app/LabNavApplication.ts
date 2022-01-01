@@ -8,7 +8,7 @@ import {
 } from './Application';
 import { makeGlobe } from '../render/Globe';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
-import { SceneRenderer } from '../render/SceneRenderer';
+import { Renderer } from '../render/Renderer';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Size } from '../types/Size';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
@@ -17,7 +17,7 @@ export class LabNavApplication implements Application {
     constructor(size: Size, renderTarget: HTMLCanvasElement) {
         this.scene = new Three.Scene();
 
-        this.renderer = new SceneRenderer(renderTarget);
+        this.renderer = new Renderer(renderTarget);
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
@@ -64,7 +64,7 @@ export class LabNavApplication implements Application {
     }
 
     private scene: Three.Scene;
-    private renderer: SceneRenderer;
+    private renderer: Renderer;
     private navigator: OrbitingNavigator;
     private cameraNavAxesHelper: CameraNavAxesHelper;
 }

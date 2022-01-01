@@ -9,7 +9,7 @@ import {
 import { calculateDrawingArea } from '../types/DrawingArea';
 import { fetchImage } from '../data/ImageLoad';
 import { ImageReceiver } from '../types/ImageReceiver';
-import { SceneRenderer } from '../render/SceneRenderer';
+import { Renderer } from '../render/Renderer';
 import { Size } from '../types/Size';
 import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
 
@@ -24,7 +24,7 @@ export class LabQuadApplication implements Application, ImageReceiver {
         );
         this.camera.position.z = 5;
 
-        this.sceneRenderer = new SceneRenderer(renderTarget);
+        this.sceneRenderer = new Renderer(renderTarget);
         this.sceneRenderer.setDrawingArea(
             calculateDrawingArea(size, this.camera.aspect)
         );
@@ -83,6 +83,6 @@ export class LabQuadApplication implements Application, ImageReceiver {
 
     private scene: Three.Scene;
     private camera: Three.PerspectiveCamera;
-    private sceneRenderer: SceneRenderer;
+    private sceneRenderer: Renderer;
     private texturedQuad: TexturedFullscreenQuad;
 }

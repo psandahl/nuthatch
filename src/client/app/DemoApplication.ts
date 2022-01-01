@@ -12,7 +12,7 @@ import { Navigator } from '../world/Navigator';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { TrackingNavigator } from '../world/TrackingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
-import { SceneRenderer } from '../render/SceneRenderer';
+import { Renderer } from '../render/Renderer';
 import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { fetchJSON } from '../data/JSONLoad';
@@ -60,7 +60,7 @@ export class DemoApplication
         this.scene = new Three.Scene();
 
         // Create the renderer.
-        this.renderer = new SceneRenderer(renderTarget);
+        this.renderer = new Renderer(renderTarget);
         this.renderer.setSize(size[0], size[1]);
 
         // Create the runtime stats widget.
@@ -377,7 +377,7 @@ export class DemoApplication
     private geoConvertUtm: GeoConvertUtm;
 
     private scene: Three.Scene;
-    private renderer: SceneRenderer;
+    private renderer: Renderer;
     private stats: Stats;
 
     private navigatorMode = NavigatorMode.Orbiting;

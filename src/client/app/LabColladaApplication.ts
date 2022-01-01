@@ -12,7 +12,7 @@ import { fetchCollada, modifyTerrainColladaModel } from '../data/ColladaLoad';
 import { GeoConvertUtm } from '../math/GeoConvert';
 import { ColladaReceiver } from '../types/ColladaReceiver';
 import { Size } from '../types/Size';
-import { SceneRenderer } from '../render/SceneRenderer';
+import { Renderer } from '../render/Renderer';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { makeGlobe } from '../render/Globe';
@@ -24,7 +24,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         this.geoConvertUtm = new GeoConvertUtm(10);
         this.scene = new Three.Scene();
 
-        this.renderer = new SceneRenderer(renderTarget);
+        this.renderer = new Renderer(renderTarget);
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
@@ -106,7 +106,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
 
     private geoConvertUtm: GeoConvertUtm;
     private scene: Three.Scene;
-    private renderer: SceneRenderer;
+    private renderer: Renderer;
     private navigator: OrbitingNavigator;
     private cameraNavAxesHelper: CameraNavAxesHelper;
     private stats: Stats;
