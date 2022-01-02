@@ -15,12 +15,6 @@ export class SurfaceHelper {
         this.surfaceNormal.visible = false;
         this.group.add(this.surfaceNormal);
 
-        this.vertexNormal = new Three.ArrowHelper();
-        this.vertexNormal.setLength(50);
-        this.vertexNormal.setColor(0xffff00);
-        this.vertexNormal.visible = false;
-        this.group.add(this.vertexNormal);
-
         const lineGeometry = new Three.BufferGeometry().setFromPoints([
             new Three.Vector3(),
             new Three.Vector3(),
@@ -29,9 +23,7 @@ export class SurfaceHelper {
         ]);
         const lineMaterial = new Three.LineBasicMaterial();
         this.triangle = new Three.Line(lineGeometry, lineMaterial);
-
         this.triangle.visible = false;
-
         this.group.add(this.triangle);
     }
 
@@ -51,12 +43,6 @@ export class SurfaceHelper {
                 this.surfaceNormal.visible = true;
             }
 
-            if (intersection.vertexNormal) {
-                this.vertexNormal.position.copy(intersection.point);
-                this.vertexNormal.setDirection(intersection.vertexNormal);
-                this.vertexNormal.visible = true;
-            }
-
             if (
                 intersection.vertex0 &&
                 intersection.vertex1 &&
@@ -73,7 +59,6 @@ export class SurfaceHelper {
             }
         } else {
             this.surfaceNormal.visible = false;
-            this.vertexNormal.visible = false;
             this.triangle.visible = false;
         }
     }
@@ -88,6 +73,5 @@ export class SurfaceHelper {
 
     private group: Three.Group;
     private surfaceNormal: Three.ArrowHelper;
-    private vertexNormal: Three.ArrowHelper;
     private triangle: Three.Line;
 }
