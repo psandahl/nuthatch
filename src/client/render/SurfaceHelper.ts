@@ -20,11 +20,24 @@ export class SurfaceHelper {
         this.vertexNormal.setColor(0xffff00);
         this.vertexNormal.visible = false;
         this.group.add(this.vertexNormal);
+
+        const lineGeometry = new Three.BufferGeometry().setFromPoints([
+            new Three.Vector3(),
+            new Three.Vector3(),
+            new Three.Vector3(),
+            new Three.Vector3(),
+        ]);
+        const lineMaterial = new Three.LineBasicMaterial();
+        this.triangle = new Three.Line(lineGeometry, lineMaterial);
+
+        this.triangle.visible = false;
+
+        this.group.add(this.triangle);
     }
 
     /**
      * Update the surface helper.
-     * @param intersection An intersection pointvvv
+     * @param intersection An intersection point
      * @param camera A perspective camera
      */
     public update(
@@ -43,9 +56,25 @@ export class SurfaceHelper {
                 this.vertexNormal.setDirection(intersection.vertexNormal);
                 this.vertexNormal.visible = true;
             }
+
+            if (
+                intersection.vertex0 &&
+                intersection.vertex1 &&
+                intersection.vertex2
+            ) {
+                this.triangle.geometry.setFromPoints([
+                    intersection.vertex0,
+                    intersection.vertex1,
+                    intersection.vertex2,
+                    intersection.vertex0,
+                ]);
+                this.triangle.geometry.computeBoundingSphere();
+                this.triangle.visible = true;
+            }
         } else {
             this.surfaceNormal.visible = false;
             this.vertexNormal.visible = false;
+            this.triangle.visible = false;
         }
     }
 
@@ -60,4 +89,5 @@ export class SurfaceHelper {
     private group: Three.Group;
     private surfaceNormal: Three.ArrowHelper;
     private vertexNormal: Three.ArrowHelper;
+    private triangle: Three.Line;
 }
