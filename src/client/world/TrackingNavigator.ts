@@ -182,7 +182,11 @@ export class TrackingNavigator implements Navigator {
      * @param px The px to be given a ray
      * @returns The world ray, or undefined
      */
-    public getWorldRay(px: Three.Vector2): Three.Ray | undefined {
+    public getWorldRay(px: Three.Vector2 | undefined): Three.Ray | undefined {
+        if (!px) {
+            return undefined;
+        }
+
         const uv = pxToUv(this.getDrawingArea(), px);
         if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
             return undefined;

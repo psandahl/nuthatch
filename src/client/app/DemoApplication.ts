@@ -13,9 +13,9 @@ import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { TrackingNavigator } from '../world/TrackingNavigator';
 import { Raycaster } from '../world/Raycaster';
 import { SemiMajorAxis } from '../math/Ellipsoid';
+import { Annotations } from '../render/Annotations';
 import { Renderer } from '../render/Renderer';
 import { makeGlobe } from '../render/Globe';
-import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { fetchJSON } from '../data/JSONLoad';
 import { JSONReceiver } from '../types/JSONReceiver';
 import { ColladaReceiver } from '../types/ColladaReceiver';
@@ -68,6 +68,13 @@ export class DemoApplication
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
 
+        // Create the annotations.
+        this.annotations = new Annotations();
+        this.scene.add(this.annotations.getScene());
+
+        // The current mouse position.
+        this.mousePos = undefined;
+
         // Create the raycaster for the scene.
         this.rayCaster = new Raycaster(this.scene);
 
@@ -96,21 +103,6 @@ export class DemoApplication
         this.globe = makeGlobe();
         this.scene.add(this.globe);
 
-        // Create camera navigation axes helper.
-        this.navAxesHelper = new CameraNavAxesHelper();
-        this.scene.add(this.navAxesHelper.renderable());
-
-        // Create arrow helpers to visualize normals.
-        this.surfaceNormal = new Three.ArrowHelper();
-        this.surfaceNormal.setLength(50);
-        this.surfaceNormal.setColor(0x0000ff);
-        this.scene.add(this.surfaceNormal);
-
-        this.vertexNormal = new Three.ArrowHelper();
-        this.vertexNormal.setLength(50);
-        this.vertexNormal.setColor(0xffff00);
-        this.scene.add(this.vertexNormal);
-
         // To see the textured terrain a light source is needed.
         this.ambientLight = new Three.AmbientLight(0x404040, 2.0);
         this.scene.add(this.ambientLight);
@@ -138,8 +130,13 @@ export class DemoApplication
         // Let the navigator update its camera.
         this.navigator.updateCamera();
 
-        // Update the axes helper from the navigator's camera.
-        this.navAxesHelper.updateFromCamera(this.navigator.getCamera());
+        // Intersect the scene using the current mouse position and the updated camera.
+        const intersection = this.rayCaster.intersect(
+            this.navigator.getWorldRay(this.mousePos)
+        );
+
+        // Update the annotations.
+        this.annotations.update(intersection, this.navigator.getCamera());
 
         // Set the drawing area for the renderer and render the scene.
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
@@ -172,6 +169,9 @@ export class DemoApplication
 
         // Update the renderer with the navigator's new drawing area.
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
+
+        // Mouse position is no longer accurate.
+        this.mousePos = undefined;
     }
 
     /**
@@ -202,26 +202,10 @@ export class DemoApplication
      * @param event The event
      */
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {
-        const intersection = this.rayCaster.intersect(
-            this.navigator.getWorldRay(
-                new Three.Vector2(event.clientX, event.clientY)
-            )
-        );
-        if (intersection) {
-            if (intersection.surfaceNormal) {
-                this.surfaceNormal.position.copy(intersection.point);
-                this.surfaceNormal.setDirection(intersection.surfaceNormal);
-                this.surfaceNormal.visible = true;
-            }
-
-            if (intersection.vertexNormal) {
-                this.vertexNormal.position.copy(intersection.point);
-                this.vertexNormal.setDirection(intersection.vertexNormal);
-                this.vertexNormal.visible = true;
-            }
+        if (tag != MouseEventTag.Leave) {
+            this.mousePos = new Three.Vector2(event.clientX, event.clientY);
         } else {
-            this.surfaceNormal.visible = false;
-            this.vertexNormal.visible = false;
+            this.mousePos = undefined;
         }
 
         if (this.navigatorMode == NavigatorMode.Orbiting) {
@@ -409,19 +393,18 @@ export class DemoApplication
     private renderer: Renderer;
     private stats: Stats;
 
+    private annotations: Annotations;
+
     private navigatorMode = NavigatorMode.Orbiting;
     private orbitingNavigator: OrbitingNavigator;
     private trackingNavigator: TrackingNavigator;
     private navigator: Navigator;
 
+    private mousePos?: Three.Vector2;
     private rayCaster: Raycaster;
 
     private globe: Three.Mesh;
-    private navAxesHelper: CameraNavAxesHelper;
     private ambientLight: Three.AmbientLight;
-
-    private surfaceNormal: Three.ArrowHelper;
-    private vertexNormal: Three.ArrowHelper;
 
     private imageLoader: Three.ImageLoader;
     private texturedQuad: TexturedFullscreenQuad;

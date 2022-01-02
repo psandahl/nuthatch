@@ -42,5 +42,5 @@ export interface Navigator {
      * returned.
      * @param px Pixel location
      */
-    getWorldRay(px: Three.Vector2): Three.Ray | undefined;
+    getWorldRay(px: Three.Vector2 | undefined): Three.Ray | undefined;
 }
