@@ -11,7 +11,7 @@ import { Size } from '../types/Size';
 import { Navigator } from '../world/Navigator';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { TrackingNavigator } from '../world/TrackingNavigator';
-import { IntersectionPoint, Raycaster } from '../world/Raycaster';
+import { Raycaster } from '../world/Raycaster';
 import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Renderer } from '../render/Renderer';
 import { makeGlobe } from '../render/Globe';
