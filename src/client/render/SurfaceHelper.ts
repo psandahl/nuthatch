@@ -1,4 +1,5 @@
 import * as Three from 'three';
+import { degToRad } from '../math/Helpers';
 
 import { IntersectionPoint } from '../types/IntersectionPoint';
 
@@ -10,7 +11,7 @@ export class SurfaceHelper {
         this.group = new Three.Group();
 
         this.surfaceNormal = new Three.ArrowHelper();
-        this.surfaceNormal.setLength(50);
+        this.surfaceNormal.setLength(1);
         this.surfaceNormal.setColor(0x0000ff);
         this.surfaceNormal.visible = false;
         this.group.add(this.surfaceNormal);
@@ -40,6 +41,14 @@ export class SurfaceHelper {
             if (intersection.surfaceNormal) {
                 this.surfaceNormal.position.copy(intersection.point);
                 this.surfaceNormal.setDirection(intersection.surfaceNormal);
+
+                // Always set the scale for the normal to be 1/8 of screen height.
+                const scale =
+                    (intersection.distance *
+                        Math.tan(degToRad(camera.fov / 2.0))) /
+                    4.0;
+                this.surfaceNormal.scale.set(scale, scale, scale);
+
                 this.surfaceNormal.visible = true;
             }
 
