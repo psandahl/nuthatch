@@ -26,6 +26,11 @@ export class SurfaceHelper {
         this.triangle = new Three.Line(lineGeometry, lineMaterial);
         this.triangle.visible = false;
         this.group.add(this.triangle);
+
+        this.group.raycast = (
+            raycaster: Three.Raycaster,
+            intersects: Three.Intersection<Three.Object3D<Three.Event>>[]
+        ): void => {};
     }
 
     /**
