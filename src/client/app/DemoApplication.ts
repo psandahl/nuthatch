@@ -45,6 +45,7 @@ enum NavigatorMode {
  * 'n' next frame for tracking navigation (not autoplay).
  * 'p' previous frame for tracking navigation (not autoplay).
  * 'x' toggle camera nav axes annotation.
+ * 's' while down the surface helper is active.
  */
 export class DemoApplication
     implements Application, JSONReceiver, ColladaReceiver
@@ -183,6 +184,8 @@ export class DemoApplication
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {
         if (tag == KeyboardEventTag.Down) {
             this.onKeyDown(event);
+        } else if (tag == KeyboardEventTag.Up) {
+            this.onKeyUp(event);
         }
     }
 
@@ -292,6 +295,8 @@ export class DemoApplication
             this.texturedQuad.toggleUndistort();
         } else if (event.code == 'KeyX') {
             this.annotations.toggleCameraNavAxes();
+        } else if (event.code == 'KeyS') {
+            this.annotations.activateSurfaceHelper();
         } else if (
             event.code == 'KeyN' &&
             this.trackingValid() &&
@@ -306,6 +311,12 @@ export class DemoApplication
         ) {
             this.decTrackIndex();
             this.loadFromTrack();
+        }
+    }
+
+    private onKeyUp(event: KeyboardEvent): void {
+        if (event.code == 'KeyS') {
+            this.annotations.deactivateSurfaceHelper();
         }
     }
 

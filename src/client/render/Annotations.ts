@@ -15,6 +15,7 @@ export class Annotations {
         this.scene.add(this.cameraNavAxesHelper.renderable());
 
         this.surfaceHelper = new SurfaceHelper();
+        this.deactivateSurfaceHelper();
         this.scene.add(this.surfaceHelper.renderable());
     }
 
@@ -30,7 +31,9 @@ export class Annotations {
         if (this.cameraNavAxesHelper.renderable().visible) {
             this.cameraNavAxesHelper.updateFromCamera(camera);
         }
-        this.surfaceHelper.update(intersection, camera);
+        if (this.surfaceHelper.renderable().visible) {
+            this.surfaceHelper.update(intersection, camera);
+        }
     }
 
     /**
@@ -39,6 +42,14 @@ export class Annotations {
     public toggleCameraNavAxes(): void {
         this.cameraNavAxesHelper.renderable().visible =
             !this.cameraNavAxesHelper.renderable().visible;
+    }
+
+    public activateSurfaceHelper(): void {
+        this.surfaceHelper.renderable().visible = true;
+    }
+
+    public deactivateSurfaceHelper(): void {
+        this.surfaceHelper.renderable().visible = false;
     }
 
     /**
