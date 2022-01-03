@@ -21,12 +21,7 @@ export class LabNavApplication implements Application {
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        this.navigator = new OrbitingNavigator(
-            50,
-            1.0,
-            SemiMajorAxis * 4.0,
-            size
-        );
+        this.navigator = new OrbitingNavigator(50, size);
 
         this.cameraNavAxesHelper = new CameraNavAxesHelper();
         this.scene.add(this.cameraNavAxesHelper.renderable());

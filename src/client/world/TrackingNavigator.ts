@@ -1,6 +1,11 @@
 import * as Three from 'three';
 
-import { degToRad, aspectRatioFromFov } from '../math/Helpers';
+import {
+    degToRad,
+    aspectRatioFromFov,
+    NearPlane,
+    FarPlane,
+} from '../math/Helpers';
 import { DrawingArea, calculateDrawingArea } from '../types/DrawingArea';
 import { GeoConvertWgs84 } from '../math/GeoConvert';
 import { Size } from '../types/Size';
@@ -23,23 +28,15 @@ export class TrackingNavigator implements Navigator {
      * Create a new tracking navigator.
      * @param hFov Initial horizontal field of view (degrees)
      * @param vFov Initial vertical field of view (degrees)
-     * @param near Near plane
-     * @param far Far plane
      * @param size Initial size of the rendering target
      */
-    public constructor(
-        hFov: number,
-        vFov: number,
-        near: number,
-        far: number,
-        size: Size
-    ) {
+    public constructor(hFov: number, vFov: number, size: Size) {
         this.size = size;
         this.camera = new Three.PerspectiveCamera(
             vFov,
             aspectRatioFromFov(degToRad(hFov), degToRad(vFov)),
-            near,
-            far
+            NearPlane,
+            FarPlane
         );
 
         this.converter = new GeoConvertWgs84();

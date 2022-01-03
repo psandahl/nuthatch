@@ -28,7 +28,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        this.navigator = new OrbitingNavigator(50, 1.0, SemiMajorAxis, size);
+        this.navigator = new OrbitingNavigator(50, size);
 
         this.cameraNavAxesHelper = new CameraNavAxesHelper();
 

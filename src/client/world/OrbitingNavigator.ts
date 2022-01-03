@@ -11,24 +11,22 @@ import {
 import { extractBasis, matrixLocalNed4, matrixNedToGl4 } from '../math/Matrix';
 import { Size } from '../types/Size';
 import { Navigator } from './Navigator';
-import { degToRad, radToDeg } from '../math/Helpers';
+import { degToRad, FarPlane, NearPlane, radToDeg } from '../math/Helpers';
 import { GeoConvertWgs84 } from '../math/GeoConvert';
 
 export class OrbitingNavigator implements Navigator {
     /**
      * Construct a
      * @param vFov Vertical field of view (degrees)
-     * @param near Near plane
-     * @param far Far plane
      * @param size Size of the rendering target
      */
-    constructor(vFov: number, near: number, far: number, size: Size) {
+    constructor(vFov: number, size: Size) {
         this.size = size;
         this.camera = new Three.PerspectiveCamera(
             vFov,
             size[0] / size[1],
-            near,
-            far
+            NearPlane,
+            FarPlane
         );
         this.camera.updateProjectionMatrix();
 

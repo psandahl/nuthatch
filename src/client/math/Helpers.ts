@@ -1,4 +1,5 @@
-import * as Three from 'three';
+export const NearPlane = 0.1;
+export const FarPlane = 1000000000;
 
 /**
  * Convert from degrees to radians.

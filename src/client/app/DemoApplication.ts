@@ -12,7 +12,6 @@ import { Navigator } from '../world/Navigator';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { TrackingNavigator } from '../world/TrackingNavigator';
 import { Raycaster } from '../world/Raycaster';
-import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Annotations } from '../render/Annotations';
 import { Renderer } from '../render/Renderer';
 import { makeGlobe } from '../render/Globe';
@@ -81,21 +80,10 @@ export class DemoApplication
         this.rayCaster = new Raycaster(this.scene);
 
         // Create an orbiting navigator with reasonable settings.
-        this.orbitingNavigator = new OrbitingNavigator(
-            50.0,
-            1.0,
-            SemiMajorAxis * 4.0,
-            size
-        );
+        this.orbitingNavigator = new OrbitingNavigator(50.0, size);
 
         // Create a tracking navigator with reasonable settings.
-        this.trackingNavigator = new TrackingNavigator(
-            30,
-            20,
-            1,
-            SemiMajorAxis,
-            size
-        );
+        this.trackingNavigator = new TrackingNavigator(30, 20, size);
 
         // Set the current navigator - start with the orbiting navigator.
         // When tracking data is loaded the mode will be switched.

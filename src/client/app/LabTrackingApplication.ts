@@ -33,7 +33,7 @@ export class LabTrackingApplication
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        this.navigator = new TrackingNavigator(30, 20, 1, SemiMajorAxis, size);
+        this.navigator = new TrackingNavigator(30, 20, size);
 
         this.cameraNavAxesHelper = new CameraNavAxesHelper();
         this.scene.add(this.cameraNavAxesHelper.renderable());
