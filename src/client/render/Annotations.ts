@@ -27,8 +27,18 @@ export class Annotations {
         intersection: IntersectionPoint | undefined,
         camera: Three.PerspectiveCamera
     ): void {
-        this.cameraNavAxesHelper.updateFromCamera(camera);
+        if (this.cameraNavAxesHelper.renderable().visible) {
+            this.cameraNavAxesHelper.updateFromCamera(camera);
+        }
         this.surfaceHelper.update(intersection, camera);
+    }
+
+    /**
+     * Toggle the camera nav axes.
+     */
+    public toggleCameraNavAxes(): void {
+        this.cameraNavAxesHelper.renderable().visible =
+            !this.cameraNavAxesHelper.renderable().visible;
     }
 
     /**

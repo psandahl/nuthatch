@@ -44,6 +44,7 @@ enum NavigatorMode {
  * 'u' toggle undistorsion for video overlay.
  * 'n' next frame for tracking navigation (not autoplay).
  * 'p' previous frame for tracking navigation (not autoplay).
+ * 'x' toggle camera nav axes annotation.
  */
 export class DemoApplication
     implements Application, JSONReceiver, ColladaReceiver
@@ -289,6 +290,8 @@ export class DemoApplication
             this.texturedQuad.toggleVisibility();
         } else if (event.code == 'KeyU' && this.trackingValid()) {
             this.texturedQuad.toggleUndistort();
+        } else if (event.code == 'KeyX') {
+            this.annotations.toggleCameraNavAxes();
         } else if (
             event.code == 'KeyN' &&
             this.trackingValid() &&
