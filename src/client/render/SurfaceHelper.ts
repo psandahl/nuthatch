@@ -42,12 +42,12 @@ export class SurfaceHelper {
                 this.surfaceNormal.position.copy(intersection.point);
                 this.surfaceNormal.setDirection(intersection.surfaceNormal);
 
-                // Always set the scale for the normal to be 1/8 of screen height.
-                const scale =
+                // Always set the length for the normal to be 1/8 of screen height.
+                const length =
                     (intersection.distance *
                         Math.tan(degToRad(camera.fov / 2.0))) /
                     4.0;
-                this.surfaceNormal.scale.set(scale, scale, scale);
+                this.surfaceNormal.setLength(length);
 
                 this.surfaceNormal.visible = true;
             }
