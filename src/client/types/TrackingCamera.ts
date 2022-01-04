@@ -1,11 +1,10 @@
 /**
  * A geodetic camera position - WGS84.
- * TODO: Change generation to lat, lon, h.
  */
 export class Position {
-    public x: number = 0.0;
-    public y: number = 0.0;
-    public z: number = 0.0;
+    public lat: number = 0.0;
+    public lon: number = 0.0;
+    public height: number = 0.0;
 }
 
 /**

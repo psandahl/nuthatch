@@ -97,9 +97,9 @@ export class TrackingNavigator implements Navigator {
     public setViewFromTrackingCamera(camera: Camera): void {
         this.setView(
             new Three.Vector3(
-                camera.position.x,
-                camera.position.y,
-                camera.position.z
+                camera.position.lat,
+                camera.position.lon,
+                camera.position.height
             ),
             new Three.Vector3(
                 camera.platform.yaw,
