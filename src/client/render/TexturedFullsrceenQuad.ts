@@ -12,13 +12,13 @@ export class TexturedFullscreenQuad {
     constructor() {
         const positions = [
             // From upper left position and then ccw.
-            -1.0, 1.0, 1.0,
+            -1.2, 1.2, 1.0,
 
-            -1.0, -1.0, 1.0,
+            -1.2, -1.2, 1.0,
 
-            1.0, -1.0, 1.0,
+            1.2, -1.2, 1.0,
 
-            1.0, 1.0, 1.0,
+            1.2, 1.2, 1.0,
         ];
 
         const indices = [0, 1, 3, 3, 1, 2];
@@ -157,8 +157,7 @@ out vec4 color;
 
 void main() {    
     vec2 uv0 = vPosition.xy * 0.5 + 0.5;
-    vec4 viewSpace = uInverseProjection * vec4(vPosition, 1.0);
-    //viewSpace /= viewSpace.w;
+    vec4 viewSpace = uInverseProjection * vec4(vPosition, 1.0);    
     viewSpace /= -viewSpace.z;
 
     float r = length(viewSpace.xy);
@@ -177,16 +176,10 @@ void main() {
     vec4 pos1 = uProjection * viewSpace;
     vec2 uv1 = pos1.xy * 0.5 + 0.5;
 
-    if (uv1.x < 0.0 || uv1.x > 1.0 || uv1.y < 0.0 || uv1.y > 1.0) discard;
-    color = vec4(texture(uTexture, uv1).rgb, 1.0);
-
-    //float u = abs(uv0.x - uv1.x);
-    //float v = abs(uv0.y - uv1.y);
-
-    //color = vec4(u, v, 0.0, 1.0);
-
-    //color = vec4(uv0.x, uv0.y, 0.0, 1.0);
-    //color = vec4(uv1.x, uv1.y, 0.0, 1.0);
-    //color = vec4(r, 0.0, 0.0, 1.0);
+    if (uv1.x < 0.0 || uv1.x > 1.0 || uv1.y < 0.0 || uv1.y > 1.0) {
+        color = vec4(0.0, 0.0, 0.0, 1.0);
+    } else {
+        color = vec4(texture(uTexture, uv1).rgb, 1.0);
+    }
 }`;
 }
