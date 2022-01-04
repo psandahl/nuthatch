@@ -22,9 +22,12 @@ export class SurfaceHelper {
             new Three.Vector3(),
             new Three.Vector3(),
         ]);
-        const lineMaterial = new Three.LineBasicMaterial();
+        const lineMaterial = new Three.LineBasicMaterial({
+            color: 0xffff00,
+        });
         this.triangle = new Three.Line(lineGeometry, lineMaterial);
         this.triangle.visible = false;
+        this.group.renderOrder = 1;
         this.group.add(this.triangle);
 
         this.group.raycast = (
