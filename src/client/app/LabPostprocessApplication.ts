@@ -8,13 +8,12 @@ import {
     MouseEventTag,
 } from './Application';
 import { Size } from '../types/Size';
-import { matrixEcefToGl4 } from '../math/Matrix';
 
 export class LabPostprocessApplication implements Application {
     public constructor(size: Size, canvas: HTMLCanvasElement) {
         this.renderer = new Three.WebGLRenderer({
             precision: 'highp',
-            logarithmicDepthBuffer: false,
+            logarithmicDepthBuffer: true,
             canvas: canvas,
         });
 
@@ -158,37 +157,36 @@ uniform sampler2D uDepth;
 uniform float cameraNear;
 uniform float cameraFar;
 
-float readDepth() {
+// Get the view space depth (positive axis) from a logarithmic depth value.
+float logDepthToInvViewZ(in float fragDepth, in float far) {
+    float logDepth = fragDepth * log2(far + 1.0);
+    return exp2(logDepth) - 1.0;
+}
+
+float readDepthPerspective() {
     float fragCoordZ = texture2D(uDepth, vUv).x;    
     float viewZ = perspectiveDepthToViewZ(fragCoordZ, cameraNear, cameraFar);    
+
+    //return viewZ;
     return viewZToOrthographicDepth(viewZ, cameraNear, cameraFar);
 }
 
+float readDepthLogarithmic() {
+    float fragCoordZ = texture2D(uDepth, vUv).x;
+
+    // viewZ is positive
+    float viewZ = logDepthToInvViewZ(fragCoordZ, cameraFar);
+
+    return viewZToOrthographicDepth(-viewZ, cameraNear, cameraFar);
+}
+
 void main() {
+    //float depth = readDepthPerspective();
+    float depth = readDepthLogarithmic();       
+
     //vec3 diffuse = texture2D(uTexture, vUv ).rgb;
     //gl_FragColor = vec4(diffuse, 1.0);
-
-    float depth = readDepth();
+    
     gl_FragColor = vec4(vec3(1.0) - vec3(depth), 1.0);
-    //gl_FragColor = vec4(vec3(depth), 1.0);
 }
 `;
-
-/*
-float perspectiveDepthToViewZ( const in float invClipZ, const in float near, const in float far ) {
- 	return ( near * far ) / ( ( far - near ) * invClipZ - far );
-}
-
-float viewZToOrthographicDepth( const in float viewZ, const in float near, const in float far ) {
-    return ( viewZ + near ) / ( near - far );
-}
-
-
-float viewZToPerspectiveDepth( const in float viewZ, const in float near, const in float far ) {
-    return ( ( near + viewZ ) * far ) / ( ( far - near ) * viewZ );
-}
-
-float orthographicDepthToViewZ( const in float linearClipZ, const in float near, const in float far ) {
-    return linearClipZ * ( near - far ) - near;
-}
-*/
