@@ -14,7 +14,6 @@ import { ColladaReceiver } from '../types/ColladaReceiver';
 import { Size } from '../types/Size';
 import { Renderer } from '../render/Renderer';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
-import { SemiMajorAxis } from '../math/Ellipsoid';
 import { makeGlobe } from '../render/Globe';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 import { dummyUrlsLvl12 } from '../data/DummyDataUrls';

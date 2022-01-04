@@ -9,7 +9,6 @@ import {
 import { makeGlobe } from '../render/Globe';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { Renderer } from '../render/Renderer';
-import { SemiMajorAxis } from '../math/Ellipsoid';
 import { Size } from '../types/Size';
 import { CameraNavAxesHelper } from '../render/CameraNavAxesHelper';
 
