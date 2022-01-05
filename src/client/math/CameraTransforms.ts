@@ -162,3 +162,52 @@ export function logDepthToInvViewZ(fragDepth: number, far: number): number {
     const logDepth = fragDepth * Math.log2(far + 1.0);
     return Math.pow(2, logDepth) - 1.0; // exp2(logDepth)
 }
+
+/**
+ * Utility function to transform to camera space.
+ * @param inverseWorldMatrix Inverse world matrix
+ * @param world World coordinate
+ * @returns The camera space coordinate.
+ */
+export function worldToCamera(
+    inverseWorldMatrix: Three.Matrix4,
+    world: Three.Vector3
+): Three.Vector3 {
+    return world.clone().applyMatrix4(inverseWorldMatrix);
+}
+
+/**
+ * Utility function to transform to uc coordinate.
+ * @param projectionMatrix Projection matrix
+ * @param cam Camera coordinate
+ * @returns The uv coordinate.
+ */
+export function cameraToUv(
+    projectionMatrix: Three.Matrix4,
+    cam: Three.Vector3
+): Three.Vector2 {
+    const ndc = cam.clone().applyMatrix4(projectionMatrix);
+
+    return ndcToUv(new Three.Vector2(ndc.x, ndc.y));
+}
+
+/**
+ * Utility function to reconstruct a world coordinate.
+ * @param inverseProjection Inverse projection matrix
+ * @param worldMatrix World matrix
+ * @param viewZ The viewspace depth
+ * @param uv The uv coordinate
+ * @returns The world coordinate.
+ */
+export function uvToWorldPosition(
+    inverseProjection: Three.Matrix4,
+    worldMatrix: Three.Matrix4,
+    viewZ: number,
+    uv: Three.Vector2
+): Three.Vector3 {
+    const camRay = uvToCameraRay(inverseProjection, uv);
+    const theta = Math.acos(new Three.Vector3(0, 0, -1).dot(camRay.direction));
+    const rayLen = Math.abs(viewZ) / Math.cos(theta);
+
+    return camRay.at(rayLen, new Three.Vector3()).applyMatrix4(worldMatrix);
+}

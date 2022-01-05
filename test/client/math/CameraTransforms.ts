@@ -10,6 +10,9 @@ import {
     uvToPx,
     viewZToLogDepth,
     logDepthToInvViewZ,
+    worldToCamera,
+    cameraToUv,
+    uvToWorldPosition,
 } from '../../../src/client/math/CameraTransforms';
 import { matrixProjection4 } from '../../../src/client/math/Matrix';
 import { DrawingArea } from '../../../src/client/types/DrawingArea';
@@ -352,6 +355,37 @@ describe('camera transforms tests', () => {
                 logDepthToInvViewZ(viewZToLogDepth(-100, 10000), 10000),
                 Number.EPSILON
             );
+        });
+    });
+
+    describe('reconstruct from depth', () => {
+        it('shall reconstruct world coordinate', () => {
+            const camera = new Three.PerspectiveCamera(
+                50,
+                1024 / 768,
+                1.0,
+                100000.0
+            );
+            camera.position.set(10, 20, 30);
+            camera.up.set(0, 1, 0);
+            camera.lookAt(0, 0, 0);
+            camera.updateMatrixWorld();
+            camera.updateProjectionMatrix();
+
+            const world = new Three.Vector3(-1.18, 1.37, -5631.55);
+            const cam = worldToCamera(camera.matrixWorldInverse, world);
+            const uv = cameraToUv(camera.projectionMatrix, cam);
+
+            const newWorld = uvToWorldPosition(
+                camera.projectionMatrixInverse,
+                camera.matrixWorld,
+                cam.z,
+                uv
+            );
+
+            expect(newWorld.x).to.be.closeTo(world.x, 0.000000000001);
+            expect(newWorld.y).to.be.closeTo(world.y, 0.000000000001);
+            expect(newWorld.z).to.be.closeTo(world.z, 0.000000000001);
         });
     });
 });
