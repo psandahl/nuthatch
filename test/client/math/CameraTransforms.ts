@@ -8,6 +8,8 @@ import {
     uvToWorldRay,
     uvToNdc,
     uvToPx,
+    viewZToLogDepth,
+    logDepthToInvViewZ,
 } from '../../../src/client/math/CameraTransforms';
 import { matrixProjection4 } from '../../../src/client/math/Matrix';
 import { DrawingArea } from '../../../src/client/types/DrawingArea';
@@ -341,6 +343,15 @@ describe('camera transforms tests', () => {
             expect(ur.x, 'ur.x').to.be.lessThan(1.0);
             expect(ur.y, 'ur.y').to.be.lessThan(1.0);
             expect(ur.x).to.be.closeTo(ur.y, Number.EPSILON);
+        });
+    });
+
+    describe('logarithmic depth', () => {
+        it('shall be equal', () => {
+            expect(100.0).to.be.closeTo(
+                logDepthToInvViewZ(viewZToLogDepth(-100, 10000), 10000),
+                Number.EPSILON
+            );
         });
     });
 });

@@ -138,3 +138,27 @@ export function undistortUv(
     const adjNdc = cam.applyMatrix4(projection);
     return ndcToUv(new Three.Vector2(adjNdc.x, adjNdc.y));
 }
+
+/**
+ * Calculate logaritmic depth as a shader would do.
+ * @param viewZ The view view space depth (negative or positive)
+ * @param far The camera far plane
+ * @returns The logarithmic depth.
+ */
+export function viewZToLogDepth(viewZ: number, far: number): number {
+    // For the calculations, the view depth is assumed to be positive.
+    viewZ = Math.abs(viewZ);
+    return Math.log2(viewZ + 1.0) / Math.log2(far + 1.0);
+}
+
+/**
+ * Reconstruct the view space depth from logaritmic value.
+ * @param fragDepth The logarithmic depth for a fragment
+ * @param far The camera far plane
+ * @returns The view space depth (always positive)
+ */
+export function logDepthToInvViewZ(fragDepth: number, far: number): number {
+    // Inverse calculation from viewZ to log depth.
+    const logDepth = fragDepth * Math.log2(far + 1.0);
+    return Math.pow(2, logDepth) - 1.0; // exp2(logDepth)
+}
