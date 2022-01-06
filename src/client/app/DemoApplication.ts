@@ -24,6 +24,7 @@ import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
 import * as Tracking from '../types/TrackingCamera';
 import { GeoConvertUtm } from '../math/GeoConvert';
 import { TexturedFullscreenQuad } from '../render/TexturedFullsrceenQuad';
+import { Simulator } from '../entity/Simulator';
 
 /**
  * Internal navigation mode.
@@ -73,6 +74,10 @@ export class DemoApplication
         this.annotations = new Annotations();
         this.scene.add(this.annotations.getScene());
 
+        // Create the simulator.
+        this.simulator = new Simulator();
+        this.scene.add(this.simulator.getScene());
+
         // The current mouse position.
         this.mousePos = undefined;
 
@@ -114,8 +119,8 @@ export class DemoApplication
      * Render the scene.
      */
     public animationFrame(
-        _secondsSinceStart: number,
-        _millisSinceLast: number
+        secondsSinceStart: number,
+        millisSinceLast: number
     ): void {
         // Let the navigator update its camera.
         this.navigator.updateCamera();
@@ -127,6 +132,9 @@ export class DemoApplication
 
         // Update the annotations.
         this.annotations.update(intersection, this.navigator.getCamera());
+
+        // Update the simulator.
+        this.simulator.update(secondsSinceStart, millisSinceLast);
 
         // Set the drawing area for the renderer and render the scene.
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
@@ -196,6 +204,21 @@ export class DemoApplication
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {
         if (tag != MouseEventTag.Leave) {
             this.mousePos = new Three.Vector2(event.clientX, event.clientY);
+
+            if (
+                this.simulator.hasOpenTrack() &&
+                tag == MouseEventTag.Down &&
+                event.button == 2
+            ) {
+                const intersection = this.rayCaster.intersect(
+                    this.navigator.getWorldRay(
+                        new Three.Vector2(event.clientX, event.clientY)
+                    )
+                );
+                if (intersection) {
+                    this.simulator.addTrackPoint(intersection.point);
+                }
+            }
         } else {
             this.mousePos = undefined;
         }
@@ -285,6 +308,8 @@ export class DemoApplication
             this.annotations.toggleCameraNavAxes();
         } else if (event.code == 'KeyS') {
             this.annotations.activateSurfaceHelper();
+        } else if (event.code == 'KeyQ') {
+            this.simulator.createTrack();
         } else if (
             event.code == 'KeyN' &&
             this.trackingValid() &&
@@ -305,6 +330,8 @@ export class DemoApplication
     private onKeyUp(event: KeyboardEvent): void {
         if (event.code == 'KeyS') {
             this.annotations.deactivateSurfaceHelper();
+        } else if (event.code == 'KeyQ') {
+            this.simulator.finalizeTrack();
         }
     }
 
@@ -396,6 +423,7 @@ export class DemoApplication
     private stats: Stats;
 
     private annotations: Annotations;
+    private simulator: Simulator;
 
     private navigatorMode = NavigatorMode.Orbiting;
     private orbitingNavigator: OrbitingNavigator;
