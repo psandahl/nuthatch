@@ -18,6 +18,22 @@ export class Simulator {
     }
 
     public finalizeTrack(): void {
+        if (this.trackPoints.length >= 4) {
+            this.trackPoints.push(this.trackPoints[0]);
+
+            const curve = new Three.CatmullRomCurve3(this.trackPoints);
+            const points = curve.getPoints(50);
+            const geometry = new Three.BufferGeometry().setFromPoints(points);
+            const line = new Three.Line(geometry, this.lineMaterial);
+
+            const group = new Three.Group();
+            group.renderOrder = 1;
+
+            group.add(line);
+
+            this.scene.add(group);
+        }
+
         this.scene.remove(this.markerGroup);
         this.markerGroup.clear();
         this.trackPoints = [];
