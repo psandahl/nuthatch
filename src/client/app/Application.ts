@@ -33,16 +33,16 @@ export interface Application {
     /**
      * Notification about animation frame (i.e. time to render).
      * @param secondsSinceStart Seconds since application was loaded
-     * @param millisSinceLast Milliseconds since last frame
+     * @param deltaMillis Milliseconds since last frame
      */
-    animationFrame(secondsSinceStart: number, millisSinceLast: number): void;
+    animationFrame(secondsSinceStart: number, deltaMillis: number): void;
 
     /**
      * Notification about video frame (e.g. time to move along track).
      * @param secondsSinceStart Seconds since application was loaded
-     * @param millisSinceLast Milliseconds since last frame
+     * @param deltaMillis Milliseconds since last frame
      */
-    videoFrame(secondsSinceStart: number, millisSinceLast: number): void;
+    videoFrame(secondsSinceStart: number, deltaMillis: number): void;
 
     /**
      * Notification that the window size has changed.

@@ -36,10 +36,10 @@ window.onload = async () => {
         const tickAnimation = () => {
             const now = performance.now();
             const secondsSinceStart = (now - startTime) / 1000.0;
-            const millisSinceLast = now - lastAnimation;
+            const deltaMillis = now - lastAnimation;
             lastAnimation = now;
 
-            app.animationFrame(secondsSinceStart, millisSinceLast);
+            app.animationFrame(secondsSinceStart, deltaMillis);
             window.requestAnimationFrame(tickAnimation);
         };
         window.requestAnimationFrame(tickAnimation);
@@ -49,10 +49,10 @@ window.onload = async () => {
         const tickVideo = () => {
             const now = performance.now();
             const secondsSinceStart = (now - startTime) / 1000.0;
-            const millisSinceLast = now - lastVideo;
+            const deltaMillis = now - lastVideo;
             lastVideo = now;
 
-            app.videoFrame(secondsSinceStart, millisSinceLast);
+            app.videoFrame(secondsSinceStart, deltaMillis);
         };
         window.setInterval(tickVideo, 1000.0 / 30.0);
 

@@ -43,7 +43,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
 
     public animationFrame(
         _secondsSinceStart: number,
-        _millisSinceLast: number
+        _deltaMillis: number
     ): void {
         this.navigator.updateCamera();
         this.cameraNavAxesHelper.updateFromCamera(this.navigator.getCamera());
@@ -52,10 +52,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         this.stats.update();
     }
 
-    public videoFrame(
-        _secondsSinceStart: number,
-        _millisSinceLast: number
-    ): void {}
+    public videoFrame(_secondsSinceStart: number, _deltaMillis: number): void {}
 
     public resize(size: Size): void {
         this.navigator.setSize(size);

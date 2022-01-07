@@ -29,7 +29,7 @@ export class LabNavApplication implements Application {
 
     public animationFrame(
         _secondsSinceStart: number,
-        _millisSinceLast: number
+        _deltaMillis: number
     ): void {
         this.navigator.updateCamera();
         this.cameraNavAxesHelper.updateFromCamera(this.navigator.getCamera());
@@ -37,10 +37,7 @@ export class LabNavApplication implements Application {
         this.renderer.render(this.scene, this.navigator.getCamera());
     }
 
-    public videoFrame(
-        _secondsSinceStart: number,
-        _millisSinceLast: number
-    ): void {}
+    public videoFrame(_secondsSinceStart: number, _deltaMillis: number): void {}
 
     public resize(size: Size): void {
         this.navigator.setSize(size);

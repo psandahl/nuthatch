@@ -43,15 +43,12 @@ export class LabQuadApplication implements Application, ImageReceiver {
 
     public animationFrame(
         _secondsSinceStart: number,
-        _millisSinceLast: number
+        _deltaMillis: number
     ): void {
         this.sceneRenderer.render(this.scene, this.camera);
     }
 
-    public videoFrame(
-        _secondsSinceStart: number,
-        _millisSinceLast: number
-    ): void {}
+    public videoFrame(_secondsSinceStart: number, _deltaMillis: number): void {}
 
     public resize(size: Size): void {
         this.sceneRenderer.setDrawingArea(

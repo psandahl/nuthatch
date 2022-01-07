@@ -34,8 +34,8 @@ class Simulation {
         return this.group;
     }
 
-    public update(time: number): void {
-        this.time += time;
+    public update(deltaMillis: number): void {
+        this.time += deltaMillis;
         if (this.running) {
             const lap = this.time % this.lapTime;
             this.mesh.position.copy(this.curve.getPoint(lap / this.lapTime));
@@ -136,9 +136,9 @@ export class Simulator {
         return this.scene;
     }
 
-    public update(_secondsSinceStart: number, millisSinceLast: number): void {
+    public update(deltaMillis: number): void {
         this.simulations.forEach((simulation, _index, _array) => {
-            simulation.update(millisSinceLast);
+            simulation.update(deltaMillis);
         });
     }
 

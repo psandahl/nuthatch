@@ -62,8 +62,8 @@ export class LabPostprocessApplication implements Application {
     }
 
     public animationFrame(
-        secondsSinceStart: number,
-        millisSinceLast: number
+        _secondsSinceStart: number,
+        _deltaMillis: number
     ): void {
         this.camera.updateMatrix();
 
@@ -79,10 +79,7 @@ export class LabPostprocessApplication implements Application {
         this.controls.update();
     }
 
-    public videoFrame(
-        secondsSinceStart: number,
-        millisSinceLast: number
-    ): void {}
+    public videoFrame(_secondsSinceStart: number, _deltaMillis: number): void {}
 
     public resize(size: Size): void {
         const [width, height] = size;

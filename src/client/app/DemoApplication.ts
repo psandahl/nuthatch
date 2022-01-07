@@ -120,7 +120,7 @@ export class DemoApplication
      */
     public animationFrame(
         secondsSinceStart: number,
-        millisSinceLast: number
+        deltaMillis: number
     ): void {
         // Let the navigator update its camera.
         this.navigator.updateCamera();
@@ -134,7 +134,7 @@ export class DemoApplication
         this.annotations.update(intersection, this.navigator.getCamera());
 
         // Update the simulator.
-        this.simulator.update(secondsSinceStart, millisSinceLast);
+        this.simulator.update(deltaMillis);
 
         // Set the drawing area for the renderer and render the scene.
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
@@ -147,10 +147,7 @@ export class DemoApplication
     /**
      * Handle the video fps notification.
      */
-    public videoFrame(
-        _secondsSinceStart: number,
-        _millisSinceLast: number
-    ): void {
+    public videoFrame(_secondsSinceStart: number, _deltaMillis: number): void {
         if (this.trackingValid() && this.autoPlay) {
             this.loadFromTrack();
             this.incTrackIndex();

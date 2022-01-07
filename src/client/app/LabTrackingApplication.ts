@@ -50,7 +50,7 @@ export class LabTrackingApplication
 
     public animationFrame(
         _secondsSinceStart: number,
-        _millisSinceLast: number
+        _deltaMillis: number
     ): void {
         this.renderer.setDrawingArea(this.navigator.getDrawingArea());
         this.cameraNavAxesHelper.updateFromCamera(this.navigator.getCamera());
@@ -59,10 +59,7 @@ export class LabTrackingApplication
         this.stats.update();
     }
 
-    public videoFrame(
-        _secondsSinceStart: number,
-        _millisSinceLast: number
-    ): void {
+    public videoFrame(_secondsSinceStart: number, _deltaMillis: number): void {
         if (this.sequence.length > 0) {
             this.navigator.setViewFromTrackingCamera(
                 this.sequence[this.sequenceIndex]
