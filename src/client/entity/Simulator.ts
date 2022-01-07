@@ -6,29 +6,56 @@ class Simulation {
         mesh: Three.Mesh,
         velocity: number
     ) {
+        this.group = new Three.Group();
+        this.group.renderOrder = 1;
+
         this.curve = new Three.CatmullRomCurve3(points, true);
         this.mesh = mesh;
+        this.mesh.visible = false;
         this.mesh.position.copy(this.curve.getPoint(0));
+
+        const trackGeometry = new Three.BufferGeometry().setFromPoints(
+            this.curve.getPoints(100)
+        );
+
+        this.track = new Three.Line(
+            trackGeometry,
+            new Three.LineBasicMaterial({ color: 0xffff00 })
+        );
+
+        this.group.add(this.mesh);
+        this.group.add(this.track);
 
         const distance = this.curve.getLength();
         this.lapTime = Math.round((distance / velocity) * 1000.0);
     }
 
-    public approximation(): Three.Vector3[] {
-        return this.curve.getPoints(100);
+    public getGroup(): Three.Group {
+        return this.group;
     }
 
     public update(time: number): void {
         this.time += time;
+        if (this.running) {
+            const lap = this.time % this.lapTime;
+            this.mesh.position.copy(this.curve.getPoint(lap / this.lapTime));
+        } else {
+            if (this.time > 1000) {
+                this.group.remove(this.track);
 
-        const lap = this.time % this.lapTime;
-        this.mesh.position.copy(this.curve.getPoint(lap / this.lapTime));
+                this.mesh.visible = true;
+                this.running = true;
+            }
+        }
     }
 
+    private group: Three.Group;
     private curve: Three.CatmullRomCurve3;
     private mesh: Three.Mesh;
+    private track: Three.Line;
     private lapTime: number;
     private time = 0;
+    private running = false;
 }
 
 export class Simulator {
@@ -50,6 +77,7 @@ export class Simulator {
 
     public finalizeTrack(): void {
         if (this.trackPoints.length >= 2) {
+            // Todo: Make some more interesting mesh ...
             const color = new Three.Color(
                 Math.random(),
                 Math.random(),
@@ -64,20 +92,7 @@ export class Simulator {
             const simulation = new Simulation(this.trackPoints, sphere, 20);
             this.simulations.push(simulation);
 
-            const curveGeometry = new Three.BufferGeometry().setFromPoints(
-                simulation.approximation()
-            );
-            const curve = new Three.Line(
-                curveGeometry,
-                new Three.LineBasicMaterial({ color: 0xffff00 })
-            );
-
-            const group = new Three.Group();
-            group.renderOrder = 1;
-            group.add(sphere);
-            group.add(curve);
-
-            this.scene.add(group);
+            this.scene.add(simulation.getGroup());
         }
 
         this.scene.remove(this.markerGroup);
