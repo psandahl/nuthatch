@@ -4,6 +4,9 @@ import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import { fetchGLTF } from '../data/GLTFLoad';
 import { GLTFReceiver } from '../types/GLTFReceiver';
 
+/**
+ * Simulation instance.
+ */
 class Simulation {
     public constructor(points: Three.Vector3[], model: GLTF, velocity: number) {
         this.group = new Three.Group();
@@ -14,7 +17,6 @@ class Simulation {
         this.mesh = model.scene.children[0].clone() as Three.Mesh;
         this.mesh.visible = false;
         this.mesh.scale.set(0.2, 0.2, 0.2);
-        this.mesh.position.copy(this.curve.getPoint(0));
 
         this.mixer = new Three.AnimationMixer(this.mesh);
         this.mixer.clipAction(model.animations[0]).setDuration(1).play();
@@ -33,23 +35,29 @@ class Simulation {
 
         const distance = this.curve.getLength();
         this.lapTime = Math.round((distance / velocity) * 1000.0);
+
+        this.setPosition(0);
     }
 
+    /**
+     * Get the simulation's group.
+     * @returns The group
+     */
     public getGroup(): Three.Group {
         return this.group;
     }
 
+    /**
+     * Update the simulation.
+     * @param deltaMillis The delta time since last update
+     */
     public update(deltaMillis: number): void {
         this.time += deltaMillis;
         if (this.running) {
             const lap = this.time % this.lapTime;
 
             const t = lap / this.lapTime;
-            const position = this.curve.getPoint(t);
-            const direction = this.curve.getTangent(t);
-            this.mesh.up.copy(position.clone().normalize());
-            this.mesh.position.copy(this.curve.getPoint(t));
-            this.mesh.lookAt(position.clone().addScaledVector(direction, 1));
+            this.setPosition(t);
 
             this.mixer.update(deltaMillis / 1000.0);
         } else {
@@ -60,6 +68,14 @@ class Simulation {
                 this.running = true;
             }
         }
+    }
+
+    private setPosition(t: number): void {
+        const position = this.curve.getPoint(t);
+        const direction = this.curve.getTangent(t);
+        this.mesh.up.copy(position.clone().normalize());
+        this.mesh.position.copy(this.curve.getPoint(t));
+        this.mesh.lookAt(position.clone().addScaledVector(direction, 1));
     }
 
     private group: Three.Group;
@@ -76,6 +92,9 @@ class Simulation {
  * A simple Catmull Rom simulator driving entities round a track.
  */
 export class Simulator implements GLTFReceiver {
+    /**
+     * Create the simulator.
+     */
     public constructor() {
         this.scene = new Three.Scene();
 
@@ -97,11 +116,17 @@ export class Simulator implements GLTFReceiver {
         console.error(`Failed to receive GLTF model from ${url}`);
     }
 
+    /**
+     * Activate the track editor for adding a new simulation track.
+     */
     public createTrack(): void {
         this.markerGroupActive = true;
         this.scene.add(this.markerGroup);
     }
 
+    /**
+     * Finalize the simulation track and close the editor.
+     */
     public finalizeTrack(): void {
         if (this.trackPoints.length >= 2) {
             if (this.simulatedModel) {
@@ -124,10 +149,18 @@ export class Simulator implements GLTFReceiver {
         this.markerGroupActive = false;
     }
 
+    /**
+     * Check if there's a track editor open.
+     * @returns True if there's active track editor.
+     */
     public hasOpenTrack(): boolean {
         return this.markerGroupActive;
     }
 
+    /**
+     * Add a new point to the track editor.
+     * @param point An ECEF track point (where mouse intersects terrain)
+     */
     public addTrackPoint(point: Three.Vector3): void {
         if (this.hasOpenTrack()) {
             // Assume geocentric coordinate, where direction is same as point.
@@ -154,10 +187,18 @@ export class Simulator implements GLTFReceiver {
         }
     }
 
+    /**
+     * Get the scene for the simulation.
+     * @returns The scene
+     */
     public getScene(): Three.Scene {
         return this.scene;
     }
 
+    /**
+     * Update the simulation.
+     * @param deltaMillis The delta time since last update
+     */
     public update(deltaMillis: number): void {
         this.simulations.forEach((simulation, _index, _array) => {
             simulation.update(deltaMillis);
