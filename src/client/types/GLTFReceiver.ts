@@ -1,18 +1,18 @@
-import { Collada } from 'three/examples/jsm/loaders/ColladaLoader';
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 
-export interface ColladaReceiver {
+export interface GLTFReceiver {
     /**
-     * Receive a Collada model.
+     *
      * @param model The model
      * @param id The id used in the request
      * @param url The url used in the request
      */
-    receiveColladaSucceeded(model: Collada, id: number, url: string): void;
+    receiveGLTFSucceeded(model: GLTF, id: number, url: string): void;
 
     /**
      * Notification that a model fetch has failed.
      * @param id The id used in the request
      * @param url The url used in the request
      */
-    receiveColladaFailed(id: number, url: string): void;
+    receiveGLTFFailed(id: number, url: string): void;
 }

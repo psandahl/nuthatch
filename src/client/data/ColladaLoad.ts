@@ -10,7 +10,7 @@ import { GeoConvertUtm } from '../math/GeoConvert';
 /**
  * Fetch a collada model.
  * @param id The id of the request
- * @param url The urls for the model
+ * @param url The url for the model
  * @param receiver The receiver of the model
  */
 export function fetchCollada(
