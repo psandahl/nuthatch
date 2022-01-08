@@ -98,10 +98,6 @@ export class DemoApplication
         this.globe = makeGlobe();
         this.scene.add(this.globe);
 
-        // To see the textured terrain a light source is needed.
-        this.ambientLight = new Three.AmbientLight(0x404040, 2.0);
-        this.scene.add(this.ambientLight);
-
         // Create the image loader used for video images.
         this.imageLoader = new Three.ImageLoader();
 
@@ -119,7 +115,7 @@ export class DemoApplication
      * Render the scene.
      */
     public animationFrame(
-        secondsSinceStart: number,
+        _secondsSinceStart: number,
         deltaMillis: number
     ): void {
         // Let the navigator update its camera.
@@ -268,7 +264,8 @@ export class DemoApplication
     ): void {
         const [result, bbox] = modifyTerrainColladaModel(
             this.geoConvertUtm,
-            model
+            model,
+            true
         );
         if (result) {
             this.scene.add(model.scene);
@@ -431,7 +428,6 @@ export class DemoApplication
     private rayCaster: Raycaster;
 
     private globe: Three.Mesh;
-    private ambientLight: Three.AmbientLight;
 
     private imageLoader: Three.ImageLoader;
     private texturedQuad: TexturedFullscreenQuad;

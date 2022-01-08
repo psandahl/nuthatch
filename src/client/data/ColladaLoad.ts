@@ -39,7 +39,8 @@ export function fetchCollada(
  */
 export function modifyTerrainColladaModel(
     convert: GeoConvertUtm,
-    model: Collada
+    model: Collada,
+    useBasicMaterial = false
 ): [boolean, Three.Box3] {
     var result = true;
 
@@ -80,6 +81,30 @@ export function modifyTerrainColladaModel(
 
                 // Add to bounding box if several meshes in model.
                 bbox.union(mesh.geometry.boundingBox!);
+
+                // Replace the Lambert material with basic material.
+                if (useBasicMaterial) {
+                    if (mesh.material instanceof Array) {
+                        mesh.material.forEach((material, index, array) => {
+                            if (material instanceof Three.MeshLambertMaterial) {
+                                const basicMaterial =
+                                    new Three.MeshBasicMaterial({
+                                        map: material.map,
+                                    });
+                                array[index] = basicMaterial;
+                            }
+                        });
+                    } else {
+                        if (
+                            mesh.material instanceof Three.MeshLambertMaterial
+                        ) {
+                            const basicMaterial = new Three.MeshBasicMaterial({
+                                map: mesh.material.map,
+                            });
+                            mesh.material = basicMaterial;
+                        }
+                    }
+                }
 
                 //mesh.material = new Three.MeshNormalMaterial();
             } else {
