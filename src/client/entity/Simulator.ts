@@ -98,6 +98,12 @@ export class Simulator implements GLTFReceiver {
     public constructor() {
         this.scene = new Three.Scene();
 
+        // Very simple lightning.
+        this.hemiLight = new Three.HemisphereLight(0xffffff, 0xffffff, 1.0);
+        this.hemiLight.color.setHSL(0.6, 1, 0.6);
+        this.hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+        this.scene.add(this.hemiLight);
+
         this.markerGroup = new Three.Group();
         this.markerGroup.renderOrder = 1;
 
@@ -206,6 +212,7 @@ export class Simulator implements GLTFReceiver {
     }
 
     private scene: Three.Scene;
+    private hemiLight: Three.HemisphereLight;
 
     private markerGroupActive = false;
     private markerGroup: Three.Group;
