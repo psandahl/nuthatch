@@ -206,8 +206,8 @@ export function uvToWorldPosition(
     uv: Three.Vector2
 ): Three.Vector3 {
     const camRay = uvToCameraRay(inverseProjection, uv);
-    const theta = Math.acos(new Three.Vector3(0, 0, -1).dot(camRay.direction));
-    const rayLen = Math.abs(viewZ) / Math.cos(theta);
+    const theta = new Three.Vector3(0, 0, -1).dot(camRay.direction);
+    const rayLen = Math.abs(viewZ) / theta;
 
     return camRay.at(rayLen, new Three.Vector3()).applyMatrix4(worldMatrix);
 }

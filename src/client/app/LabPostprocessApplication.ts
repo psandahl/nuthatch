@@ -7,13 +7,18 @@ import {
     WheelEventTag,
     MouseEventTag,
 } from './Application';
+import { Raycaster } from '../world/Raycaster';
 import { Size } from '../types/Size';
+import { fullDrawingArea } from '../types/DrawingArea';
+import { pxToUv, uvToWorldRay } from '../math/CameraTransforms';
 
 export class LabPostprocessApplication implements Application {
     public constructor(size: Size, canvas: HTMLCanvasElement) {
+        this.size = size;
+
         this.renderer = new Three.WebGLRenderer({
             precision: 'highp',
-            logarithmicDepthBuffer: false,
+            logarithmicDepthBuffer: true,
             canvas: canvas,
         });
 
@@ -29,10 +34,10 @@ export class LabPostprocessApplication implements Application {
         this.renderer.setSize(size[0], size[1]);
 
         this.camera = new Three.PerspectiveCamera(
-            70,
+            35,
             window.innerWidth / window.innerHeight,
             0.01,
-            1000
+            50
         );
         this.camera.position.set(20, 10, 20);
         this.camera.matrix.lookAt(
@@ -47,15 +52,25 @@ export class LabPostprocessApplication implements Application {
         this.scene = this.setupScene();
         this.renderTarget = this.setupRenderTarget(size);
 
+        this.raycaster = new Raycaster(this.scene);
+
         this.quadCamera = new Three.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         this.quadMaterial = new Three.ShaderMaterial({
             vertexShader: vertexSource,
             fragmentShader: fragmentSource,
             uniforms: {
-                cameraNear: { value: this.camera.near },
-                cameraFar: { value: this.camera.far },
+                uCameraNear: { value: this.camera.near },
+                uCameraFar: { value: this.camera.far },
+                uInverseProjection: {
+                    value: this.camera.projectionMatrixInverse,
+                },
+                uWorldMatrix: {
+                    value: this.camera.matrixWorld,
+                },
                 uTexture: { value: null },
                 uDepth: { value: null },
+                uIntersectPoint: { value: new Three.Vector3() },
+                uValidIntersect: { value: false },
             },
         });
 
@@ -76,9 +91,21 @@ export class LabPostprocessApplication implements Application {
         this.renderer.render(this.scene, this.camera);
 
         this.renderer.setRenderTarget(null);
+
         this.quadMaterial.uniforms.uTexture.value = this.renderTarget.texture;
         this.quadMaterial.uniforms.uDepth.value =
             this.renderTarget.depthTexture;
+
+        const intersection = this.raycaster.intersect(this.getWorldRay());
+        if (intersection) {
+            this.quadMaterial.uniforms.uIntersectPoint.value.copy(
+                intersection.point
+            );
+            this.quadMaterial.uniforms.uValidIntersect.value = true;
+        } else {
+            this.quadMaterial.uniforms.uValidIntersect.value = false;
+        }
+
         this.renderer.render(this.quadScene, this.quadCamera);
 
         this.controls.update();
@@ -87,6 +114,9 @@ export class LabPostprocessApplication implements Application {
     public videoFrame(_secondsSinceStart: number, _deltaMillis: number): void {}
 
     public resize(size: Size): void {
+        this.size = size;
+        this.mousePos = undefined;
+
         const [width, height] = size;
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
@@ -98,7 +128,13 @@ export class LabPostprocessApplication implements Application {
 
     public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
     public onWheel(tag: WheelEventTag, event: WheelEvent): void {}
-    public onMouse(tag: MouseEventTag, event: MouseEvent): void {}
+    public onMouse(tag: MouseEventTag, event: MouseEvent): void {
+        if (tag != MouseEventTag.Leave) {
+            this.mousePos = new Three.Vector2(event.clientX, event.clientY);
+        } else {
+            this.mousePos = undefined;
+        }
+    }
 
     private setupScene(): Three.Scene {
         const scene = new Three.Scene();
@@ -155,11 +191,27 @@ export class LabPostprocessApplication implements Application {
         return target;
     }
 
+    private getWorldRay(): Three.Ray | undefined {
+        if (this.mousePos) {
+            const uv = pxToUv(fullDrawingArea(this.size), this.mousePos);
+            return uvToWorldRay(
+                this.camera.projectionMatrixInverse,
+                this.camera.matrixWorld,
+                uv
+            );
+        } else {
+            return undefined;
+        }
+    }
+
+    private size: Size;
     private renderer: Three.WebGLRenderer;
     private camera: Three.PerspectiveCamera;
     private controls: OrbitControls;
     private scene: Three.Scene;
     private renderTarget: Three.WebGLRenderTarget;
+    private mousePos?: Three.Vector2;
+    private raycaster: Raycaster;
 
     private quadCamera: Three.OrthographicCamera;
     private quadMaterial: Three.ShaderMaterial;
@@ -181,8 +233,12 @@ const fragmentSource = `
 varying vec2 vUv;
 uniform sampler2D uTexture;
 uniform sampler2D uDepth;
-uniform float cameraNear;
-uniform float cameraFar;
+uniform float uCameraNear;
+uniform float uCameraFar;
+uniform mat4 uInverseProjection;
+uniform mat4 uWorldMatrix;
+uniform vec3 uIntersectPoint;
+uniform bool uValidIntersect;
 
 // Get the view space depth (positive axis) from a logarithmic depth value.
 float logDepthToInvViewZ(in float fragDepth, in float far) {
@@ -190,30 +246,49 @@ float logDepthToInvViewZ(in float fragDepth, in float far) {
     return exp2(logDepth) - 1.0;
 }
 
-float readDepthPerspective() {
-    float fragCoordZ = texture2D(uDepth, vUv).x;    
-    float viewZ = perspectiveDepthToViewZ(fragCoordZ, cameraNear, cameraFar);    
+// Reconstruct a fragment from depth.
+vec3 reconstructFragment() {
+    // We have UV, transform to NDC.
+    vec2 ndc = vUv * 2.0 - 1.0;
 
-    //return viewZ;
-    return viewZToOrthographicDepth(viewZ, cameraNear, cameraFar);
-}
+    // Create the ray in viewspace.
+    vec3 camSpaceRay = normalize((uInverseProjection * vec4(ndc.x, ndc.y, 1.0, 1.0)).xyz);    
 
-float readDepthLogarithmic() {
+    // Lookup the depth for the fragment in the depth texture.
     float fragCoordZ = texture2D(uDepth, vUv).x;
 
-    // viewZ is positive
-    float viewZ = logDepthToInvViewZ(fragCoordZ, cameraFar);
+    // Convert to viewspace depth.
+    //float viewZ = abs(perspectiveDepthToViewZ(fragCoordZ, uCameraNear, uCameraFar));
+    float viewZ = logDepthToInvViewZ(fragCoordZ, uCameraFar);
 
-    return viewZToOrthographicDepth(-viewZ, cameraNear, cameraFar);
+    // Calculate the scaling for the ray to reconstruct the fragment's position.
+    vec3 front = vec3(0.0, 0.0, -1.0);
+    float theta = dot(front, camSpaceRay);
+    float rayLen = viewZ / theta;
+    
+    vec3 camSpacePos = camSpaceRay * rayLen;
+
+    vec3 worldSpacePos = (uWorldMatrix * vec4(camSpacePos, 1.0)).xyz;
+
+    return worldSpacePos;    
 }
 
-void main() {
-    float depth = readDepthPerspective();
-    //float depth = readDepthLogarithmic();       
+void main() {    
+    vec3 color = texture2D(uTexture, vUv).rgb;
 
-    vec3 diffuse = texture2D(uTexture, vUv ).rgb;
-    gl_FragColor = vec4(diffuse, 1.0);
-    
-    //gl_FragColor = vec4(vec3(1.0) - vec3(depth), 1.0);
+    if (uValidIntersect) {
+        vec3 worldPos = reconstructFragment();
+        // If we have a reconstruction - render range rings.
+        float dist = distance(uIntersectPoint.xz, worldPos.xz);
+        if (dist < 0.1) {
+            color = vec3(1.0, 0.0, 0.0);
+        } else if (dist < 4.95) {
+            color = mix(color, vec3(1.0, 1.0, 0.0), 0.5);
+        } else if (dist >= 4.95 && dist <= 5.0) {
+            color = vec3(0.0);
+        }
+    }
+
+    gl_FragColor = vec4(color, 1.0);    
 }
 `;
