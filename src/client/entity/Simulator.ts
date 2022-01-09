@@ -16,7 +16,7 @@ class Simulation {
 
         this.mesh = model.scene.children[0].clone() as Three.Mesh;
         this.mesh.visible = false;
-        this.mesh.scale.set(0.2, 0.2, 0.2);
+        this.mesh.scale.set(0.15, 0.15, 0.15);
 
         this.mixer = new Three.AnimationMixer(this.mesh);
         this.mixer.clipAction(model.animations[0]).setDuration(1).play();
