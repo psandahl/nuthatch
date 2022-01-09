@@ -74,7 +74,7 @@ class Simulation {
         const position = this.curve.getPoint(t);
         const direction = this.curve.getTangent(t);
         this.mesh.up.copy(position.clone().normalize());
-        this.mesh.position.copy(this.curve.getPoint(t));
+        this.mesh.position.copy(position);
         this.mesh.lookAt(position.clone().addScaledVector(direction, 1));
     }
 
@@ -172,8 +172,8 @@ export class Simulator implements GLTFReceiver {
             // Assume geocentric coordinate, where direction is same as point.
             const direction = point.clone().normalize();
 
-            // Ad hoc. Add 20 meters above the selected point.
-            const trackPoint = point.clone().addScaledVector(direction, 20);
+            // Ad hoc. Add 15 meters above the selected point.
+            const trackPoint = point.clone().addScaledVector(direction, 15);
             this.trackPoints.push(trackPoint);
 
             const sphere = new Three.Mesh(
