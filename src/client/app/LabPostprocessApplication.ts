@@ -13,7 +13,7 @@ export class LabPostprocessApplication implements Application {
     public constructor(size: Size, canvas: HTMLCanvasElement) {
         this.renderer = new Three.WebGLRenderer({
             precision: 'highp',
-            logarithmicDepthBuffer: true,
+            logarithmicDepthBuffer: false,
             canvas: canvas,
         });
 
@@ -32,9 +32,14 @@ export class LabPostprocessApplication implements Application {
             70,
             window.innerWidth / window.innerHeight,
             0.01,
-            20
+            1000
         );
-        this.camera.position.z = 4;
+        this.camera.position.set(20, 10, 20);
+        this.camera.matrix.lookAt(
+            new Three.Vector3(20, 10, 20),
+            new Three.Vector3(0, 0, 0),
+            new Three.Vector3(0, 1, 0)
+        );
 
         this.controls = new OrbitControls(this.camera, canvas);
         this.controls.enableDamping = true;
@@ -97,12 +102,37 @@ export class LabPostprocessApplication implements Application {
 
     private setupScene(): Three.Scene {
         const scene = new Three.Scene();
+        scene.background = new Three.Color(1 / 255.0, 2 / 255.0, 0x28 / 255);
 
-        const geometry = new Three.BoxGeometry(1, 1, 1);
-        const material = new Three.MeshBasicMaterial({ color: 'blue' });
-        const mesh = new Three.Mesh(geometry, material);
+        const planeGeometry = new Three.PlaneGeometry(25, 25);
+        const planeMaterial = new Three.MeshLambertMaterial({
+            color: 'darkgray',
+            side: Three.DoubleSide,
+        });
+        const plane = new Three.Mesh(planeGeometry, planeMaterial);
+        plane.rotateX(-Math.PI / 2);
+        scene.add(plane);
 
-        scene.add(mesh);
+        const boxGeometry = new Three.BoxGeometry(1, 1, 1);
+        const boxMaterial = new Three.MeshLambertMaterial({
+            color: new Three.Color(46.0 / 255.0, 66.0 / 255.0, 168.0 / 255.0),
+        });
+        const box = new Three.Mesh(boxGeometry, boxMaterial);
+
+        for (var row = -10; row <= 10; row += 5) {
+            for (var col = -10; col <= 10; col += 5) {
+                const box0 = box.clone();
+                box0.position.set(col, 0.5 + 0.05, row);
+                scene.add(box0);
+            }
+        }
+
+        const ambientLight = new Three.AmbientLight(0xffffff, 0.3);
+        const dirLight = new Three.DirectionalLight(0xffffff, 1.0);
+        dirLight.position.set(1000, 600, 1000);
+
+        scene.add(ambientLight);
+        scene.add(dirLight);
 
         return scene;
     }
@@ -178,12 +208,12 @@ float readDepthLogarithmic() {
 }
 
 void main() {
-    //float depth = readDepthPerspective();
-    float depth = readDepthLogarithmic();       
+    float depth = readDepthPerspective();
+    //float depth = readDepthLogarithmic();       
 
-    //vec3 diffuse = texture2D(uTexture, vUv ).rgb;
-    //gl_FragColor = vec4(diffuse, 1.0);
+    vec3 diffuse = texture2D(uTexture, vUv ).rgb;
+    gl_FragColor = vec4(diffuse, 1.0);
     
-    gl_FragColor = vec4(vec3(1.0) - vec3(depth), 1.0);
+    //gl_FragColor = vec4(vec3(1.0) - vec3(depth), 1.0);
 }
 `;
