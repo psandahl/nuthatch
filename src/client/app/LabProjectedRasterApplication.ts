@@ -18,6 +18,7 @@ import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
 import { fetchJSON } from '../data/JSONLoad';
 import { JSONReceiver } from '../types/JSONReceiver';
 import * as Tracking from '../types/TrackingCamera';
+import { TrackingNavigator } from '../world/TrackingNavigator';
 
 export class LabProjectedRasterApplication
     implements Application, ColladaReceiver, JSONReceiver
@@ -31,6 +32,7 @@ export class LabProjectedRasterApplication
         this.renderer.setSize(width, height);
 
         this.orbitingNavigator = new OrbitingNavigator(50, size);
+        this.trackingNavigator = new TrackingNavigator(30, 20, size);
 
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
@@ -69,6 +71,8 @@ export class LabProjectedRasterApplication
 
     public resize(size: Size): void {
         this.orbitingNavigator.setSize(size);
+        this.trackingNavigator.setSize(size);
+
         this.renderer.setDrawingArea(this.orbitingNavigator.getDrawingArea());
         const dpr = this.renderer.getPixelRatio();
         const [width, height] = size;
@@ -125,6 +129,7 @@ export class LabProjectedRasterApplication
     public receiveJSONSucceeded(obj: object, id: number, url: string): void {
         this.track = obj as Tracking.Camera[];
         if (this.track && this.track.length > 0) {
+            this.loadFromTrack();
         } else {
             const err = `Unexpected error in converting JSON data from '${url}'`;
             console.error(err);
@@ -163,6 +168,23 @@ export class LabProjectedRasterApplication
             uniforms: {
                 uTexture: { value: null },
                 uDepth: { value: null },
+                uOrbCameraFar: {
+                    value: this.orbitingNavigator.getCamera().far,
+                },
+                uOrbInverseProjection: {
+                    value: this.orbitingNavigator.getCamera()
+                        .projectionMatrixInverse,
+                },
+                uOrbWorldMatrix: {
+                    value: this.orbitingNavigator.getCamera().matrixWorld,
+                },
+                uTrackProjection: {
+                    value: this.trackingNavigator.getCamera().projectionMatrix,
+                },
+                uTrackInverseWorldMatrix: {
+                    value: this.trackingNavigator.getCamera()
+                        .matrixWorldInverse,
+                },
             },
         });
 
@@ -194,13 +216,14 @@ export class LabProjectedRasterApplication
 
     private loadFromTrack(): void {
         const cam = this.track[this.trackIndex];
-        console.log(cam);
+        this.trackingNavigator.setViewFromTrackingCamera(cam);
     }
 
     private geoConvertUtm: GeoConvertUtm;
     private scene: Three.Scene;
     private renderer: Renderer;
     private orbitingNavigator: OrbitingNavigator;
+    private trackingNavigator: TrackingNavigator;
     private stats: Stats;
     private bbox: Three.Box3;
 
@@ -226,10 +249,60 @@ const fragmentSource = `
 varying vec2 vUv;
 uniform sampler2D uTexture;
 uniform sampler2D uDepth;
+uniform float uOrbCameraFar;
+uniform mat4 uOrbInverseProjection;
+uniform mat4 uOrbWorldMatrix;
+uniform mat4 uTrackProjection;
+uniform mat4 uTrackInverseWorldMatrix;
+
+// Get the view space depth (positive axis) from a logarithmic depth value.
+float logDepthToInvViewZ(in float fragDepth, in float far) {
+    float logDepth = fragDepth * log2(far + 1.0);
+    return exp2(logDepth) - 1.0;
+}
+
+// Reconstruct a fragment from depth and the orbiting view.
+vec3 reconstructFragment() {
+    // We have UV, transform to NDC.
+    vec2 ndc = vUv * 2.0 - 1.0;
+
+    // Create the ray in viewspace.
+    vec3 camSpaceRay = normalize((uOrbInverseProjection * vec4(ndc.x, ndc.y, 1.0, 1.0)).xyz);    
+
+    // Lookup the depth for the fragment in the depth texture.
+    float fragCoordZ = texture2D(uDepth, vUv).x;
+
+    // Convert to viewspace depth.    
+    float viewZ = logDepthToInvViewZ(fragCoordZ, uOrbCameraFar);
+
+    // Calculate the scaling for the ray to reconstruct the fragment's position.
+    vec3 front = vec3(0.0, 0.0, -1.0);
+    float theta = dot(front, camSpaceRay);
+    float rayLen = viewZ / theta;
+    
+    vec3 camSpacePos = camSpaceRay * rayLen;
+
+    // Reconstruct world space position.
+    vec3 worldSpacePos = (uOrbWorldMatrix * vec4(camSpacePos, 1.0)).xyz;
+
+    return worldSpacePos;    
+}
 
 void main() {
-    vec3 color = texture2D(uTexture, vUv).rgb;
-    color = vec3((color.r + color.g + color.b) / 3.0);
-    gl_FragColor = vec4(color, 1.0);
+    vec3 sceneColor = texture2D(uTexture, vUv).rgb;
+    vec3 worldPos = reconstructFragment();
+
+    // Reproject the world position in the tracking camera.
+    vec4 reprojNdc = uTrackProjection * uTrackInverseWorldMatrix * vec4(worldPos, 1.0);
+    reprojNdc /= reprojNdc.w;
+
+    // Filter the reprojected uv, and render the tracking camera's view.
+    vec2 reprojUv = (reprojNdc.xy + 1.0) * 0.5;
+    if (reprojUv.x >= 0.0 && reprojUv.x <= 1.0 && 
+        reprojUv.y >= 0.0 && reprojUv.y <= 1.0) {
+        sceneColor = mix(sceneColor, vec3(reprojUv, 0.0), 0.5);
+    }    
+
+    gl_FragColor = vec4(sceneColor, 1.0);
 }
 `;
