@@ -38,6 +38,7 @@ export class LabColladaApplication implements Application, ColladaReceiver {
         this.scene.add(makeGlobe());
         this.scene.add(new Three.AmbientLight(0x404040, 2.0));
 
+        this.bbox = new Three.Box3();
         this.fetchModelData();
     }
 
@@ -71,21 +72,23 @@ export class LabColladaApplication implements Application, ColladaReceiver {
 
     public receiveColladaSucceeded(
         model: Collada,
-        id: number,
-        url: string
+        _id: number,
+        _url: string
     ): void {
         const [result, bbox] = modifyTerrainColladaModel(
             this.geoConvertUtm,
             model
         );
         if (result) {
-            const center = bbox.getCenter(new Three.Vector3());
+            this.scene.add(model.scene);
+
+            this.bbox.union(bbox);
+            const center = this.bbox.getCenter(new Three.Vector3());
 
             const normal = center.clone().normalize();
             const camPos = center.clone().addScaledVector(normal, 3000.0);
-            this.navigator.tiltedAt(camPos);
 
-            this.scene.add(model.scene);
+            this.navigator.tiltedAt(camPos);
         }
     }
 
@@ -106,4 +109,5 @@ export class LabColladaApplication implements Application, ColladaReceiver {
     private navigator: OrbitingNavigator;
     private cameraNavAxesHelper: CameraNavAxesHelper;
     private stats: Stats;
+    private bbox: Three.Box3;
 }
