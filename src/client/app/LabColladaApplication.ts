@@ -36,7 +36,6 @@ export class LabColladaApplication implements Application, ColladaReceiver {
 
         this.scene.add(this.cameraNavAxesHelper.renderable());
         this.scene.add(makeGlobe());
-        this.scene.add(new Three.AmbientLight(0x404040, 2.0));
 
         this.bbox = new Three.Box3();
         this.fetchModelData();
@@ -77,7 +76,8 @@ export class LabColladaApplication implements Application, ColladaReceiver {
     ): void {
         const [result, bbox] = modifyTerrainColladaModel(
             this.geoConvertUtm,
-            model
+            model,
+            true
         );
         if (result) {
             this.scene.add(model.scene);
