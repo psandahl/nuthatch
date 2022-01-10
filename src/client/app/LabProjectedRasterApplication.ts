@@ -40,6 +40,8 @@ export class LabProjectedRasterApplication
         this.bbox = new Three.Box3();
         this.fetchModelData();
 
+        this.trackTexture = this.setupTrackTexture();
+
         this.renderTarget = this.setupRenderTarget(size);
         this.quadCamera = new Three.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         this.quadScene = new Three.Scene();
@@ -59,9 +61,12 @@ export class LabProjectedRasterApplication
 
         this.renderer.setRenderTarget(null);
 
-        this.quadMaterial.uniforms.uTexture.value = this.renderTarget.texture;
-        this.quadMaterial.uniforms.uDepth.value =
+        this.quadMaterial.uniforms.uOrbTexture.value =
+            this.renderTarget.texture;
+        this.quadMaterial.uniforms.uOrbDepth.value =
             this.renderTarget.depthTexture;
+        this.quadMaterial.uniforms.uTrackVisibility.value =
+            this.trackVisibility;
         this.renderer.render(this.quadScene, this.quadCamera);
 
         this.stats.update();
@@ -87,6 +92,12 @@ export class LabProjectedRasterApplication
             } else if (event.code == 'KeyP' && this.trackingValid()) {
                 this.decTrackIndex();
                 this.loadFromTrack();
+            } else if (event.code == 'KeyO') {
+                if (this.trackVisibility > 0.0) {
+                    this.trackVisibility = 0.0;
+                } else {
+                    this.trackVisibility = 1.0;
+                }
             }
         }
     }
@@ -166,10 +177,14 @@ export class LabProjectedRasterApplication
             vertexShader: vertexSource,
             fragmentShader: fragmentSource,
             uniforms: {
-                uTexture: { value: null },
-                uDepth: { value: null },
+                uOrbTexture: { value: null },
+                uOrbDepth: { value: null },
+                uTrackTexture: { value: this.trackTexture },
                 uOrbCameraFar: {
                     value: this.orbitingNavigator.getCamera().far,
+                },
+                uTrackVisibility: {
+                    value: this.trackVisibility,
                 },
                 uOrbInverseProjection: {
                     value: this.orbitingNavigator.getCamera()
@@ -189,6 +204,18 @@ export class LabProjectedRasterApplication
         });
 
         return new Three.Mesh(geometry, material);
+    }
+
+    private setupTrackTexture(): Three.Texture {
+        const texture = new Three.Texture();
+        texture.wrapS = Three.ClampToEdgeWrapping;
+        texture.wrapT = Three.ClampToEdgeWrapping;
+        texture.generateMipmaps = true;
+        texture.magFilter = Three.LinearFilter;
+        texture.minFilter = Three.LinearMipMapLinearFilter;
+        texture.needsUpdate = true;
+
+        return texture;
     }
 
     private fetchModelData(): void {
@@ -216,7 +243,22 @@ export class LabProjectedRasterApplication
 
     private loadFromTrack(): void {
         const cam = this.track[this.trackIndex];
-        this.trackingNavigator.setViewFromTrackingCamera(cam);
+        const url = `testvideo/${cam['frame-id']}.png`;
+
+        const loader = new Three.ImageLoader();
+        loader.load(
+            url,
+            (image) => {
+                this.quadMaterial.uniforms.uTrackTexture.value.image = image;
+                this.quadMaterial.uniforms.uTrackTexture.value.needsUpdate =
+                    true;
+                this.trackingNavigator.setViewFromTrackingCamera(cam);
+            },
+            (_progress) => {},
+            (_error) => {
+                console.error(`Failed to load image ${url}`);
+            }
+        );
     }
 
     private geoConvertUtm: GeoConvertUtm;
@@ -227,13 +269,15 @@ export class LabProjectedRasterApplication
     private stats: Stats;
     private bbox: Three.Box3;
 
+    private track: Tracking.Camera[] = [];
+    private trackIndex = 0;
+    private trackTexture: Three.Texture;
+    private trackVisibility: number = 1.0;
+
     private renderTarget: Three.WebGLRenderTarget;
     private quadCamera: Three.OrthographicCamera;
     private quadScene: Three.Scene;
     private quadMaterial: Three.ShaderMaterial;
-
-    private track: Tracking.Camera[] = [];
-    private trackIndex = 0;
 }
 
 const vertexSource = `
@@ -247,9 +291,11 @@ void main() {
 
 const fragmentSource = `
 varying vec2 vUv;
-uniform sampler2D uTexture;
-uniform sampler2D uDepth;
+uniform sampler2D uOrbTexture;
+uniform sampler2D uOrbDepth;
+uniform sampler2D uTrackTexture;
 uniform float uOrbCameraFar;
+uniform float uTrackVisibility;
 uniform mat4 uOrbInverseProjection;
 uniform mat4 uOrbWorldMatrix;
 uniform mat4 uTrackProjection;
@@ -270,7 +316,7 @@ vec3 reconstructFragment() {
     vec3 camSpaceRay = normalize((uOrbInverseProjection * vec4(ndc.x, ndc.y, 1.0, 1.0)).xyz);    
 
     // Lookup the depth for the fragment in the depth texture.
-    float fragCoordZ = texture2D(uDepth, vUv).x;
+    float fragCoordZ = texture2D(uOrbDepth, vUv).x;
 
     // Convert to viewspace depth.    
     float viewZ = logDepthToInvViewZ(fragCoordZ, uOrbCameraFar);
@@ -289,7 +335,7 @@ vec3 reconstructFragment() {
 }
 
 void main() {
-    vec3 sceneColor = texture2D(uTexture, vUv).rgb;
+    vec3 sceneColor = texture2D(uOrbTexture, vUv).rgb;
     vec3 worldPos = reconstructFragment();
 
     // Reproject the world position in the tracking camera.
@@ -300,7 +346,8 @@ void main() {
     vec2 reprojUv = (reprojNdc.xy + 1.0) * 0.5;
     if (reprojUv.x >= 0.0 && reprojUv.x <= 1.0 && 
         reprojUv.y >= 0.0 && reprojUv.y <= 1.0) {
-        sceneColor = mix(sceneColor, vec3(reprojUv, 0.0), 0.5);
+        vec3 trackColor = texture2D(uTrackTexture, reprojUv).rgb;
+        sceneColor = mix(sceneColor, trackColor, uTrackVisibility);
     }    
 
     gl_FragColor = vec4(sceneColor, 1.0);
