@@ -9,6 +9,7 @@ import { LabColladaApplication } from './app/LabColladaApplication';
 import { LabNavApplication } from './app/LabNavApplication';
 import { LabTrackingApplication } from './app/LabTrackingApplication';
 import { LabPostprocessApplication } from './app/LabPostprocessApplication';
+import { LabProjectedRasterApplication } from './app/LabProjectedRasterApplication';
 import { windowSize } from './types/Size';
 
 window.onload = async () => {
@@ -24,7 +25,11 @@ window.onload = async () => {
         //const app = new LabQuadApplication(windowSize(), renderTarget);
         //const app = new LabTrackingApplication(windowSize(), renderTarget);
         //const app = new LabColladaApplication(windowSize(), renderTarget);
-        const app = new LabPostprocessApplication(windowSize(), renderTarget);
+        //const app = new LabPostprocessApplication(windowSize(), renderTarget);
+        const app = new LabProjectedRasterApplication(
+            windowSize(),
+            renderTarget
+        );
 
         // Handle window resize.
         window.onresize = () => {
