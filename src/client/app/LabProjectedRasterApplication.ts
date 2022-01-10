@@ -15,9 +15,12 @@ import { Size } from '../types/Size';
 import { Renderer } from '../render/Renderer';
 import { OrbitingNavigator } from '../world/OrbitingNavigator';
 import { dummyUrlsLvl12 } from '../data/DummyDataUrls';
+import { fetchJSON } from '../data/JSONLoad';
+import { JSONReceiver } from '../types/JSONReceiver';
+import * as Tracking from '../types/TrackingCamera';
 
 export class LabProjectedRasterApplication
-    implements Application, ColladaReceiver
+    implements Application, ColladaReceiver, JSONReceiver
 {
     public constructor(size: Size, canvas: HTMLCanvasElement) {
         this.geoConvertUtm = new GeoConvertUtm(10);
@@ -27,7 +30,7 @@ export class LabProjectedRasterApplication
         const [width, height] = size;
         this.renderer.setSize(width, height);
 
-        this.navigator = new OrbitingNavigator(50, size);
+        this.orbitingNavigator = new OrbitingNavigator(50, size);
 
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
@@ -47,10 +50,10 @@ export class LabProjectedRasterApplication
         _secondsSinceStart: number,
         _deltaMillis: number
     ): void {
-        this.navigator.updateCamera();
+        this.orbitingNavigator.updateCamera();
 
         this.renderer.setRenderTarget(this.renderTarget);
-        this.renderer.render(this.scene, this.navigator.getCamera());
+        this.renderer.render(this.scene, this.orbitingNavigator.getCamera());
 
         this.renderer.setRenderTarget(null);
 
@@ -65,21 +68,31 @@ export class LabProjectedRasterApplication
     public videoFrame(_secondsSinceStart: number, _deltaMillis: number): void {}
 
     public resize(size: Size): void {
-        this.navigator.setSize(size);
-        this.renderer.setDrawingArea(this.navigator.getDrawingArea());
+        this.orbitingNavigator.setSize(size);
+        this.renderer.setDrawingArea(this.orbitingNavigator.getDrawingArea());
         const dpr = this.renderer.getPixelRatio();
         const [width, height] = size;
         this.renderTarget.setSize(width * dpr, height * dpr);
     }
 
-    public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {}
+    public onKey(tag: KeyboardEventTag, event: KeyboardEvent): void {
+        if (tag == KeyboardEventTag.Down) {
+            if (event.code == 'KeyN' && this.trackingValid()) {
+                this.incTrackIndex();
+                this.loadFromTrack();
+            } else if (event.code == 'KeyP' && this.trackingValid()) {
+                this.decTrackIndex();
+                this.loadFromTrack();
+            }
+        }
+    }
 
     public onWheel(tag: WheelEventTag, event: WheelEvent): void {
-        this.navigator.onWheel(tag, event);
+        this.orbitingNavigator.onWheel(tag, event);
     }
 
     public onMouse(tag: MouseEventTag, event: MouseEvent): void {
-        this.navigator.onMouse(tag, event);
+        this.orbitingNavigator.onMouse(tag, event);
     }
 
     public receiveColladaSucceeded(
@@ -101,12 +114,28 @@ export class LabProjectedRasterApplication
             const normal = center.clone().normalize();
             const camPos = center.clone().addScaledVector(normal, 3000.0);
 
-            this.navigator.tiltedAt(camPos);
+            this.orbitingNavigator.tiltedAt(camPos);
         }
     }
 
     public receiveColladaFailed(id: number, url: string): void {
         console.warn(`failed to load collada ${url}`);
+    }
+
+    public receiveJSONSucceeded(obj: object, id: number, url: string): void {
+        this.track = obj as Tracking.Camera[];
+        if (this.track && this.track.length > 0) {
+        } else {
+            const err = `Unexpected error in converting JSON data from '${url}'`;
+            console.error(err);
+            alert(err);
+        }
+    }
+
+    public receiveJSONFailed(_id: number, url: string): void {
+        const err = `Failed to load JSON data from '${url}'`;
+        console.error(err);
+        alert(err);
     }
 
     private setupRenderTarget(size: Size): Three.WebGLRenderTarget {
@@ -145,12 +174,33 @@ export class LabProjectedRasterApplication
         for (var i = 0; i < models.length; ++i) {
             fetchCollada(i + 1, models[i], this);
         }
+        fetchJSON(1, 'testvideo/sequence.json', this);
+    }
+
+    private trackingValid(): boolean {
+        return this.track.length > 0;
+    }
+
+    private incTrackIndex(): void {
+        this.trackIndex = (this.trackIndex + 1) % this.track.length;
+    }
+
+    private decTrackIndex(): void {
+        this.trackIndex = (this.trackIndex - 1) % this.track.length;
+        if (this.trackIndex == -1) {
+            this.trackIndex = this.track.length - 1;
+        }
+    }
+
+    private loadFromTrack(): void {
+        const cam = this.track[this.trackIndex];
+        console.log(cam);
     }
 
     private geoConvertUtm: GeoConvertUtm;
     private scene: Three.Scene;
     private renderer: Renderer;
-    private navigator: OrbitingNavigator;
+    private orbitingNavigator: OrbitingNavigator;
     private stats: Stats;
     private bbox: Three.Box3;
 
@@ -158,6 +208,9 @@ export class LabProjectedRasterApplication
     private quadCamera: Three.OrthographicCamera;
     private quadScene: Three.Scene;
     private quadMaterial: Three.ShaderMaterial;
+
+    private track: Tracking.Camera[] = [];
+    private trackIndex = 0;
 }
 
 const vertexSource = `
