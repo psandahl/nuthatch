@@ -172,8 +172,8 @@ export class Simulator implements GLTFReceiver {
             // Assume geocentric coordinate, where direction is same as point.
             const direction = point.clone().normalize();
 
-            // Ad hoc. Add 15 meters above the selected point.
-            const trackPoint = point.clone().addScaledVector(direction, 15);
+            // Ad hoc. Add 20 meters above the selected point.
+            const trackPoint = point.clone().addScaledVector(direction, 20);
             this.trackPoints.push(trackPoint);
 
             const sphere = new Three.Mesh(

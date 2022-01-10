@@ -37,7 +37,7 @@ export class LabPostprocessApplication implements Application {
             35,
             window.innerWidth / window.innerHeight,
             0.01,
-            50
+            1000000
         );
         this.camera.position.set(20, 10, 20);
         this.camera.matrix.lookAt(

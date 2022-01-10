@@ -19,12 +19,12 @@ window.onload = async () => {
         const startTime = performance.now();
 
         // Initialize application.
-        const app = new DemoApplication(windowSize(), renderTarget);
+        //const app = new DemoApplication(windowSize(), renderTarget);
         //const app = new LabNavApplication(windowSize(), renderTarget);
         //const app = new LabQuadApplication(windowSize(), renderTarget);
         //const app = new LabTrackingApplication(windowSize(), renderTarget);
         //const app = new LabColladaApplication(windowSize(), renderTarget);
-        //const app = new LabPostprocessApplication(windowSize(), renderTarget);
+        const app = new LabPostprocessApplication(windowSize(), renderTarget);
 
         // Handle window resize.
         window.onresize = () => {
